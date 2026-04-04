@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CIPHER — Your Birth Code, Decoded</title>
+<meta name="description" content="Decode your Element DNA through the ancient BaZi system. The Eastern MBTI — brutally honest.">
+<meta property="og:title" content="CIPHER — Your Birth Code, Decoded">
+<meta property="og:description" content="What does your birth code reveal? Ancient Chinese pattern recognition meets modern personality analysis.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0b10;--bg2:rgba(255,255,255,0.02);--bg3:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.08);--text:#e6edf3;--text2:#8b949e;--text3:#484f58;--text4:#383d44;--cyan:#00d4ff;--cyan-dim:rgba(0,212,255,0.15);--cyan-glow:rgba(0,212,255,0.3);--red:#f85149;--red-border:rgba(255,85,85,0.12);--red-bg:rgba(255,85,73,0.03)}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--cyan-glow)}
+.dot-grid{position:fixed;inset:0;opacity:0.03;z-index:0;pointer-events:none;background-image:radial-gradient(circle at 25% 25%,var(--cyan) 1px,transparent 1px),radial-gradient(circle at 75% 75%,var(--cyan) 1px,transparent 1px);background-size:60px 60px}
+.container{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:0 20px}
+#inputScreen{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;animation:fadeIn .6s ease}
+.pre-title{margin-bottom:8px;opacity:.15;font-size:11px;letter-spacing:6px;text-transform:uppercase;color:var(--text2)}
+.title{font-size:52px;font-weight:800;letter-spacing:8px;margin:0 0 8px;line-height:1;background:linear-gradient(135deg,var(--cyan),var(--text),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{font-size:16px;color:var(--text2);margin:0 0 48px;font-weight:300;letter-spacing:1px}
+.input-card{width:100%;max-width:400px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:32px 28px}
+.input-hint{font-size:13px;color:var(--text2);margin:0 0 20px;letter-spacing:.5px}
+.date-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.sel{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:14px 12px;font-size:15px;appearance:none;-webkit-appearance:none;cursor:pointer;outline:none;width:100%;font-family:inherit;transition:border-color .2s}
+.sel:focus{border-color:rgba(0,212,255,.3)}
+select option{background:#12141c;color:var(--text)}
+.sel-full{width:100%;margin-bottom:28px}
+.btn-decode{width:100%;padding:16px 0;border:none;border-radius:8px;font-size:15px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .3s;font-family:inherit}
+.btn-decode.disabled{background:var(--cyan-dim);color:rgba(0,212,255,.5);cursor:not-allowed;box-shadow:none}
+.btn-decode.active{background:var(--cyan);color:var(--bg);box-shadow:0 0 24px var(--cyan-glow)}
+.btn-decode.active:hover{box-shadow:0 0 32px var(--cyan-glow)}
+.trust{font-size:11px;color:var(--text3);margin-top:28px;letter-spacing:.5px;max-width:300px;line-height:1.5}
+#loadingScreen{display:none;position:fixed;inset:0;z-index:100;background:var(--bg);flex-direction:column;justify-content:center;align-items:center}
+.load-text{font-size:14px;color:var(--cyan);letter-spacing:4px;margin-bottom:24px;text-transform:uppercase}
+.load-track{width:240px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.load-bar{height:100%;background:var(--cyan);border-radius:2px;width:0%;transition:width 2s ease}
+#resultScreen{display:none;padding-top:40px;padding-bottom:80px}
+#resultScreen.show{display:block;animation:fadeIn .8s ease}
+.result-header{text-align:center;margin-bottom:36px}
+.result-label{font-size:11px;color:var(--text3);letter-spacing:4px;text-transform:uppercase;margin-bottom:12px}
+.result-you-are{font-size:14px;color:var(--text2);margin-bottom:4px}
+.result-cn{font-size:40px;font-weight:800;margin:0 0 4px;line-height:1;background:linear-gradient(135deg,#c9d1d9,#fff,#c9d1d9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.result-archetype{font-size:18px;color:var(--text);font-weight:600;letter-spacing:2px}
+.result-dm{font-size:13px;color:var(--text2);margin-top:4px}
+.roast-card{background:var(--bg2);border:1px solid var(--red-border);border-radius:12px;padding:24px;margin-bottom:32px;position:relative}
+.roast-tag{position:absolute;top:-10px;left:20px;background:var(--bg);padding:0 10px;font-size:10px;color:var(--red);letter-spacing:3px;text-transform:uppercase;font-weight:600}
+.roast-text{font-size:16px;line-height:1.7;color:var(--text);font-style:italic;font-weight:300}
+.desc-text{font-size:14px;line-height:1.7;color:var(--text2);margin-bottom:32px;font-weight:300}
+.section-label{font-size:11px;color:var(--text2);letter-spacing:3px;text-transform:uppercase;font-weight:600;margin-bottom:20px}
+.el-bars{margin-bottom:32px}
+.el-row{margin-bottom:18px}
+.el-row-top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.el-emoji{font-size:18px;width:28px}
+.el-name{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;min-width:60px}
+.el-cn{font-size:10px;color:rgba(255,255,255,.12);font-family:serif}
+.el-spacer{flex:1}
+.el-score{font-size:20px;font-weight:700;color:var(--text)}
+.el-track{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.el-fill{height:100%;border-radius:3px;width:0%;transition:width 1s ease}
+.el-fill.metal{background:linear-gradient(90deg,#8b949e,#c9d1d9)}
+.el-fill.water{background:linear-gradient(90deg,#1f6feb,#58a6ff)}
+.el-fill.wood{background:linear-gradient(90deg,#2ea043,#56d364)}
+.el-fill.fire{background:linear-gradient(90deg,#da3633,#f85149)}
+.el-fill.earth{background:linear-gradient(90deg,#9e6a03,#d29922)}
+.dual-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:36px}
+.mode-card{border-radius:10px;padding:16px}
+.mode-card.opt{background:rgba(0,212,255,.03);border:1px solid rgba(0,212,255,.08)}
+.mode-card.raw{background:var(--red-bg);border:1px solid rgba(255,85,73,.08)}
+.mode-label{font-size:10px;letter-spacing:2px;font-weight:600;margin-bottom:8px;text-transform:uppercase}
+.mode-label.opt{color:var(--cyan)}
+.mode-label.raw{color:var(--red)}
+.mode-text{font-size:12px;color:var(--text2);line-height:1.5;font-weight:300}
+.share-row{display:flex;gap:12px;margin-bottom:36px}
+.share-btn{flex:1;padding:14px 0;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.share-btn.x-btn{color:var(--text)}
+.share-btn.copy-btn{color:var(--text2)}
+.share-btn:hover{border-color:rgba(0,212,255,.2);background:rgba(0,212,255,.04)}
+.upsell{background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:28px 24px;text-align:center;margin-bottom:36px}
+.upsell h3{font-size:18px;font-weight:600;margin-bottom:8px}
+.upsell p{font-size:13px;color:var(--text2);line-height:1.6;font-weight:300;margin:0 0 20px}
+.btn-upsell{padding:12px 28px;background:transparent;border:1px solid rgba(0,212,255,.3);border-radius:8px;color:var(--cyan);font-size:13px;font-weight:600;letter-spacing:1px;cursor:pointer;font-family:inherit}
+.reset-link{display:block;text-align:center;margin-bottom:24px}
+.reset-link button{background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;text-decoration:underline;text-underline-offset:4px;font-family:inherit}
+.footer{text-align:center;padding-top:24px;border-top:1px solid rgba(255,255,255,.04)}
+.footer-brand{font-size:12px;color:var(--text3);letter-spacing:1px}
+.footer-brand span{color:var(--text2)}
+.footer-tag{font-size:11px;color:var(--text4);margin-top:4px;font-style:italic}
+.footer-link{font-size:11px;margin-top:8px}
+.footer-link a{color:var(--text3);text-decoration:none}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media(max-width:480px){.title{font-size:40px;letter-spacing:5px}.input-card{padding:24px 20px}.dual-grid{grid-template-columns:1fr}.share-row{flex-direction:column}.roast-text{font-size:14px}}
+</style>
+</head>
+<body>
+<div class="dot-grid"></div>
+<div class="container">
+
+<div id="inputScreen">
+  <div class="pre-title">DestinyOS presents</div>
+  <h1 class="title">CIPHER</h1>
+  <p class="subtitle">Your birth code, decoded.</p>
+  <div class="input-card">
+    <p class="input-hint">Enter your birthday. We'll read your source code.</p>
+    <div class="date-row">
+      <select id="selYear" class="sel" onchange="checkReady()"><option value="">Year</option></select>
+      <select id="selMonth" class="sel" onchange="checkReady()"><option value="">Month</option></select>
+      <select id="selDay" class="sel" onchange="checkReady()"><option value="">Day</option></select>
+    </div>
+    <select id="selHour" class="sel sel-full">
+      <option value="-1">I don't know my birth time</option>
+      <option value="0">23:00 – 01:00</option><option value="1">01:00 – 03:00</option>
+      <option value="2">03:00 – 05:00</option><option value="3">05:00 – 07:00</option>
+      <option value="4">07:00 – 09:00</option><option value="5">09:00 – 11:00</option>
+      <option value="6">11:00 – 13:00</option><option value="7">13:00 – 15:00</option>
+      <option value="8">15:00 – 17:00</option><option value="9">17:00 – 19:00</option>
+      <option value="10">19:00 – 21:00</option><option value="11">21:00 – 23:00</option>
+    </select>
+    <button id="btnDecode" class="btn-decode disabled" disabled onclick="doDecode()">DECODE MY BIRTH CODE →</button>
+  </div>
+  <p class="trust">Based on BaZi (八字) — a 3,000-year-old Chinese metaphysical system.<br>Pattern recognition, not prediction.</p>
+</div>
+
+<div id="loadingScreen">
+  <div class="load-text">Reading your configuration...</div>
+  <div class="load-track"><div class="load-bar" id="loadBar"></div></div>
+</div>
+
+<div id="resultScreen">
+  <div class="result-header">
+    <div class="result-label">Core Kernel Identified</div>
+    <div class="result-you-are">You are</div>
+    <h2 class="result-cn" id="rCn"></h2>
+    <div class="result-archetype" id="rArchetype"></div>
+    <div class="result-dm" id="rDm"></div>
+  </div>
+  <div class="roast-card">
+    <div class="roast-tag">System Roast</div>
+    <p class="roast-text" id="rRoast"></p>
+  </div>
+  <p class="desc-text" id="rDesc"></p>
+  <div class="el-bars">
+    <div class="section-label">Your Five Element Profile</div>
+    <div id="elBarsContainer"></div>
+  </div>
+  <div class="dual-grid">
+    <div class="mode-card opt"><div class="mode-label opt">Optimized</div><p class="mode-text" id="rModeA"></p></div>
+    <div class="mode-card raw"><div class="mode-label raw">Raw Firmware</div><p class="mode-text" id="rModeB"></p></div>
+  </div>
+  <div class="share-row">
+    <a class="share-btn x-btn" id="shareXBtn" href="#" target="_blank" rel="noopener">𝕏 Share on X</a>
+    <button class="share-btn copy-btn" id="copyBtn" onclick="copyShare()">📋 Copy Link</button>
+  </div>
+  <div class="upsell">
+    <h3>This is the surface.</h3>
+    <p>Your Five Element profile shows your factory settings — but your current operating cycle? The windows opening and closing right now? That's a deeper layer.</p>
+    <button class="btn-upsell">FULL REPORT — COMING SOON</button>
+  </div>
+  <div class="reset-link"><button onclick="doReset()">Decode another birth code</button></div>
+  <div class="footer">
+    <div class="footer-brand">CIPHER by <span>DestinyOS</span></div>
+    <div class="footer-tag">Pattern recognition, not prediction.</div>
+    <div class="footer-link"><a href="https://x.com/DestinyOS_io" target="_blank" rel="noopener">@DestinyOS_io</a></div>
+  </div>
+</div>
+
+</div>
+<script>
+// Populate selects
+!function(){var y=document.getElementById('selYear');for(var i=2010;i>=1930;i--){var o=document.createElement('option');o.value=i;o.textContent=i;y.appendChild(o)}var m=document.getElementById('selMonth');for(var i=1;i<=12;i++){var o=document.createElement('option');o.value=i;o.textContent=String(i).padStart(2,'0');m.appendChild(o)}var d=document.getElementById('selDay');for(var i=1;i<=31;i++){var o=document.createElement('option');o.value=i;o.textContent=String(i).padStart(2,'0');d.appendChild(o)}}();
+function checkReady(){var y=document.getElementById('selYear').value,m=document.getElementById('selMonth').value,d=document.getElementById('selDay').value,b=document.getElementById('btnDecode');if(y&&m&&d){b.disabled=false;b.className='btn-decode active'}else{b.disabled=true;b.className='btn-decode disabled'}}
+
+// BaZi Engine
+var STEMS='\u7532\u4E59\u4E19\u4E01\u620A\u5DF1\u5E9A\u8F9B\u58EC\u7678'.split('');
+var BRANCHES='\u5B50\u4E11\u5BC5\u536F\u8FB0\u5DF3\u5348\u672A\u7533\u9149\u620C\u4EA5'.split('');
+var S_EL=[2,2,3,3,4,4,0,0,1,1],B_EL=[1,4,2,2,4,3,3,4,0,0,4,1];
+var SB=[{m:1,d:6},{m:2,d:4},{m:3,d:6},{m:4,d:5},{m:5,d:6},{m:6,d:6},{m:7,d:7},{m:8,d:8},{m:9,d:8},{m:10,d:8},{m:11,d:7},{m:12,d:7}];
+function gsm(mo,da){for(var i=SB.length-1;i>=0;i--){var b=SB[i];if(mo>b.m||(mo===b.m&&da>=b.d)){if(i===0)return{s:12,b:1};return{s:i,b:(i+1)%12}}}return{s:11,b:0}}
+function jd(y,m,d){var a=Math.floor((14-m)/12),yy=y+4800-a,mm=m+12*a-3;return d+Math.floor((153*mm+2)/5)+365*yy+Math.floor(yy/4)-Math.floor(yy/100)+Math.floor(yy/400)-32045}
+function yp(y,m,d){var yr=y;if(m<2||(m===2&&d<4))yr--;return{s:((yr-4)%10+10)%10,b:((yr-4)%12+12)%12}}
+function mp(ys,sm,mb){var ss=[2,4,6,8,0],st=ss[ys%5],off;if(sm>=1&&sm<=10)off=sm-1;else if(sm===11)off=10;else off=11;return{s:(st+off)%10,b:mb}}
+function dp(y,m,d){var ref=jd(2000,1,7),idx=((jd(y,m,d)-ref)%60+60)%60;return{s:idx%10,b:idx%12}}
+function hp(ds,hb){var ss=[0,2,4,6,8];return{s:(ss[ds%5]+hb)%10,b:hb}}
+function calc(y,m,d,h){var a=yp(y,m,d),g=gsm(m,d),b=mp(a.s,g.s,g.b),c=dp(y,m,d),e=null;if(h>=0)e=hp(c.s,h);var ct=[0,0,0,0,0],ps=[a,b,c];if(e)ps.push(e);ps.forEach(function(p){ct[S_EL[p.s]]++;ct[B_EL[p.b]]++});return{dm:c.s,el:ct,hh:h>=0}}
+
+// Core Kernel Data
+var K={
+0:{name:'Yang Wood',cn:'\u7532\u6728',arch:'THE PRIME PILLAR',roast:"Your spinal architecture has zero shock absorption. While adaptive organisms flex and survive the storm, your \u2018integrity at all costs\u2019 protocol guarantees catastrophic structural failure. You confuse rigidity with strength. Spoiler: the first major impact will snap you in half, and you\u2019ll still think you \u2018won\u2019 because you didn\u2019t bend.",desc:"You\u2019re Yang Wood \u2014 the towering pillar, the carbon fiber spine. Your growth trajectory is strictly vertical: upward, always upward, bending for nothing. Where others negotiate with gravity, you treat compromise as structural failure. You\u2019re the load-bearing column of every system you enter \u2014 indispensable, immovable, and utterly exhausting to stand next to.",mA:"THE BEAM \u2014 Post-refinement architecture. After Metal-element pruning, transforms into load-bearing infrastructure. The spinal column of empires.",mB:"THE ANCIENT TREE \u2014 Unprocessed growth algorithm. Branches proliferate without strategic intent. Majestic but functionally chaotic.",el:'wood'},
+1:{name:'Yin Wood',cn:'\u4E59\u6728',arch:'THE LIVING NETWORK',roast:"You have no skeleton, which means you also can\u2019t break. Your survival strategy is elegant in its cowardice: wrap yourself around stronger entities, slowly siphon their nutrients, and call it \u2018collaboration.\u2019 You\u2019re not building anything \u2014 you\u2019re just really good at not dying alone.",desc:"You\u2019re Yin Wood \u2014 the vine, the mycelial network. You lack autonomous vertical support but deploy biomimetic attachment protocols to hijack existing structures. Where Yang Wood breaks against the wall, you grow around it. Your strength is flexibility, not force. People underestimate you exactly once.",mA:"THE VINE \u2014 Strategic attachment module. Bonds to stronger substrates, leveraging their stability to achieve vertical ascension. Masters \u2018borrowed infrastructure.\u2019",mB:"THE WEED \u2014 Survival-mode redundancy. Regenerates from root fragments, immune to surface destruction. Resilient but perpetually underfoot.",el:'wood'},
+2:{name:'Yang Fire',cn:'\u4E19\u706B',arch:'THE FUSION CORE',roast:"You come with a permanent spotlight and zero dimmer switch. You\u2019re always center stage, which means everyone sees you, but nobody can stand next to you for long without getting scorched. Your \u2018warmth\u2019 is a weapon. End result: you\u2019re the sun of a dead solar system \u2014 bright, lonely, and wondering why all the planets went cold.",desc:"You\u2019re Yang Fire \u2014 a spherical plasma body engaged in sustained nuclear fusion. You emit energy across the full spectrum. Input mechanisms are non-existent. You illuminate indiscriminately, fuel ecosystems, and demand nothing in return. The ultimate altruist or the ultimate narcissist \u2014 the distinction is philosophical.",mA:"THE SUN \u2014 Civilization-grade power source. Illuminates indiscriminately, fuels photosynthesis across ecosystems. Demands nothing in return.",mB:"THE INFERNO \u2014 Runaway chain reaction. Forest-fire class destruction. Consumes oxygen, leaves ash, occasionally self-immolates.",el:'fire'},
+3:{name:'Yin Fire',cn:'\u4E01\u706B',arch:'THE FOCUSED BEAM',roast:"You project \u2018harmless nightlight energy\u2019 while running internal protocols for targeted psychological warfare. Hyper-sensitive sensors detect micro-slights others don\u2019t register. Once offended, you don\u2019t explode \u2014 you calculate. Then you burn a hole through their credibility with the efficiency of a CO\u2082 laser. They never see it coming because you look so gentle.",desc:"You\u2019re Yin Fire \u2014 a high-coherence, low-divergence energy emission system. You operate via concentrated photon streams rather than diffuse radiation. Where the sun broadcasts, you illuminate. Your mind works by refining, not by expanding. You turn raw material into something precious.",mA:"THE STAR/CANDLE \u2014 Navigational beacon. Provides directional guidance in metaphysical darkness. Mystique is the product; illumination is the marketing.",mB:"THE FURNACE \u2014 Alchemical forge. Designed to liquefy metal, refine impurities. Holds grudges at the molecular level and destroys with surgical precision.",el:'fire'},
+4:{name:'Yang Earth',cn:'\u620A\u571F',arch:'THE SOLID BEDROCK',roast:"Your frame rate is stuck at 0.5 FPS. While others have completed ten iterations, you\u2019re still loading the first response. You mistake \u2018processing latency\u2019 for \u2018wisdom.\u2019 Your system architecture treats every change request as a denial-of-service attack. Pro tip: the mountain that refuses to erode doesn\u2019t become eternal \u2014 it just becomes irrelevant.",desc:"You\u2019re Yang Earth \u2014 static, high-density crustal material with extreme compressive strength and near-zero plasticity. You resist deformation under all circumstances. People come to you for stability because you\u2019ve never flinched. Your loyalty isn\u2019t a gesture; it\u2019s geological.",mA:"THE DAM \u2014 Flood control infrastructure. Contains chaos through sheer immovable mass. Embodies institutional trust and civilizational memory.",mB:"THE BARREN MOUNTAIN \u2014 Erosion-resistant wasteland. Rejects biological integration. Confuses \u2018unchanging\u2019 with \u2018immortal.\u2019",el:'earth'},
+5:{name:'Yin Earth',cn:'\u5DF1\u571F',arch:'THE MATRIX SOIL',roast:"You consume everything \u2014 information, people, secrets \u2014 and store it all with zero indexing system. You present as the \u2018nice one,\u2019 but your internal database is a black site of unprocessed grievances. Nobody knows what you actually think because you\u2019ve cached 47 contradictory opinions and will deploy whichever version suits the moment.",desc:"You\u2019re Yin Earth \u2014 hydrated sedimentary composite with high plasticity, nutrient retention, and unlimited absorption rate. You turn other people\u2019s raw potential into something real. Your gift is making others flourish, often at the expense of your own boundaries.",mA:"THE GARDEN \u2014 Agricultural substrate. Germinates seeds into crops, cultivates human potential. The ultimate talent incubator.",mB:"THE SWAMP \u2014 Anaerobic cesspool. Absorbs pollutants without processing them. Turns clarity into turbidity. Traps travelers in viscous ambiguity.",el:'earth'},
+6:{name:'Yang Metal',cn:'\u5E9A\u91D1',arch:'THE RAW ORE',roast:"You lack the emotional lubricant required for human interaction. Your conflict resolution algorithm has exactly one function: PHYSICAL ELIMINATION. Problem detected? Eradicate the source code. Subtlety and diplomacy aren\u2019t absent from your system \u2014 they were never installed. You\u2019re a sledgehammer permanently set to \u2018maximum force,\u2019 wondering why every problem looks like a nail.",desc:"You\u2019re Yang Metal \u2014 unrefined polymetallic aggregate with high hardness, angular grain boundaries, and oxidative surface chemistry. You require extreme heat processing to achieve utility. Pre-refinement: abrasive, heavy, functionally inert. Post-forge: justice, borders, necessary violence.",mA:"THE WEAPON \u2014 Post-forge armament. Becomes axe, sword, or industrial blade. Executes justice, clears forests, establishes borders.",mB:"THE SCRAP \u2014 Corroded junk metal. Too coarse for precision, too brittle for construction, too toxic for safe handling.",el:'metal'},
+7:{name:'Yin Metal',cn:'\u8F9B\u91D1',arch:'THE REFINED ARTIFACT',roast:"Your quality control standards are so astronomical that you\u2019ve filtered out 99% of reality as \u2018beneath you.\u2019 To preserve your microscopic shine, you reject Earth\u2019s grounding, Wood\u2019s warmth, and Fire\u2019s transformation. You achieve museum-grade perfection in a temperature-controlled vault where nobody can touch you. Congratulations \u2014 you\u2019re priceless, flawless, and completely alone.",desc:"You\u2019re Yin Metal \u2014 high-purity metallic crystalline structure formed through multi-stage extraction and annealing. You exhibit minimal impurity content, reflective surface properties, and elevated market valuation. Your sensitivity is not weakness; it\u2019s resolution.",mA:"THE JEWEL \u2014 Polished by Water, displayed on elevated platforms. Commands premium pricing through scarcity signaling and aesthetic perfection.",mB:"THE ORE \u2014 Pre-refinement mineral deposit. Buried in Earth, encrusted with sediment, potential unrecognized. Dim, anonymous, latent.",el:'metal'},
+8:{name:'Yang Water',cn:'\u58EC\u6C34',arch:'THE HYPER FLUX',roast:"You have no shape and no principles \u2014 just velocity. Your entire existence is kinetic spill: absorb everything, flow everywhere, commit to nothing. Sure, you\u2019re the smartest fluid in the room, with an IQ in the 99th percentile... right before you drown the room. Genius-level intellect paired with toddler-level impulse control.",desc:"You\u2019re Yang Water \u2014 macroscale liquid phase system with turbulent flow dynamics, high kinetic energy, and boundary-agnostic propagation. You lack fixed geometry. Your greatest strength is flow \u2014 you find paths through any terrain. Your risk: spreading so wide that you become shallow.",mA:"THE RIVER \u2014 Channeled flow infrastructure. Bounded by Earth levees, enables irrigation, commerce, and energy generation. Circulation creates value.",mB:"THE FLOOD \u2014 Catastrophic overflow event. Breaches containment, erodes foundations. Intelligence without ethics; motion without purpose.",el:'water'},
+9:{name:'Yin Water',cn:'\u7678\u6C34',arch:'THE SILENT PERMEATOR',roast:"You seep into every crack like humidity in a server room \u2014 invisible, persistent, corrosive. Nobody knows your location, but your watermarks are everywhere: corroded circuits, emotional rust, decisions mysteriously influenced. Your superpower is making others feel vaguely suffocated without identifiable cause. And you wonder why they keep opening windows when you\u2019re around.",desc:"You\u2019re Yin Water \u2014 microscale aqueous phase existing in vapor, aerosol, or capillary-absorbed states. You exhibit universal penetration capability through molecular diffusion. You operate below detection thresholds until saturation effects manifest. The quiet architect of fertility.",mA:"THE RAIN \u2014 Atmospheric precipitation providing life support to ecosystems. Delivers hydration, enables photosynthesis. Invisible infrastructure.",mB:"THE MIST \u2014 Light-occluding vapor field. Reduces visibility to zero, induces disorientation. Emotional weather system that suffocates through ambient presence.",el:'water'}
+};
+
+var EM={Metal:{e:'\u2694\uFE0F',c:'\u91D1',co:'#c9d1d9',cl:'metal'},Water:{e:'\uD83D\uDCA7',c:'\u6C34',co:'#58a6ff',cl:'water'},Wood:{e:'\uD83C\uDF31',c:'\u6728',co:'#56d364',cl:'wood'},Fire:{e:'\uD83D\uDD25',c:'\u706B',co:'#f85149',cl:'fire'},Earth:{e:'\uD83C\uDFD4\uFE0F',c:'\u571F',co:'#d29922',cl:'earth'}};
+var EO=['Metal','Water','Wood','Fire','Earth'];
+
+var curRes=null;
+function doDecode(){
+  var y=parseInt(document.getElementById('selYear').value),m=parseInt(document.getElementById('selMonth').value),d=parseInt(document.getElementById('selDay').value),h=parseInt(document.getElementById('selHour').value);
+  if(!y||!m||!d)return;
+  var t=new Date(y,m-1,d);if(t.getMonth()!==m-1)return;
+  document.getElementById('inputScreen').style.display='none';
+  var ls=document.getElementById('loadingScreen');ls.style.display='flex';
+  var lb=document.getElementById('loadBar');lb.style.width='0%';
+  requestAnimationFrame(function(){setTimeout(function(){lb.style.width='100%'},50)});
+  var bz=calc(y,m,d,h);curRes={bz:bz,k:K[bz.dm]};
+  setTimeout(function(){ls.style.display='none';renderResult()},2200);
+}
+
+function renderResult(){
+  var k=curRes.k,bz=curRes.bz;
+  document.getElementById('rCn').textContent=k.cn;
+  document.getElementById('rArchetype').textContent=k.arch;
+  document.getElementById('rDm').textContent='Day Master: '+k.name;
+  document.getElementById('rRoast').textContent='\u201C'+k.roast+'\u201D';
+  document.getElementById('rDesc').textContent=k.desc;
+  document.getElementById('rModeA').textContent=k.mA;
+  document.getElementById('rModeB').textContent=k.mB;
+  var em={Metal:bz.el[0],Water:bz.el[1],Wood:bz.el[2],Fire:bz.el[3],Earth:bz.el[4]};
+  var sorted=Object.entries(em).sort(function(a,b){return b[1]-a[1]});
+  var mx=bz.hh?8:6;
+  var c=document.getElementById('elBarsContainer');
+  c.innerHTML=sorted.map(function(x){var n=x[0],s=x[1],e=EM[n],p=(s/mx)*100;
+    return '<div class="el-row"><div class="el-row-top"><span class="el-emoji">'+e.e+'</span><span class="el-name" style="color:'+e.co+'">'+n+'</span><span class="el-cn">'+e.c+'</span><span class="el-spacer"></span><span class="el-score">'+s+'</span></div><div class="el-track"><div class="el-fill '+e.cl+'" data-w="'+p+'%"></div></div></div>'}).join('');
+  var rs=document.getElementById('resultScreen');rs.style.display='block';rs.className='show';
+  window.scrollTo({top:0,behavior:'instant'});
+  requestAnimationFrame(function(){setTimeout(function(){document.querySelectorAll('.el-fill').forEach(function(b){b.style.width=b.dataset.w})},100)});
+  var st='I just decoded my birth code with CIPHER.\n\nI\'m '+k.cn+' \u2014 '+k.arch+'\n\n\u201C'+k.roast.slice(0,100)+'...\u201D\n\nDecode yours \u2192';
+  var pu=window.location.href.split('?')[0];
+  document.getElementById('shareXBtn').href='https://twitter.com/intent/tweet?text='+encodeURIComponent(st)+'&url='+encodeURIComponent(pu);
+  window._st=st+'\n'+pu;
+}
+function copyShare(){if(!window._st)return;navigator.clipboard.writeText(window._st).then(function(){var b=document.getElementById('copyBtn');b.textContent='\u2713 Copied!';setTimeout(function(){b.textContent='\uD83D\uDCCB Copy Link'},1500)})}
+function doReset(){document.getElementById('resultScreen').style.display='none';document.getElementById('resultScreen').className='';document.getElementById('inputScreen').style.display='flex';document.getElementById('selYear').value='';document.getElementById('selMonth').value='';document.getElementById('selDay').value='';document.getElementById('selHour').value='-1';checkReady();window.scrollTo({top:0,behavior:'instant'})}
+</script>
+</body>
+</html>
