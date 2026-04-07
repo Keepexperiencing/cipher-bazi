@@ -169,10 +169,13 @@ select option{background:#12141c;color:var(--text)}
 .footer-tag{font-size:11px;color:var(--text4);margin-top:4px;font-style:italic}
 .footer-link{font-size:11px;margin-top:8px}.footer-link a{color:var(--text3);text-decoration:none}
 @media(max-width:480px){.title{font-size:42px;letter-spacing:4px}.r-cn{font-size:42px}.dual{grid-template-columns:1fr}.share-row{flex-direction:column}.input-card{padding:24px 20px}}
+#langToggle{position:fixed;top:16px;right:16px;z-index:200;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;letter-spacing:1px;transition:all .2s;font-family:inherit}
+#langToggle:hover{border-color:rgba(0,212,255,.3);color:var(--cyan)}
 </style>
 </head>
 <body>
 <div class="dot-grid"></div>
+<button id="langToggle" onclick="setLang(lang==='en'?'zh':'en')">中文</button>
 <div class="container">
 
 <!-- S1 LANDING -->
@@ -274,9 +277,164 @@ select option{background:#12141c;color:var(--text)}
 </div>
 
 <script>
-var selectedPath='wealth',selectedGender='';
+var selectedPath='wealth',selectedGender='',lang='en';
+
+// ═══════════════════════════════════════
+// LANGUAGE DATA — CHINESE
+// ═══════════════════════════════════════
+var KZH={
+'甲':{name:'阳木',cn:'甲木',arch:'擎天巨柱',roast:'你把固执当骨气，把僵硬当原则。第一次真正的冲击来临时，你不会弯曲——你会断裂。',mA:'顶梁柱——经过打磨的承重架构。帝国的脊梁。',mB:'古木——未经雕琢的生长。枝桠横生，毫无章法。'},
+'乙':{name:'阴木',cn:'乙木',arch:'生命网络',roast:'你的生存策略是优雅的懦弱：缠绕在更强大的存在上，美其名曰"合作"。你没在建造任何东西——你只是擅长不独自死去。',mA:'藤蔓——战略性依附。借力他人的稳定向上攀升。',mB:'野草——求生模式的冗余。刀砍不尽，永远匍匐。'},
+'丙':{name:'阳火',cn:'丙火',arch:'聚变核心',roast:'你天生自带聚光灯，且没有亮度调节。所有人都看见你，没有人能站在你身边。你是一个死寂太阳系的恒星——耀眼、孤独，纳闷为何所有行星都凉了。',mA:'太阳——文明级能量源。无差别照耀。',mB:'烈火——失控的连锁反应。消耗一切氧气，只留灰烬。'},
+'丁':{name:'阴火',cn:'丁火',arch:'精准光束',roast:'你明明在进行精准的心理战，却装出一副无害小夜灯的样子。一旦被触怒，你不会爆发——你会计算。然后用外科手术般的精准，把对方的信誉烧出一个洞。',mA:'烛光——导航信标。神秘感即产品本身。',mB:'熔炉——炼金之器。在分子层面记仇。'},
+'戊':{name:'阳土',cn:'戊土',arch:'稳固基岩',roast:'你的帧率卡在0.5FPS。你把处理延迟当成智慧。拒绝被侵蚀的山峰不会成为永恒——它只会成为废墟。',mA:'大坝——以绝对不动之质，容纳混沌。',mB:'荒山——抗侵蚀的不毛之地。'},
+'己':{name:'阴土',cn:'己土',arch:'孕育母土',roast:'你什么都吸收，却毫无索引系统地储存。没人知道你在想什么，因为你缓存了47种相互矛盾的观点，随时调用最应景的那个。',mA:'沃土——农耕基质。终极人才孵化器。',mB:'沼泽——持续吸收污染物，却从不处理。'},
+'庚':{name:'阳金',cn:'庚金',arch:'原矿熔锻',roast:'你的冲突解决方案只有一个功能：物理消除。细腻与外交手腕不是从你系统里缺失的——它们从来就没被安装过。',mA:'利器——经过锻造的武装。执行正义。',mB:'废料——太粗糙，无法精雕；太脆，无法承重。'},
+'辛':{name:'阴金',cn:'辛金',arch:'精炼神器',roast:'你的质量管控高到天际，已经把99%的现实过滤为"不够格"。你无价、无瑕，且彻底孤独。',mA:'宝玉——经水磨砺。以稀缺与美学完美赢得溢价。',mB:'矿石——埋于土中，外裹沉积。暗淡、无名、潜伏。'},
+'壬':{name:'阳水',cn:'壬水',arch:'超导洪流',roast:'你没有形状，也没有原则——只有速度。天才级的智识，配上幼儿级的冲动控制。你不建立系统；你让系统短路。',mA:'江河——被引导的流动。开启灌溉、贸易与能量。',mB:'洪水——灾难性溢出。无道德的智慧。'},
+'癸':{name:'阴水',cn:'癸水',arch:'无声渗透者',roast:'你像服务器机房里的湿气一样渗入每一道缝隙——无形、持续、腐蚀。你的超能力是让他人感到窒息，却找不到任何具体原因。',mA:'雨水——大气降水。肥沃的无形基础设施。',mB:'薄雾——遮光的水汽。以弥漫的存在令人窒息。'}
+};
+var PAZH={
+'甲_wealth':'你的财富路径穿越领导力与主动性。甲木通过开辟新领域来生财——而非优化现有系统。当你停止跟随他人剧本、开始建立自己的时，财务突破才会到来。寻找你能成为先行者的领域。',
+'甲_love':'你吸引需要你力量的伴侣，然后怨恨他们的依赖。你的关系模式：守护者变成囚徒。解法不是找一个不需要你的人——而是找一个站在你身边而非脚下的人。',
+'甲_2026':'2026是火年，击中你的木——你的想法终于点燃。你默默播下的项目开始产生可见的成果。风险：燃烧太快。调控你的扩张节奏，否则你会在自己的势头下断裂。',
+'乙_wealth':'你的财富来自网络，而非蛮力。乙木通过连接人脉、撮合关系、寻找既有结构间的缝隙来获利。你永远赢不过对手的蛮力——但你可以在迂回中胜过他们。',
+'乙_love':'你把自己完全缠绕在伴侣身上，以至于失去了自己的形状。你的连接模式是以奉献为名的融合。健康的爱意味着在与他人并行生长的同时，保持自己的根系。',
+'乙_2026':'2026的火能量加速你的创意产出。沉睡的想法开始迅速萌芽。危险：在太多机会中铺摊太薄。选定一根藤蔓去攀爬，全力投入。',
+'丙_wealth':'你通过被看见来创造财富。丙火将注意力、影响力和公众存在变现。你的错误在于试图悄悄积累财富——你的钱在聚光灯下。内容创作、领导力、品牌建设。',
+'丙_love':'你以全功率去爱，这要么激励伴侣，要么令其失明。你的模式：给予热量，却不确认对方能否承受。最相容的伴侣不是被你的光所震慑的人——而是拥有自己光芒的人。',
+'丙_2026':'2026是你的元素之年。最大的曝光度，最大的机遇，最大的燃尽风险。这是你的扩张窗口——但别把活动量和进步混为一谈。聚焦你的光束。',
+'丁_wealth':'你的财富来自精准与专精。丁火不以量取胜——你以深度竞争。咨询、分析、细分专业。一个外科手术式的洞见，胜过千个泛泛之论。',
+'丁_love':'你瞬间看穿他人，这使肤浅的关系令你无法忍受。你的模式：用难以破解的情感谜题测试伴侣。解开的人赢得你的全心托付。解不开的人，从不知道自己正在被测试。',
+'丁_2026':'2026将你的洞察力放大至危险水平。你会看到他人错过的机遇，但也会看到可能并不存在的威胁。相信你的精准直觉。别让偏执凌驾于模式识别之上。',
+'戊_wealth':'你的财富是结构性的，而非投机性的。戊土通过不动产、长期持有和耐心积累财富。追逐趋势让你亏损；成为他人赖以建设的地基让你获益。',
+'戊_love':'你是场上最忠诚的伴侣，也是最无聊的那个。你的关系挑战不是忠诚——是激情。稳定是你的礼物，但停滞是你的陷阱。偶尔给他们一个惊喜。',
+'戊_2026':'2026的火滋养你的土——你变得更强、更充足、更受需求。在动荡的年份里，人们需要你的稳定性。风险：承载所有人的重量，直到自己崩溃。',
+'己_wealth':'你通过培育他人的潜力来创造财富。己土在教育、人才发展、农业，或任何从无到有的领域获利。你的回报缓慢，但会复利增长。',
+'己_love':'你吸收伴侣的个性，直到无法分辨他们的需求与你自己的。你的关系模式：以过度顺从实现自我消除。设立第一个界限会感觉像背叛。还是去做吧。',
+'己_2026':'2026带来炙烤你土壤的热量——来自上方的压力迫使你整合。停止吸收新的输入，开始处理你已持有的。清晰来自删减，而非叠加。',
+'庚_wealth':'你通过切割来赚钱——削减成本、敲定交易、切穿竞争。庚金的财务本能是消除，而非积累。你最好的行动是果决且不可逆的。',
+'庚_love':'你把关系当谈判，然后困惑于为何没人感到被珍视。你的模式：忠诚而无温柔。你会为对方而战，却忘记拥抱他们。在你的力量中加入柔软。',
+'庚_2026':'2026的火正在熔化你的金——这是你的精炼之年。感觉像毁灭的，其实是蜕变。那个职业转折、那次被迫改变、你正在抗拒的那件事——那是锻炉将矿石炼成利刃的过程。',
+'辛_wealth':'你的财富来自品质，而非数量。辛金通过稀缺性与美学完美来赢得溢价定价。停止在价格上竞争。在没有人能匹敌的标准上竞争。',
+'辛_love':'你的标准过滤掉了99%的潜在伴侣，这既是你的超能力，也是你的孤独。你的模式：宁可完美地孤独，也不要不完美地相伴。问题是，完美是否值得那个代价。',
+'辛_2026':'2026的火压力测试你的纯粹。经历今年热度后留存的，才是真正属于你的。融化消失的，从来就不是真实的。放手。精炼的过程虽然痛苦，但结果是更锋利、更纯粹的你。',
+'壬_wealth':'你的财富在流动中——交易、旅行、信息套利。壬水通过比所有人移动更快来赚钱。停滞时你会亏损。保持流动，保持扫描，持续适应。',
+'壬_love':'你用强度淹没每段关系，然后困惑于为何他们溺水。你的模式：爱如海啸。解法不是减少激情——而是引导激情。找一个能在你的水流中游泳的人。',
+'壬_2026':'2026的火蒸发浅层的水性活动——浅薄的项目会干涸。只有深根扎实的事业才能存活。这一年奖励深度而非广度。专注于一条河道，让它凿出峡谷。',
+'癸_wealth':'你的财富运行在无形的渠道中——后台系统、被动收入、知识产权。癸水通过渗透进他人未察觉的市场来获利。你最好的资产，是没有人知道的那些。',
+'癸_love':'你比伴侣更了解他们自己的情感地图，这创造了一种令人不安的权力不对等。你的模式：吸收他们的感受，直到你在别人的情绪里溺水。维护你自己的气候。',
+'癸_2026':'2026的火将你隐藏的资源带至地表。你默默建造的事物开始被人注意。为你未曾预料的曝光度做好准备。阴影正在收缩——在自己的节奏下，走向光。'
+};
+var SMZH={'比肩':{c:'盾墙',i:'🛡️',d:'同频之盟。以数量为力。'},'劫财':{c:'暗影分身',i:'⚔️',d:'同频之敌。竞争磨砺心智。'},'食神':{c:'灵魂馈赠',i:'🎵',d:'被动创意输出。无功利之艺。'},'伤官':{c:'混沌涌动',i:'💥',d:'爆发式表达。打破规则，掀起波澜。'},'正财':{c:'资源采掘',i:'💰',d:'稳定财富积累。薪资路线。'},'偏财':{c:'战利品掉落',i:'🎰',d:'横财潜力。高风险，高回报。'},'正官':{c:'法律秩序',i:'⚖️',d:'权威认同。依规行事。'},'七杀':{c:'执行者',i:'🗡️',d:'极端压力。要么粉碎你，要么铸造你。'},'正印':{c:'防火高墙',i:'🏛️',d:'受制度庇护。稳定但停滞。'},'偏印':{c:'意识宫殿',i:'🧠',d:'偏门知识。在黑暗中学习。'}};
+var AMZH={'桃花':{c:'海妖之气',d:'社交磁场激活。'},'红艳':{c:'致命吸引',d:'危险的魅力。'},'华盖':{c:'虚空之壳',d:'独狼模式。'},'羊刃':{c:'狂暴模式',d:'攻击性溢出。'},'魁罡':{c:'王者霸气',d:'支配力场。'},'将星':{c:'统帅光环',d:'天生领导力。'},'禄神':{c:'铁饭碗',d:'薪资级收入锁定。'},'驿马':{c:'飞毛腿',d:'天生流动者。'},'天乙贵人':{c:'神圣护盾',d:'贵人庇佑。'}};
+var VTZH={'Fire=0':['🔥 火 = 0','引擎未安装。激情协议离线。'],'Wood=0':['🌱 木 = 0','生长模块缺失。你只规划，不行动。'],'Water=0':['💧 水 = 0','情感带宽归零。理智在干涸边缘。'],'Metal=0':['⚔️ 金 = 0','没有锋芒。决策在模糊中消溶。'],'Earth=0':['🏔️ 土 = 0','没有地基。一切建在流沙之上。'],'Fire≥3':['🔥 火 ≥ 3','过热。燃得最亮，熄得最快，燃尽一切。'],'Metal≥3':['⚔️ 金 ≥ 3','过度锋利。切割一切，包括你自己。'],'Water≥3':['💧 水 ≥ 3','溢流。智识无方向地泛滥。'],'Wood≥3':['🌱 木 ≥ 3','过度蔓延。扩张进每一个领域，精通于零。'],'Earth≥3':['🏔️ 土 ≥ 3','缓存超载。吸收一切，处理为零。']};
+var VMZH={'比肩':'盾墙变体','劫财':'暗影分身变体','食神':'灵魂馈赠变体','伤官':'混沌涌动变体','正财':'资源采掘变体','偏财':'战利品掉落变体','正官':'法律秩序变体','七杀':'执行者变体','正印':'防火高墙变体','偏印':'意识宫殿变体'};
+var UI_ZH={
+  preTitle:'DestinyOS 出品',subtitle:'你的命盘，已解译。',
+  intro1:'每一个生辰都有它的含义。',intro2:'融汇三千年古中国八字智慧，让我们为你解读命盘真正的暗示。',intro3:'你也许会发现某些东西，一直在暗中塑造你的人生——早在你察觉之前。',
+  btnMain:'解译我的命盘 →',privacy:'🔒 本地运算 — 你的数据从不离开你的设备。',
+  pathTitle:'现在最重要的是什么？',pathSub:'选一个维度。我们从这里解读你的命盘。',
+  w3:'财富与运势',w3s:'我的钱藏在哪里？',l3:'爱情与关系',l3s:'我的连接模式是什么？',f3:'2026 运势',f3s:'今年将有什么到来？',
+  pathLocked:'已锁定：',
+  inputLabel:'输入你的出生信息。',yearPh:'年',monthPh:'月',dayPh:'日',
+  genderLabel:'性别（可选）',male:'男',female:'女',skip:'跳过',
+  btnDecode:'解译 →',privacySm:'🔒 零知识：数据在本地运算，从不离开你的设备。',
+  loading:'正在读取你的配置...',
+  rLabel:'核心内核已识别',rYou:'你是',
+  roastTag:'系统吐槽',
+  saveCard:'📸 保存卡片',shareX:'𝕏 分享到 X',copy:'📋 复制',
+  secGuide1:'你的顶级运作协议：',secSkill:'技能树（前3位）',
+  secGuide2:'特殊固件已检测：',secAffix:'传奇词缀',
+  secGuide3:'你的系统在两种状态下运行：',secDual:'双模式',modeOpt:'优化模式',modeRaw:'原始固件',
+  vulnTitle:'⚠️ 系统漏洞',vulnGuide:'已识别关键系统缺口：',
+  elTitle:'📊 五行原始数据',elGuide:'原始五行分布：',
+  noAffix:'此配置中未检测到传奇词缀。',noVuln:'配置均衡。无关键漏洞。',
+  upsellH:'这只是表面。',upsellP:'你的五行图谱显示出出厂设置——但你当前的运行周期呢？现在正在开启和关闭的窗口？那是更深的一层。',upsellBtn:'完整报告 — 即将推出',
+  reset:'解译另一个命盘',footer:'模式识别，非命运预测。',
+  pathTags:{wealth:'💰 财富解读',love:'💘 爱情解读','2026':'🔥 2026 运势'},
+  pathBtns:{wealth:'💰 财富',love:'💘 爱情','2026':'🔥 2026'},
+  pathLocks:{wealth:'💰 财富与运势',love:'💘 爱情与关系','2026':'🔥 2026 运势'},
+  hourUnknown:'我不知道我的出生时辰',
+  dmLabel:'日主：',systemEquil:'系统均衡变体',coreVariant:'核心变体'
+};
+
+function setLang(l){
+  lang=l;
+  document.getElementById('langToggle').textContent=l==='en'?'中文':'EN';
+  if(l==='zh'){
+    document.querySelector('.pre-title').textContent=UI_ZH.preTitle;
+    document.querySelector('.subtitle').textContent=UI_ZH.subtitle;
+    var ps=document.querySelectorAll('.intro-box p');if(ps[0])ps[0].textContent=UI_ZH.intro1;if(ps[1])ps[1].textContent=UI_ZH.intro2;if(ps[2])ps[2].textContent=UI_ZH.intro3;
+    document.querySelector('.btn-main').textContent=UI_ZH.btnMain;
+    document.querySelector('.privacy-line').textContent=UI_ZH.privacy;
+    document.querySelector('.path-title').textContent=UI_ZH.pathTitle;
+    document.querySelector('.path-sub').textContent=UI_ZH.pathSub;
+    var cards=document.querySelectorAll('.path-card');
+    if(cards[0]){cards[0].querySelector('h3').textContent=UI_ZH.w3;cards[0].querySelector('p').textContent=UI_ZH.w3s;}
+    if(cards[1]){cards[1].querySelector('h3').textContent=UI_ZH.l3;cards[1].querySelector('p').textContent=UI_ZH.l3s;}
+    if(cards[2]){cards[2].querySelector('h3').textContent=UI_ZH.f3;cards[2].querySelector('p').textContent=UI_ZH.f3s;}
+    document.querySelector('.input-label').textContent=UI_ZH.inputLabel;
+    document.querySelector('#selYear option').textContent=UI_ZH.yearPh;
+    document.querySelector('#selMonth option').textContent=UI_ZH.monthPh;
+    document.querySelector('#selDay option').textContent=UI_ZH.dayPh;
+    document.querySelector('#selHour option').textContent=UI_ZH.hourUnknown;
+    var gl=document.querySelector('[style*="margin-bottom:6px"]');if(gl)gl.textContent=UI_ZH.genderLabel;
+    var gb=document.querySelectorAll('.gender-btn');if(gb[0])gb[0].textContent=UI_ZH.male;if(gb[1])gb[1].textContent=UI_ZH.female;if(gb[2])gb[2].textContent=UI_ZH.skip;
+    document.querySelector('.privacy-sm').textContent=UI_ZH.privacySm;
+    document.querySelector('.load-text').textContent=UI_ZH.loading;
+    var rl=document.querySelector('.r-label');if(rl)rl.textContent=UI_ZH.rLabel;
+    var ry=document.querySelector('.r-you');if(ry)ry.textContent=UI_ZH.rYou;
+    var rt=document.querySelector('.roast-tag');if(rt)rt.textContent=UI_ZH.roastTag;
+    var sb=document.querySelectorAll('.share-btn');if(sb[0])sb[0].textContent=UI_ZH.saveCard;if(sb[1])sb[1].textContent=UI_ZH.shareX;if(sb[2])sb[2].textContent=UI_ZH.copy;
+    var sgs=document.querySelectorAll('.sec-guide');if(sgs[0])sgs[0].textContent=UI_ZH.secGuide1;if(sgs[1])sgs[1].textContent=UI_ZH.secGuide2;if(sgs[2])sgs[2].textContent=UI_ZH.secGuide3;if(sgs[3])sgs[3].textContent=UI_ZH.vulnGuide;if(sgs[4])sgs[4].textContent=UI_ZH.elGuide;
+    var secs=document.querySelectorAll('.sec');if(secs[0])secs[0].textContent=UI_ZH.secSkill;if(secs[1])secs[1].textContent=UI_ZH.secAffix;if(secs[2])secs[2].textContent=UI_ZH.secDual;
+    var ml=document.querySelectorAll('.mode-label');if(ml[0])ml[0].textContent=UI_ZH.modeOpt;if(ml[1])ml[1].textContent=UI_ZH.modeRaw;
+    var pts=document.querySelectorAll('.panel-toggle span:first-child');if(pts[0])pts[0].textContent=UI_ZH.vulnTitle;if(pts[1])pts[1].textContent=UI_ZH.elTitle;
+    var us=document.querySelector('.upsell h3');if(us)us.textContent=UI_ZH.upsellH;
+    var up=document.querySelector('.upsell p');if(up)up.textContent=UI_ZH.upsellP;
+    var ub=document.querySelector('.btn-upsell');if(ub)ub.textContent=UI_ZH.upsellBtn;
+    var rr=document.querySelector('.reset-link button');if(rr)rr.textContent=UI_ZH.reset;
+    var ft=document.querySelector('.footer-tag');if(ft)ft.textContent=UI_ZH.footer;
+  } else {
+    document.querySelector('.pre-title').textContent='DestinyOS presents';
+    document.querySelector('.subtitle').textContent='Your birth code, decoded.';
+    var ps=document.querySelectorAll('.intro-box p');if(ps[0])ps[0].textContent='Every birth code has a meaning.';if(ps[1])ps[1].textContent='Drawing on 3,000 years of Ancient Chinese BaZi, let us interpret what yours truly implies.';if(ps[2])ps[2].textContent='You may discover something that has secretly been shaping your life \u2014 long before you ever noticed it was there.';
+    document.querySelector('.btn-main').textContent='DECODE MY SOURCE CODE \u2192';
+    document.querySelector('.privacy-line').textContent='\uD83D\uDD12 Processed locally \u2014 your data never leaves this device.';
+    document.querySelector('.path-title').textContent='What matters most right now?';
+    document.querySelector('.path-sub').textContent="Pick a lens. We'll decode your chart through it.";
+    var cards=document.querySelectorAll('.path-card');
+    if(cards[0]){cards[0].querySelector('h3').textContent='WEALTH & FORTUNE';cards[0].querySelector('p').textContent="Where's my money hiding?";}
+    if(cards[1]){cards[1].querySelector('h3').textContent='LOVE & RELATIONSHIPS';cards[1].querySelector('p').textContent="What's my connection pattern?";}
+    if(cards[2]){cards[2].querySelector('h3').textContent='2026 FORECAST';cards[2].querySelector('p').textContent="What's coming this year?";}
+    document.querySelector('.input-label').textContent='Enter your birth data.';
+    document.querySelector('#selYear option').textContent='Year';
+    document.querySelector('#selMonth option').textContent='Month';
+    document.querySelector('#selDay option').textContent='Day';
+    document.querySelector('#selHour option').textContent="I don't know my birth time";
+    var gl=document.querySelector('[style*="margin-bottom:6px"]');if(gl)gl.textContent='Gender (optional)';
+    var gb=document.querySelectorAll('.gender-btn');if(gb[0])gb[0].textContent='Male';if(gb[1])gb[1].textContent='Female';if(gb[2])gb[2].textContent='Skip';
+    document.querySelector('.privacy-sm').textContent='\uD83D\uDD12 Zero-Knowledge: Your data is calculated locally and never leaves your device.';
+    document.querySelector('.load-text').textContent='Reading your configuration...';
+    var rl=document.querySelector('.r-label');if(rl)rl.textContent='Core Kernel Identified';
+    var ry=document.querySelector('.r-you');if(ry)ry.textContent='You are';
+    var rt=document.querySelector('.roast-tag');if(rt)rt.textContent='System Roast';
+    var sb=document.querySelectorAll('.share-btn');if(sb[0])sb[0].textContent='\uD83D\uDCF8 Save Card';if(sb[1])sb[1].textContent='\u{1D54F} Share on X';if(sb[2])sb[2].textContent='\uD83D\uDCCB Copy';
+    var sgs=document.querySelectorAll('.sec-guide');if(sgs[0])sgs[0].textContent='Your top operational protocols:';if(sgs[1])sgs[1].textContent='Special firmware detected:';if(sgs[2])sgs[2].textContent='Your system runs in two states:';if(sgs[3])sgs[3].textContent='Critical system gaps identified:';if(sgs[4])sgs[4].textContent='Raw element distribution:';
+    var secs=document.querySelectorAll('.sec');if(secs[0])secs[0].textContent='Skill Tree (Top 3)';if(secs[1])secs[1].textContent='Legendary Affixes';if(secs[2])secs[2].textContent='Dual Modes';
+    var ml=document.querySelectorAll('.mode-label');if(ml[0])ml[0].textContent='Optimized';if(ml[1])ml[1].textContent='Raw Firmware';
+    var pts=document.querySelectorAll('.panel-toggle span:first-child');if(pts[0])pts[0].textContent='\u26A0\uFE0F System Vulnerabilities';if(pts[1])pts[1].textContent='\uD83D\uDCCA Five Element Raw Data';
+    var us=document.querySelector('.upsell h3');if(us)us.textContent='This is the surface.';
+    var up=document.querySelector('.upsell p');if(up)up.textContent='Your Five Element profile shows your factory settings \u2014 but your current operating cycle? The windows opening and closing right now? That\'s a deeper layer.';
+    var ub=document.querySelector('.btn-upsell');if(ub)ub.textContent='FULL REPORT \u2014 COMING SOON';
+    var rr=document.querySelector('.reset-link button');if(rr)rr.textContent='Decode another birth code';
+    var ft=document.querySelector('.footer-tag');if(ft)ft.textContent='Pattern recognition, not prediction.';
+  }
+  if(curRes){aiCache={};renderResult();}
+}
 function goTo(n){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active','active-block')});var s=document.getElementById(n===4?'resultScreen':'s'+n);if(n===4)s.classList.add('active-block');else s.classList.add('active');window.scrollTo({top:0,behavior:'instant'})}
-function selectPath(p,el){selectedPath=p;document.querySelectorAll('.path-card').forEach(function(c){c.classList.remove('selected')});el.classList.add('selected');var L={wealth:'\uD83D\uDCB0 Wealth & Fortune',love:'\uD83D\uDC98 Love & Relationships','2026':'\uD83D\uDD25 2026 Forecast'};document.getElementById('pathLabel').textContent='Path locked: '+L[p];setTimeout(function(){goTo(3)},400)}
+function selectPath(p,el){selectedPath=p;document.querySelectorAll('.path-card').forEach(function(c){c.classList.remove('selected')});el.classList.add('selected');var L=lang==='zh'?UI_ZH.pathLocks:{wealth:'\uD83D\uDCB0 Wealth & Fortune',love:'\uD83D\uDC98 Love & Relationships','2026':'\uD83D\uDD25 2026 Forecast'};var prefix=lang==='zh'?UI_ZH.pathLocked:'Path locked: ';document.getElementById('pathLabel').textContent=prefix+L[p];setTimeout(function(){goTo(3)},400)}
 function pickGender(g,el){selectedGender=g;document.querySelectorAll('.gender-btn').forEach(function(b){b.classList.remove('selected')});el.classList.add('selected')}
 !function(){var y=document.getElementById('selYear');for(var i=2010;i>=1930;i--){var o=document.createElement('option');o.value=i;o.textContent=i;y.appendChild(o)}var m=document.getElementById('selMonth');for(var i=1;i<=12;i++){var o=document.createElement('option');o.value=i;o.textContent=String(i).padStart(2,'0');m.appendChild(o)}var d=document.getElementById('selDay');for(var i=1;i<=31;i++){var o=document.createElement('option');o.value=i;o.textContent=String(i).padStart(2,'0');d.appendChild(o)}}();
 function checkInput(){var y=document.getElementById('selYear').value,m=document.getElementById('selMonth').value,d=document.getElementById('selDay').value,b=document.getElementById('btnDecode');if(y&&m&&d){b.disabled=false;b.className='btn-decode active'}else{b.disabled=true;b.className='btn-decode disabled'}}
@@ -381,7 +539,7 @@ var vn=[];
 // Variant
 var variantText='CORE VARIANT';
 if(sg.length>=1){var topG=sg[0],isB=sg.length>=2&&(topG[1]-sg[1][1])<=1;variantText=isB?'SYSTEM EQUILIBRIUM VARIANT':(VM[topG[0]]||'CORE VARIANT')}
-curRes={k:K[ds],ds:ds,elC:elC,sg:sg,af:af,vn:vn,hh:h>=0,ec:ec,variant:variantText};
+curRes={k:K[ds],ds:ds,elC:elC,sg:sg,af:af,vn:vn,hh:h>=0,ec:ec,variant:variantText,variantKey:sg.length>=1?sg[0][0]:null,variantIsB:sg.length>=2&&(sg[0][1]-sg[1][1])<=1};
 setTimeout(function(){ls.style.display='none';renderResult()},2300);
 }
 
@@ -389,11 +547,17 @@ setTimeout(function(){ls.style.display='none';renderResult()},2300);
 // RENDER
 // ═══════════════════════════════════════
 function renderResult(){
-var k=curRes.k,r=curRes;
+var r=curRes;
+var k=lang==='zh'?(KZH[r.ds]||r.k):r.k;
+var curSM=lang==='zh'?SMZH:SM;
+var curAM=lang==='zh'?AMZH:AM;
+var curVT=lang==='zh'?VTZH:VT;
+var curVM=lang==='zh'?VMZH:VM;
+var variantText=r.variantIsB?(lang==='zh'?UI_ZH.systemEquil:'SYSTEM EQUILIBRIUM VARIANT'):(curVM[r.variantKey]||(lang==='zh'?UI_ZH.coreVariant:'CORE VARIANT'));
 document.getElementById('rCn').textContent=k.cn;
 document.getElementById('rArch').textContent=k.arch;
-document.getElementById('rVariant').textContent='// '+r.variant;
-document.getElementById('rDm').textContent='Day Master: '+k.name;
+document.getElementById('rVariant').textContent='// '+variantText;
+document.getElementById('rDm').textContent=(lang==='zh'?UI_ZH.dmLabel:'Day Master: ')+k.name;
 document.getElementById('rRoast').textContent='\u201C'+k.roast+'\u201D';
 document.getElementById('rMA').textContent=k.mA;
 document.getElementById('rMB').textContent=k.mB;
@@ -401,17 +565,19 @@ document.getElementById('rMB').textContent=k.mB;
 showPathAnswer(selectedPath);
 // Path switch buttons
 var ps=document.getElementById('pathSwitch');
-var paths=[{k:'wealth',l:'\uD83D\uDCB0 Wealth'},{k:'love',l:'\uD83D\uDC98 Love'},{k:'2026',l:'\uD83D\uDD25 2026'}];
+var paths=lang==='zh'?[{k:'wealth',l:UI_ZH.pathBtns.wealth},{k:'love',l:UI_ZH.pathBtns.love},{k:'2026',l:UI_ZH.pathBtns['2026']}]:[{k:'wealth',l:'\uD83D\uDCB0 Wealth'},{k:'love',l:'\uD83D\uDC98 Love'},{k:'2026',l:'\uD83D\uDD25 2026'}];
 ps.innerHTML=paths.map(function(p){return '<div class="ps-btn'+(p.k===selectedPath?' active':'')+'" onclick="switchPath(\''+p.k+'\',this)">'+p.l+'</div>'}).join('');
 // Skills
 var sl=document.getElementById('skillList');
-sl.innerHTML=r.sg.map(function(g){var n=g[0],c=g[1],m=SM[n]||{c:n,i:'\u26A1',d:''};var p=Math.min(c*25,100);return '<div class="skill-item"><div class="skill-icon">'+m.i+'</div><div class="skill-info"><div class="skill-name">'+m.c+'</div><div class="skill-cn">'+n+'</div><div class="skill-desc">'+m.d+'</div><div class="skill-bar"><div class="skill-fill" data-w="'+p+'%" style="width:0%"></div></div></div></div>'}).join('');
+sl.innerHTML=r.sg.map(function(g){var n=g[0],c=g[1],m=curSM[n]||{c:n,i:'\u26A1',d:''};var p=Math.min(c*25,100);return '<div class="skill-item"><div class="skill-icon">'+m.i+'</div><div class="skill-info"><div class="skill-name">'+m.c+'</div><div class="skill-cn">'+n+'</div><div class="skill-desc">'+m.d+'</div><div class="skill-bar"><div class="skill-fill" data-w="'+p+'%" style="width:0%"></div></div></div></div>'}).join('');
 // Affixes
 var al=document.getElementById('affixList');
-al.innerHTML=r.af.length?r.af.map(function(a){var m=AM[a]||{c:a};return '<div class="affix-item"><span class="affix-star">\u2726</span><span class="affix-name">'+m.c+'</span><span class="affix-cn">('+a+')</span></div>'}).join(''):'<div style="font-size:14px;color:var(--text3);font-style:italic">No legendary affixes detected in this configuration.</div>';
+var noAffix=lang==='zh'?UI_ZH.noAffix:'No legendary affixes detected in this configuration.';
+al.innerHTML=r.af.length?r.af.map(function(a){var m=curAM[a]||{c:a};return '<div class="affix-item"><span class="affix-star">\u2726</span><span class="affix-name">'+m.c+'</span><span class="affix-cn">('+a+')</span></div>'}).join(''):'<div style="font-size:14px;color:var(--text3);font-style:italic">'+noAffix+'</div>';
 // Vulns
 var vl=document.getElementById('vulnList');
-vl.innerHTML=r.vn.length?r.vn.map(function(v){var t=VT[v]||[v,''];return '<div class="vuln-item"><div class="vuln-icon">\u26A0\uFE0F</div><div><div class="vuln-label">'+t[0]+'</div><div class="vuln-desc">'+t[1]+'</div></div></div>'}).join(''):'<div style="font-size:14px;color:var(--text3);font-style:italic">Balanced configuration. No critical vulnerabilities.</div>';
+var noVuln=lang==='zh'?UI_ZH.noVuln:'Balanced configuration. No critical vulnerabilities.';
+vl.innerHTML=r.vn.length?r.vn.map(function(v){var t=curVT[v]||[v,''];return '<div class="vuln-item"><div class="vuln-icon">\u26A0\uFE0F</div><div><div class="vuln-label">'+t[0]+'</div><div class="vuln-desc">'+t[1]+'</div></div></div>'}).join(''):'<div style="font-size:14px;color:var(--text3);font-style:italic">'+noVuln+'</div>';
 // Elements
 var sorted=Object.entries(r.elC).sort(function(a,b){return b[1]-a[1]});
 var mx=Math.max.apply(null,sorted.map(function(x){return x[1]}))||1;
@@ -441,10 +607,11 @@ if(excess.length)msg+='Excess: '+excess.join(', ')+'\n';
 return msg;
 }
 function showPathAnswer(p){
-var tags={wealth:'\uD83D\uDCB0 WEALTH READING',love:'\uD83D\uDC98 LOVE READING','2026':'\uD83D\uDD25 2026 FORECAST'};
+var tags=lang==='zh'?UI_ZH.pathTags:{wealth:'\uD83D\uDCB0 WEALTH READING',love:'\uD83D\uDC98 LOVE READING','2026':'\uD83D\uDD25 2026 FORECAST'};
 document.getElementById('paTag').textContent=tags[p]||'';
-var cacheKey=curRes.ds+'_'+p+'_ai';
+var cacheKey=curRes.ds+'_'+p+'_ai_'+lang;
 if(aiCache[cacheKey]){document.getElementById('paText').innerHTML=aiCache[cacheKey];return}
+if(lang==='zh'){fallbackPA(p);return;}
 document.getElementById('paText').innerHTML='<span style="color:var(--cyan);font-style:italic">\u23F3 Generating personalized analysis...</span>';
 var msg=buildAiMessage(p);
 fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})})
@@ -460,7 +627,8 @@ document.getElementById('paText').innerHTML=html;
 }
 function fallbackPA(p){
 var key=curRes.ds+'_'+p;
-document.getElementById('paText').textContent=PA[key]||'Analysis not available.';
+var text=lang==='zh'?(PAZH[key]||'分析暂不可用。'):(PA[key]||'Analysis not available.');
+document.getElementById('paText').textContent=text;
 }
 function switchPath(p,el){
 selectedPath=p;document.querySelectorAll('.ps-btn').forEach(function(b){b.classList.remove('active')});el.classList.add('active');showPathAnswer(p);
