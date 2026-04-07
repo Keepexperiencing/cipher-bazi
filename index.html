@@ -593,7 +593,8 @@ var WORKER_URL='https://cipher-proxy.cipher-api.workers.dev';
 var aiCache={};
 function buildAiMessage(p){
 var r=curRes,ec=r.ec,ds=r.ds,k=r.k;
-var msg='Analyze this birth chart. Path: '+(p||'wealth').toUpperCase()+'\n\n';
+var msg=(lang==='zh'?'请用中文分析这份八字命盘。维度：':'Analyze this birth chart. Path: ')+(p||'wealth').toUpperCase()+'\n\n';
+if(lang==='zh')msg+='请全程用中文回答，语气直接、深刻，避免算命式表达。\n\n';
 msg+='Four Pillars:\nYear: '+ec.getYearGan()+ec.getYearZhi()+'\nMonth: '+ec.getMonthGan()+ec.getMonthZhi()+'\nDay: '+ec.getDayGan()+ec.getDayZhi()+'\n';
 if(r.hh)msg+='Hour: '+ec.getTimeGan()+ec.getTimeZhi()+'\n';else msg+='Hour: Unknown\n';
 msg+='\nDay Master: '+ds+' ('+k.name+')\n';
@@ -611,8 +612,7 @@ var tags=lang==='zh'?UI_ZH.pathTags:{wealth:'\uD83D\uDCB0 WEALTH READING',love:'
 document.getElementById('paTag').textContent=tags[p]||'';
 var cacheKey=curRes.ds+'_'+p+'_ai_'+lang;
 if(aiCache[cacheKey]){document.getElementById('paText').innerHTML=aiCache[cacheKey];return}
-if(lang==='zh'){fallbackPA(p);return;}
-document.getElementById('paText').innerHTML='<span style="color:var(--cyan);font-style:italic">\u23F3 Generating personalized analysis...</span>';
+document.getElementById('paText').innerHTML='<span style="color:var(--cyan);font-style:italic">'+(lang==='zh'?'⏳ 正在生成个性化分析...':'⏳ Generating personalized analysis...')+'</span>';
 var msg=buildAiMessage(p);
 fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})})
 .then(function(res){return res.json()})
