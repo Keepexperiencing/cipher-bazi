@@ -7,11 +7,14 @@
 <meta name="description" content="Ancient Chinese life-mapping rebuilt as tactical intelligence. Decode your birth code.">
 <meta property="og:title" content="CIPHER — Your Birth Code, Decoded">
 <meta property="og:description" content="3,000 years of pattern recognition. Zero fortune-telling. What does your birth code reveal?">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,300&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.7.7/lunar.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0a0b10;--bg2:rgba(255,255,255,0.02);--bg3:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.08);--text:#e6edf3;--text2:#8b949e;--text3:#484f58;--text4:#383d44;--cyan:#00d4ff;--cyan15:rgba(0,212,255,0.15);--cyan30:rgba(0,212,255,0.3);--cyan08:rgba(0,212,255,0.08);--red:#f85149;--red-b:rgba(255,85,85,0.12);--red-bg:rgba(255,85,73,0.03);--gold:#d29922}
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.6}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,-apple-system,sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.6}
 ::selection{background:var(--cyan30)}
 .dot-grid{position:fixed;inset:0;opacity:.03;z-index:0;pointer-events:none;background-image:radial-gradient(circle at 25% 25%,var(--cyan) 1px,transparent 1px),radial-gradient(circle at 75% 75%,var(--cyan) 1px,transparent 1px);background-size:60px 60px}
 .container{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:0 20px}
@@ -21,13 +24,13 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-ap
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
 /* S1 Landing */
-.pre-title{margin-bottom:8px;opacity:.15;font-size:11px;letter-spacing:6px;text-transform:uppercase;color:var(--text2)}
-.title{font-size:52px;font-weight:800;letter-spacing:8px;margin:0 0 8px;line-height:1;background:linear-gradient(135deg,var(--cyan),var(--text),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.subtitle{font-size:16px;color:var(--text2);margin:0 0 36px;font-weight:300;letter-spacing:1px}
-.intro-box{width:100%;max-width:420px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px;text-align:left}
-.intro-box p{font-size:16px;color:var(--text2);line-height:1.6;font-weight:300}
-.privacy-line{font-size:14px;color:var(--text3);margin-bottom:28px;line-height:1.6}.privacy-line span{color:var(--cyan)}
-.btn-main{padding:16px 48px;border:none;border-radius:8px;font-size:15px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .3s;font-family:inherit;background:var(--cyan);color:var(--bg);box-shadow:0 0 24px var(--cyan30)}
+.pre-title{margin-bottom:8px;opacity:.15;font-size:11px;letter-spacing:5px;text-transform:uppercase;color:var(--text2)}
+.title{font-size:56px;font-weight:800;letter-spacing:6px;margin:0 0 8px;line-height:1;background:linear-gradient(135deg,var(--cyan),var(--text),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{font-size:18px;color:var(--text2);margin:0 0 36px;font-weight:300;letter-spacing:0.5px}
+.intro-box{width:100%;max-width:420px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:28px;margin-bottom:32px;text-align:left}
+.intro-box p{font-size:17px;color:var(--text2);line-height:1.75;font-weight:300}
+.privacy-line{font-size:13px;color:var(--text3);margin-top:14px;margin-bottom:0;line-height:1.5;opacity:0.7}.privacy-line span{color:var(--cyan)}
+.btn-main{padding:16px 48px;border:none;border-radius:8px;font-size:15px;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all .3s;font-family:inherit;background:var(--cyan);color:var(--bg);box-shadow:0 0 24px var(--cyan30)}
 .btn-main:hover{box-shadow:0 0 32px var(--cyan30)}
 .trust-footer{font-size:11px;color:var(--text3);margin-top:28px;letter-spacing:.5px;max-width:300px;line-height:1.5;text-align:center}
 
@@ -165,7 +168,7 @@ select option{background:#12141c;color:var(--text)}
 .footer-brand{font-size:12px;color:var(--text3);letter-spacing:1px}.footer-brand span{color:var(--text2)}
 .footer-tag{font-size:11px;color:var(--text4);margin-top:4px;font-style:italic}
 .footer-link{font-size:11px;margin-top:8px}.footer-link a{color:var(--text3);text-decoration:none}
-@media(max-width:480px){.title{font-size:40px;letter-spacing:5px}.r-cn{font-size:42px}.dual{grid-template-columns:1fr}.share-row{flex-direction:column}.input-card{padding:24px 20px}}
+@media(max-width:480px){.title{font-size:42px;letter-spacing:4px}.r-cn{font-size:42px}.dual{grid-template-columns:1fr}.share-row{flex-direction:column}.input-card{padding:24px 20px}}
 </style>
 </head>
 <body>
@@ -177,10 +180,9 @@ select option{background:#12141c;color:var(--text)}
 <div class="pre-title">DestinyOS presents</div>
 <h1 class="title">CIPHER</h1>
 <p class="subtitle">Your birth code, decoded.</p>
-<div class="intro-box"><p>Ancient Chinese life-mapping (BaZi) rebuilt as tactical intelligence.</p><p style="margin-top:10px">3,000 years of pattern recognition. Zero fortune-telling. Your birth date encodes your operating system — we just read it.</p></div>
-<div class="privacy-line"><span>🔒</span> Zero-Knowledge Architecture: Your birth data is processed locally. We don't store, transmit, or see your temporal coordinates. Ever.</div>
+<div class="intro-box"><p>Every birth code has a meaning.</p><p style="margin-top:10px">Drawing on 3,000 years of Ancient Chinese BaZi, let us interpret what yours truly implies.</p><p style="margin-top:10px">You may discover something that has secretly been shaping your life — long before you ever noticed it was there.</p></div>
 <button class="btn-main" onclick="goTo(2)">DECODE MY SOURCE CODE →</button>
-<p class="trust-footer">Based on BaZi (八字) — the Four Pillars of Destiny system.</p>
+<p class="privacy-line">🔒 Processed locally — your data never leaves this device.</p>
 </div>
 
 <!-- S2 PATH -->
