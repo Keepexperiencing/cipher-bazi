@@ -7,14 +7,11 @@
 <meta name="description" content="Ancient Chinese life-mapping rebuilt as tactical intelligence. Decode your birth code.">
 <meta property="og:title" content="CIPHER — Your Birth Code, Decoded">
 <meta property="og:description" content="3,000 years of pattern recognition. Zero fortune-telling. What does your birth code reveal?">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,300&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.7.7/lunar.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0a0b10;--bg2:rgba(255,255,255,0.02);--bg3:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.08);--text:#e6edf3;--text2:#8b949e;--text3:#484f58;--text4:#383d44;--cyan:#00d4ff;--cyan15:rgba(0,212,255,0.15);--cyan30:rgba(0,212,255,0.3);--cyan08:rgba(0,212,255,0.08);--red:#f85149;--red-b:rgba(255,85,85,0.12);--red-bg:rgba(255,85,73,0.03);--gold:#d29922}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,-apple-system,sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.6}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.6}
 ::selection{background:var(--cyan30)}
 .dot-grid{position:fixed;inset:0;opacity:.03;z-index:0;pointer-events:none;background-image:radial-gradient(circle at 25% 25%,var(--cyan) 1px,transparent 1px),radial-gradient(circle at 75% 75%,var(--cyan) 1px,transparent 1px);background-size:60px 60px}
 .container{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:0 20px}
@@ -24,13 +21,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,-app
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
 /* S1 Landing */
-.pre-title{margin-bottom:8px;opacity:.15;font-size:11px;letter-spacing:5px;text-transform:uppercase;color:var(--text2)}
-.title{font-size:56px;font-weight:800;letter-spacing:6px;margin:0 0 8px;line-height:1;background:linear-gradient(135deg,var(--cyan),var(--text),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.subtitle{font-size:18px;color:var(--text2);margin:0 0 36px;font-weight:300;letter-spacing:0.5px}
-.intro-box{width:100%;max-width:420px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:28px;margin-bottom:32px;text-align:left}
-.intro-box p{font-size:17px;color:var(--text2);line-height:1.75;font-weight:300}
-.privacy-line{font-size:13px;color:var(--text3);margin-top:14px;margin-bottom:0;line-height:1.5;opacity:0.7}.privacy-line span{color:var(--cyan)}
-.btn-main{padding:16px 48px;border:none;border-radius:8px;font-size:15px;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all .3s;font-family:inherit;background:var(--cyan);color:var(--bg);box-shadow:0 0 24px var(--cyan30)}
+.pre-title{margin-bottom:8px;opacity:.15;font-size:11px;letter-spacing:6px;text-transform:uppercase;color:var(--text2)}
+.title{font-size:52px;font-weight:800;letter-spacing:8px;margin:0 0 8px;line-height:1;background:linear-gradient(135deg,var(--cyan),var(--text),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{font-size:16px;color:var(--text2);margin:0 0 36px;font-weight:300;letter-spacing:1px}
+.intro-box{width:100%;max-width:420px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px;text-align:left}
+.intro-box p{font-size:16px;color:var(--text2);line-height:1.6;font-weight:300}
+.privacy-line{font-size:14px;color:var(--text3);margin-bottom:28px;line-height:1.6}.privacy-line span{color:var(--cyan)}
+.btn-main{padding:16px 48px;border:none;border-radius:8px;font-size:15px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .3s;font-family:inherit;background:var(--cyan);color:var(--bg);box-shadow:0 0 24px var(--cyan30)}
 .btn-main:hover{box-shadow:0 0 32px var(--cyan30)}
 .trust-footer{font-size:11px;color:var(--text3);margin-top:28px;letter-spacing:.5px;max-width:300px;line-height:1.5;text-align:center}
 
@@ -71,10 +68,12 @@ select option{background:#12141c;color:var(--text)}
 /* Result */
 #resultScreen{padding-top:40px;padding-bottom:80px}
 .r-header{text-align:center;margin-bottom:32px}
-.r-eyebrow{font-size:11px;color:var(--text3);letter-spacing:4px;text-transform:uppercase;margin-bottom:16px}
-.r-you{font-size:15px;color:var(--text2);margin-bottom:8px}
-.r-type{font-size:36px;font-weight:800;margin:0 0 8px;line-height:1.1;color:#fff;letter-spacing:1px;text-transform:uppercase}
-.r-tagline{font-size:18px;color:var(--cyan);font-style:italic;font-weight:300;line-height:1.4;margin-bottom:0}
+.r-label{font-size:11px;color:var(--text3);letter-spacing:4px;text-transform:uppercase;margin-bottom:12px}
+.r-you{font-size:16px;color:var(--text2);margin-bottom:4px}
+.r-cn{font-size:48px;font-weight:800;margin:0 0 4px;line-height:1;background:linear-gradient(135deg,#c9d1d9,#fff,#c9d1d9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.r-arch{font-size:22px;color:var(--text);font-weight:600;letter-spacing:2px}
+.r-variant{font-size:14px;color:var(--cyan);letter-spacing:2px;font-weight:400;margin-top:6px;font-family:'Courier New',monospace;opacity:.7}
+.r-dm{font-size:14px;color:var(--text2);margin-top:4px}
 
 /* Roast */
 .roast{background:var(--bg2);border:1px solid var(--red-b);border-radius:12px;padding:24px;margin-bottom:24px;position:relative}
@@ -87,14 +86,16 @@ select option{background:#12141c;color:var(--text)}
 .share-btn:hover{border-color:rgba(0,212,255,.2);background:rgba(0,212,255,.04)}
 .share-btn.cyan{color:var(--cyan);border-color:rgba(0,212,255,.15)}
 
-/* Reading */
-.reading{margin-bottom:24px;padding:28px 24px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;min-height:200px}
-.reading h3{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);font-weight:600;margin:28px 0 12px}
-.reading h3:first-child{margin-top:0}
-.reading p{font-size:16px;line-height:1.7;color:var(--text);font-weight:300;margin-bottom:12px}
-.reading ul{list-style:none;padding:0;margin:0}
-.reading li{font-size:16px;line-height:1.6;color:var(--text);font-weight:300;margin-bottom:8px;padding-left:20px;position:relative}
-.reading li::before{content:'•';position:absolute;left:0;color:var(--red)}
+/* AI Reading */
+.reading-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:28px 24px;margin-bottom:24px;min-height:120px}
+.reading-box h3{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);font-weight:700;margin:32px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.reading-box h3:first-child{margin-top:0}
+.reading-box p{font-size:16px;line-height:1.75;color:var(--text);font-weight:300;margin-bottom:16px}
+.reading-box p:last-child{margin-bottom:0}
+.reading-box ul{list-style:none;padding:0;margin:16px 0 0}
+.reading-box li{font-size:16px;line-height:1.6;color:var(--text);font-weight:300;margin-bottom:12px;padding:12px 16px;background:rgba(248,81,73,.03);border:1px solid rgba(248,81,73,.08);border-radius:8px;position:relative;padding-left:28px}
+.reading-box li::before{content:'\2022';position:absolute;left:12px;color:var(--red);font-weight:700}
+.reading-loading{text-align:center;padding:40px 20px;color:var(--cyan);font-style:italic;font-size:16px}
 .path-switch{display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap}
 .ps-btn{padding:8px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;font-size:13px;color:var(--text3);cursor:pointer;transition:all .2s;font-family:inherit}
 .ps-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(210,153,34,.06)}
@@ -138,15 +139,6 @@ select option{background:#12141c;color:var(--text)}
 .panel-content{display:none;margin-bottom:28px}
 .panel-content.open{display:block}
 
-/* Data Toggle/Panel */
-.data-toggle{cursor:pointer;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text3);margin-bottom:16px;text-align:center;transition:all .2s}
-.data-toggle:hover{color:var(--text2);border-color:var(--border2)}
-.data-panel{margin-bottom:32px;padding:20px;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
-.data-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
-.data-label{font-size:12px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
-.data-value{font-size:14px;color:var(--text2)}
-.data-divider{height:1px;background:var(--border);margin:12px 0}
-
 /* Vuln */
 .vuln-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;padding:12px 16px;background:rgba(255,85,73,.03);border:1px solid rgba(255,85,73,.08);border-radius:8px}
 .vuln-icon{color:var(--red);font-size:14px;margin-top:2px}
@@ -179,14 +171,11 @@ select option{background:#12141c;color:var(--text)}
 .footer-brand{font-size:12px;color:var(--text3);letter-spacing:1px}.footer-brand span{color:var(--text2)}
 .footer-tag{font-size:11px;color:var(--text4);margin-top:4px;font-style:italic}
 .footer-link{font-size:11px;margin-top:8px}.footer-link a{color:var(--text3);text-decoration:none}
-@media(max-width:480px){.title{font-size:42px;letter-spacing:4px}.r-type{font-size:28px}.dual{grid-template-columns:1fr}.share-row{flex-direction:column}.input-card{padding:24px 20px}}
-#langToggle{position:fixed;top:16px;right:16px;z-index:200;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;letter-spacing:1px;transition:all .2s;font-family:inherit}
-#langToggle:hover{border-color:rgba(0,212,255,.3);color:var(--cyan)}
+@media(max-width:480px){.title{font-size:40px;letter-spacing:5px}.r-cn{font-size:42px}.dual{grid-template-columns:1fr}.share-row{flex-direction:column}.input-card{padding:24px 20px}}
 </style>
 </head>
 <body>
 <div class="dot-grid"></div>
-<button id="langToggle" onclick="setLang(window.lang==='en'?'zh':'en')">中文</button>
 <div class="container">
 
 <!-- S1 LANDING -->
@@ -194,9 +183,10 @@ select option{background:#12141c;color:var(--text)}
 <div class="pre-title">DestinyOS presents</div>
 <h1 class="title">CIPHER</h1>
 <p class="subtitle">Your birth code, decoded.</p>
-<div class="intro-box"><p>Every birth code has a meaning.</p><p style="margin-top:10px">Drawing on 3,000 years of Ancient Chinese BaZi, let us interpret what yours truly implies.</p><p style="margin-top:10px">You may discover something that has secretly been shaping your life — long before you ever noticed it was there.</p></div>
+<div class="intro-box"><p>Ancient Chinese life-mapping (BaZi) rebuilt as tactical intelligence.</p><p style="margin-top:10px">3,000 years of pattern recognition. Zero fortune-telling. Your birth date encodes your operating system — we just read it.</p></div>
+<div class="privacy-line"><span>🔒</span> Zero-Knowledge Architecture: Your birth data is processed locally. We don't store, transmit, or see your temporal coordinates. Ever.</div>
 <button class="btn-main" onclick="goTo(2)">DECODE MY SOURCE CODE →</button>
-<p class="privacy-line">🔒 Processed locally — your data never leaves this device.</p>
+<p class="trust-footer">Based on BaZi (八字) — the Four Pillars of Destiny system.</p>
 </div>
 
 <!-- S2 PATH -->
@@ -245,9 +235,9 @@ select option{background:#12141c;color:var(--text)}
 
 <!-- S4 RESULT — reordered per spec -->
 <div id="resultScreen" class="screen">
-<div class="r-header"><div class="r-eyebrow">YOUR BIRTH CODE DECODED</div><div class="r-you">You are</div><h2 class="r-type" id="rType"></h2><div class="r-tagline" id="rTagline"></div></div>
+<div class="r-header"><div class="r-label">Core Kernel Identified</div><div class="r-you">You are</div><h2 class="r-cn" id="rCn"></h2><div class="r-arch" id="rArch"></div><div class="r-variant" id="rVariant"></div><div class="r-dm" id="rDm"></div></div>
 
-<div class="roast"><div class="roast-tag">The Truth About You</div><p class="roast-text" id="rRoast"></p></div>
+<div class="roast"><div class="roast-tag">System Roast</div><p class="roast-text" id="rRoast"></p></div>
 
 <div class="share-row">
 <button class="share-btn cyan" onclick="saveCard()">📸 Save Card</button>
@@ -255,22 +245,33 @@ select option{background:#12141c;color:var(--text)}
 <button class="share-btn" id="copyBtn" onclick="copyShare()">📋 Copy</button>
 </div>
 
-<div class="reading" id="readingSection">
-<div id="readingLoading" style="padding:20px;text-align:center;"><span style="color:var(--cyan);font-style:italic;font-size:16px;">⏳ Reading your configuration...</span></div>
-<div id="readingContent" style="display:none;"></div>
+<div class="reading-box" id="readingBox">
+<div class="reading-loading" id="readingLoading">⏳ Analyzing your specific pattern...</div>
+<div id="readingContent"></div>
 </div>
 <div class="path-switch" id="pathSwitch"></div>
 
-<div class="data-toggle" onclick="toggleDataPanel()">See the data behind this reading ▾</div>
-<div class="data-panel" id="dataPanel" style="display:none;">
-<div class="data-item"><span class="data-label">Day Master</span><span class="data-value" id="dataDm"></span></div>
-<div class="data-divider"></div>
-<div id="dataSkills"></div>
-<div class="data-divider"></div>
-<div id="dataAffixes"></div>
-<div class="data-divider"></div>
-<div id="dataElements"></div>
+<div class="skills">
+<div class="sec-guide">Your top operational protocols:</div>
+<div class="sec">Skill Tree (Top 3)</div>
+<div id="skillList"></div>
 </div>
+
+<div class="affixes">
+<div class="sec-guide">Special firmware detected:</div>
+<div class="sec">Legendary Affixes</div>
+<div id="affixList"></div>
+</div>
+
+<div class="sec-guide">Your system runs in two states:</div>
+<div class="sec">Dual Modes</div>
+<div class="dual"><div class="mode opt"><div class="mode-label o">Optimized</div><p class="mode-text" id="rMA"></p></div><div class="mode raw"><div class="mode-label r">Raw Firmware</div><p class="mode-text" id="rMB"></p></div></div>
+
+<div class="panel-toggle" onclick="togglePanel('vuln')"><span>⚠️ System Vulnerabilities</span><span class="arrow">▾</span></div>
+<div class="panel-content" id="vulnPanel"><div class="sec-guide">Critical system gaps identified:</div><div id="vulnList"></div></div>
+
+<div class="panel-toggle" onclick="togglePanel('el')"><span>📊 Five Element Raw Data</span><span class="arrow">▾</span></div>
+<div class="panel-content" id="elPanel"><div class="sec-guide">Raw element distribution:</div><div id="elContent"></div></div>
 
 <div class="upsell"><h3>This is the surface.</h3><p>Your Five Element profile shows your factory settings — but your current operating cycle? The windows opening and closing right now? That's a deeper layer.</p><button class="btn-upsell">FULL REPORT — COMING SOON</button></div>
 <div class="reset-link"><button onclick="doReset()">Decode another birth code</button></div>
@@ -280,156 +281,9 @@ select option{background:#12141c;color:var(--text)}
 </div>
 
 <script>
-var selectedPath='wealth',selectedGender='',lang='en';
-
-// ═══════════════════════════════════════
-// LANGUAGE DATA — CHINESE
-// ═══════════════════════════════════════
-var KZH={
-'甲':{name:'阳木',cn:'甲木',arch:'擎天巨柱',roast:'你把固执当骨气，把僵硬当原则。第一次真正的冲击来临时，你不会弯曲——你会断裂。',mA:'顶梁柱——经过打磨的承重架构。帝国的脊梁。',mB:'古木——未经雕琢的生长。枝桠横生，毫无章法。'},
-'乙':{name:'阴木',cn:'乙木',arch:'生命网络',roast:'你的生存策略是优雅的懦弱：缠绕在更强大的存在上，美其名曰"合作"。你没在建造任何东西——你只是擅长不独自死去。',mA:'藤蔓——战略性依附。借力他人的稳定向上攀升。',mB:'野草——求生模式的冗余。刀砍不尽，永远匍匐。'},
-'丙':{name:'阳火',cn:'丙火',arch:'聚变核心',roast:'你天生自带聚光灯，且没有亮度调节。所有人都看见你，没有人能站在你身边。你是一个死寂太阳系的恒星——耀眼、孤独，纳闷为何所有行星都凉了。',mA:'太阳——文明级能量源。无差别照耀。',mB:'烈火——失控的连锁反应。消耗一切氧气，只留灰烬。'},
-'丁':{name:'阴火',cn:'丁火',arch:'精准光束',roast:'你明明在进行精准的心理战，却装出一副无害小夜灯的样子。一旦被触怒，你不会爆发——你会计算。然后用外科手术般的精准，把对方的信誉烧出一个洞。',mA:'烛光——导航信标。神秘感即产品本身。',mB:'熔炉——炼金之器。在分子层面记仇。'},
-'戊':{name:'阳土',cn:'戊土',arch:'稳固基岩',roast:'你的帧率卡在0.5FPS。你把处理延迟当成智慧。拒绝被侵蚀的山峰不会成为永恒——它只会成为废墟。',mA:'大坝——以绝对不动之质，容纳混沌。',mB:'荒山——抗侵蚀的不毛之地。'},
-'己':{name:'阴土',cn:'己土',arch:'孕育母土',roast:'你什么都吸收，却毫无索引系统地储存。没人知道你在想什么，因为你缓存了47种相互矛盾的观点，随时调用最应景的那个。',mA:'沃土——农耕基质。终极人才孵化器。',mB:'沼泽——持续吸收污染物，却从不处理。'},
-'庚':{name:'阳金',cn:'庚金',arch:'原矿熔锻',roast:'你的冲突解决方案只有一个功能：物理消除。细腻与外交手腕不是从你系统里缺失的——它们从来就没被安装过。',mA:'利器——经过锻造的武装。执行正义。',mB:'废料——太粗糙，无法精雕；太脆，无法承重。'},
-'辛':{name:'阴金',cn:'辛金',arch:'精炼神器',roast:'你的质量管控高到天际，已经把99%的现实过滤为"不够格"。你无价、无瑕，且彻底孤独。',mA:'宝玉——经水磨砺。以稀缺与美学完美赢得溢价。',mB:'矿石——埋于土中，外裹沉积。暗淡、无名、潜伏。'},
-'壬':{name:'阳水',cn:'壬水',arch:'超导洪流',roast:'你没有形状，也没有原则——只有速度。天才级的智识，配上幼儿级的冲动控制。你不建立系统；你让系统短路。',mA:'江河——被引导的流动。开启灌溉、贸易与能量。',mB:'洪水——灾难性溢出。无道德的智慧。'},
-'癸':{name:'阴水',cn:'癸水',arch:'无声渗透者',roast:'你像服务器机房里的湿气一样渗入每一道缝隙——无形、持续、腐蚀。你的超能力是让他人感到窒息，却找不到任何具体原因。',mA:'雨水——大气降水。肥沃的无形基础设施。',mB:'薄雾——遮光的水汽。以弥漫的存在令人窒息。'}
-};
-var PAZH={
-'甲_wealth':'你的财富路径穿越领导力与主动性。甲木通过开辟新领域来生财——而非优化现有系统。当你停止跟随他人剧本、开始建立自己的时，财务突破才会到来。寻找你能成为先行者的领域。',
-'甲_love':'你吸引需要你力量的伴侣，然后怨恨他们的依赖。你的关系模式：守护者变成囚徒。解法不是找一个不需要你的人——而是找一个站在你身边而非脚下的人。',
-'甲_2026':'2026是火年，击中你的木——你的想法终于点燃。你默默播下的项目开始产生可见的成果。风险：燃烧太快。调控你的扩张节奏，否则你会在自己的势头下断裂。',
-'乙_wealth':'你的财富来自网络，而非蛮力。乙木通过连接人脉、撮合关系、寻找既有结构间的缝隙来获利。你永远赢不过对手的蛮力——但你可以在迂回中胜过他们。',
-'乙_love':'你把自己完全缠绕在伴侣身上，以至于失去了自己的形状。你的连接模式是以奉献为名的融合。健康的爱意味着在与他人并行生长的同时，保持自己的根系。',
-'乙_2026':'2026的火能量加速你的创意产出。沉睡的想法开始迅速萌芽。危险：在太多机会中铺摊太薄。选定一根藤蔓去攀爬，全力投入。',
-'丙_wealth':'你通过被看见来创造财富。丙火将注意力、影响力和公众存在变现。你的错误在于试图悄悄积累财富——你的钱在聚光灯下。内容创作、领导力、品牌建设。',
-'丙_love':'你以全功率去爱，这要么激励伴侣，要么令其失明。你的模式：给予热量，却不确认对方能否承受。最相容的伴侣不是被你的光所震慑的人——而是拥有自己光芒的人。',
-'丙_2026':'2026是你的元素之年。最大的曝光度，最大的机遇，最大的燃尽风险。这是你的扩张窗口——但别把活动量和进步混为一谈。聚焦你的光束。',
-'丁_wealth':'你的财富来自精准与专精。丁火不以量取胜——你以深度竞争。咨询、分析、细分专业。一个外科手术式的洞见，胜过千个泛泛之论。',
-'丁_love':'你瞬间看穿他人，这使肤浅的关系令你无法忍受。你的模式：用难以破解的情感谜题测试伴侣。解开的人赢得你的全心托付。解不开的人，从不知道自己正在被测试。',
-'丁_2026':'2026将你的洞察力放大至危险水平。你会看到他人错过的机遇，但也会看到可能并不存在的威胁。相信你的精准直觉。别让偏执凌驾于模式识别之上。',
-'戊_wealth':'你的财富是结构性的，而非投机性的。戊土通过不动产、长期持有和耐心积累财富。追逐趋势让你亏损；成为他人赖以建设的地基让你获益。',
-'戊_love':'你是场上最忠诚的伴侣，也是最无聊的那个。你的关系挑战不是忠诚——是激情。稳定是你的礼物，但停滞是你的陷阱。偶尔给他们一个惊喜。',
-'戊_2026':'2026的火滋养你的土——你变得更强、更充足、更受需求。在动荡的年份里，人们需要你的稳定性。风险：承载所有人的重量，直到自己崩溃。',
-'己_wealth':'你通过培育他人的潜力来创造财富。己土在教育、人才发展、农业，或任何从无到有的领域获利。你的回报缓慢，但会复利增长。',
-'己_love':'你吸收伴侣的个性，直到无法分辨他们的需求与你自己的。你的关系模式：以过度顺从实现自我消除。设立第一个界限会感觉像背叛。还是去做吧。',
-'己_2026':'2026带来炙烤你土壤的热量——来自上方的压力迫使你整合。停止吸收新的输入，开始处理你已持有的。清晰来自删减，而非叠加。',
-'庚_wealth':'你通过切割来赚钱——削减成本、敲定交易、切穿竞争。庚金的财务本能是消除，而非积累。你最好的行动是果决且不可逆的。',
-'庚_love':'你把关系当谈判，然后困惑于为何没人感到被珍视。你的模式：忠诚而无温柔。你会为对方而战，却忘记拥抱他们。在你的力量中加入柔软。',
-'庚_2026':'2026的火正在熔化你的金——这是你的精炼之年。感觉像毁灭的，其实是蜕变。那个职业转折、那次被迫改变、你正在抗拒的那件事——那是锻炉将矿石炼成利刃的过程。',
-'辛_wealth':'你的财富来自品质，而非数量。辛金通过稀缺性与美学完美来赢得溢价定价。停止在价格上竞争。在没有人能匹敌的标准上竞争。',
-'辛_love':'你的标准过滤掉了99%的潜在伴侣，这既是你的超能力，也是你的孤独。你的模式：宁可完美地孤独，也不要不完美地相伴。问题是，完美是否值得那个代价。',
-'辛_2026':'2026的火压力测试你的纯粹。经历今年热度后留存的，才是真正属于你的。融化消失的，从来就不是真实的。放手。精炼的过程虽然痛苦，但结果是更锋利、更纯粹的你。',
-'壬_wealth':'你的财富在流动中——交易、旅行、信息套利。壬水通过比所有人移动更快来赚钱。停滞时你会亏损。保持流动，保持扫描，持续适应。',
-'壬_love':'你用强度淹没每段关系，然后困惑于为何他们溺水。你的模式：爱如海啸。解法不是减少激情——而是引导激情。找一个能在你的水流中游泳的人。',
-'壬_2026':'2026的火蒸发浅层的水性活动——浅薄的项目会干涸。只有深根扎实的事业才能存活。这一年奖励深度而非广度。专注于一条河道，让它凿出峡谷。',
-'癸_wealth':'你的财富运行在无形的渠道中——后台系统、被动收入、知识产权。癸水通过渗透进他人未察觉的市场来获利。你最好的资产，是没有人知道的那些。',
-'癸_love':'你比伴侣更了解他们自己的情感地图，这创造了一种令人不安的权力不对等。你的模式：吸收他们的感受，直到你在别人的情绪里溺水。维护你自己的气候。',
-'癸_2026':'2026的火将你隐藏的资源带至地表。你默默建造的事物开始被人注意。为你未曾预料的曝光度做好准备。阴影正在收缩——在自己的节奏下，走向光。'
-};
-var SMZH={'比肩':{c:'盾墙',i:'🛡️',d:'同频之盟。以数量为力。'},'劫财':{c:'暗影分身',i:'⚔️',d:'同频之敌。竞争磨砺心智。'},'食神':{c:'灵魂馈赠',i:'🎵',d:'被动创意输出。无功利之艺。'},'伤官':{c:'混沌涌动',i:'💥',d:'爆发式表达。打破规则，掀起波澜。'},'正财':{c:'资源采掘',i:'💰',d:'稳定财富积累。薪资路线。'},'偏财':{c:'战利品掉落',i:'🎰',d:'横财潜力。高风险，高回报。'},'正官':{c:'法律秩序',i:'⚖️',d:'权威认同。依规行事。'},'七杀':{c:'执行者',i:'🗡️',d:'极端压力。要么粉碎你，要么铸造你。'},'正印':{c:'防火高墙',i:'🏛️',d:'受制度庇护。稳定但停滞。'},'偏印':{c:'意识宫殿',i:'🧠',d:'偏门知识。在黑暗中学习。'}};
-var AMZH={'桃花':{c:'海妖之气',d:'社交磁场激活。'},'红艳':{c:'致命吸引',d:'危险的魅力。'},'华盖':{c:'虚空之壳',d:'独狼模式。'},'羊刃':{c:'狂暴模式',d:'攻击性溢出。'},'魁罡':{c:'王者霸气',d:'支配力场。'},'将星':{c:'统帅光环',d:'天生领导力。'},'禄神':{c:'铁饭碗',d:'薪资级收入锁定。'},'驿马':{c:'飞毛腿',d:'天生流动者。'},'天乙贵人':{c:'神圣护盾',d:'贵人庇佑。'}};
-var VTZH={'Fire=0':['🔥 火 = 0','引擎未安装。激情协议离线。'],'Wood=0':['🌱 木 = 0','生长模块缺失。你只规划，不行动。'],'Water=0':['💧 水 = 0','情感带宽归零。理智在干涸边缘。'],'Metal=0':['⚔️ 金 = 0','没有锋芒。决策在模糊中消溶。'],'Earth=0':['🏔️ 土 = 0','没有地基。一切建在流沙之上。'],'Fire≥3':['🔥 火 ≥ 3','过热。燃得最亮，熄得最快，燃尽一切。'],'Metal≥3':['⚔️ 金 ≥ 3','过度锋利。切割一切，包括你自己。'],'Water≥3':['💧 水 ≥ 3','溢流。智识无方向地泛滥。'],'Wood≥3':['🌱 木 ≥ 3','过度蔓延。扩张进每一个领域，精通于零。'],'Earth≥3':['🏔️ 土 ≥ 3','缓存超载。吸收一切，处理为零。']};
-var VMZH={'比肩':'盾墙变体','劫财':'暗影分身变体','食神':'灵魂馈赠变体','伤官':'混沌涌动变体','正财':'资源采掘变体','偏财':'战利品掉落变体','正官':'法律秩序变体','七杀':'执行者变体','正印':'防火高墙变体','偏印':'意识宫殿变体'};
-var UI_ZH={
-  preTitle:'DestinyOS 出品',subtitle:'你的命盘，已解译。',
-  intro1:'每一个生辰都有它的含义。',intro2:'融汇三千年古中国八字智慧，让我们为你解读命盘真正的暗示。',intro3:'你也许会发现某些东西，一直在暗中塑造你的人生——早在你察觉之前。',
-  btnMain:'解译我的命盘 →',privacy:'🔒 本地运算 — 你的数据从不离开你的设备。',
-  pathTitle:'现在最重要的是什么？',pathSub:'选一个维度。我们从这里解读你的命盘。',
-  w3:'财富与运势',w3s:'我的钱藏在哪里？',l3:'爱情与关系',l3s:'我的连接模式是什么？',f3:'2026 运势',f3s:'今年将有什么到来？',
-  pathLocked:'已锁定：',
-  inputLabel:'输入你的出生信息。',yearPh:'年',monthPh:'月',dayPh:'日',
-  genderLabel:'性别（可选）',male:'男',female:'女',skip:'跳过',
-  btnDecode:'解译 →',privacySm:'🔒 零知识：数据在本地运算，从不离开你的设备。',
-  loading:'正在读取你的配置...',
-  rLabel:'核心内核已识别',rYou:'你是',
-  roastTag:'系统吐槽',
-  saveCard:'📸 保存卡片',shareX:'𝕏 分享到 X',copy:'📋 复制',
-  secGuide1:'你的顶级运作协议：',secSkill:'技能树（前3位）',
-  secGuide2:'特殊固件已检测：',secAffix:'传奇词缀',
-  secGuide3:'你的系统在两种状态下运行：',secDual:'双模式',modeOpt:'优化模式',modeRaw:'原始固件',
-  vulnTitle:'⚠️ 系统漏洞',vulnGuide:'已识别关键系统缺口：',
-  elTitle:'📊 五行原始数据',elGuide:'原始五行分布：',
-  noAffix:'此配置中未检测到传奇词缀。',noVuln:'配置均衡。无关键漏洞。',
-  upsellH:'这只是表面。',upsellP:'你的五行图谱显示出出厂设置——但你当前的运行周期呢？现在正在开启和关闭的窗口？那是更深的一层。',upsellBtn:'完整报告 — 即将推出',
-  reset:'解译另一个命盘',footer:'模式识别，非命运预测。',
-  pathTags:{wealth:'💰 财富解读',love:'💘 爱情解读','2026':'🔥 2026 运势'},
-  pathBtns:{wealth:'💰 财富',love:'💘 爱情','2026':'🔥 2026'},
-  pathLocks:{wealth:'💰 财富与运势',love:'💘 爱情与关系','2026':'🔥 2026 运势'},
-  hourUnknown:'我不知道我的出生时辰',
-  dmLabel:'日主：',systemEquil:'系统均衡变体',coreVariant:'核心变体'
-};
-
-function setLang(l){
-  lang=l;
-  document.getElementById('langToggle').textContent=l==='en'?'中文':'EN';
-  if(l==='zh'){
-    document.querySelector('.pre-title').textContent=UI_ZH.preTitle;
-    document.querySelector('.subtitle').textContent=UI_ZH.subtitle;
-    var ps=document.querySelectorAll('.intro-box p');if(ps[0])ps[0].textContent=UI_ZH.intro1;if(ps[1])ps[1].textContent=UI_ZH.intro2;if(ps[2])ps[2].textContent=UI_ZH.intro3;
-    document.querySelector('.btn-main').textContent=UI_ZH.btnMain;
-    document.querySelector('.privacy-line').textContent=UI_ZH.privacy;
-    document.querySelector('.path-title').textContent=UI_ZH.pathTitle;
-    document.querySelector('.path-sub').textContent=UI_ZH.pathSub;
-    var cards=document.querySelectorAll('.path-card');
-    if(cards[0]){cards[0].querySelector('h3').textContent=UI_ZH.w3;cards[0].querySelector('p').textContent=UI_ZH.w3s;}
-    if(cards[1]){cards[1].querySelector('h3').textContent=UI_ZH.l3;cards[1].querySelector('p').textContent=UI_ZH.l3s;}
-    if(cards[2]){cards[2].querySelector('h3').textContent=UI_ZH.f3;cards[2].querySelector('p').textContent=UI_ZH.f3s;}
-    document.querySelector('.input-label').textContent=UI_ZH.inputLabel;
-    document.querySelector('#selYear option').textContent=UI_ZH.yearPh;
-    document.querySelector('#selMonth option').textContent=UI_ZH.monthPh;
-    document.querySelector('#selDay option').textContent=UI_ZH.dayPh;
-    document.querySelector('#selHour option').textContent=UI_ZH.hourUnknown;
-    var gl=document.querySelector('[style*="margin-bottom:6px"]');if(gl)gl.textContent=UI_ZH.genderLabel;
-    var gb=document.querySelectorAll('.gender-btn');if(gb[0])gb[0].textContent=UI_ZH.male;if(gb[1])gb[1].textContent=UI_ZH.female;if(gb[2])gb[2].textContent=UI_ZH.skip;
-    document.querySelector('.privacy-sm').textContent=UI_ZH.privacySm;
-    document.querySelector('.load-text').textContent=UI_ZH.loading;
-    var ry=document.querySelector('.r-you');if(ry)ry.textContent=UI_ZH.rYou;
-    var re=document.querySelector('.r-eyebrow');if(re)re.textContent='你的命盘已解译';
-    var rt=document.querySelector('.roast-tag');if(rt)rt.textContent=UI_ZH.roastTag;
-    var sb=document.querySelectorAll('.share-btn');if(sb[0])sb[0].textContent=UI_ZH.saveCard;if(sb[1])sb[1].textContent=UI_ZH.shareX;if(sb[2])sb[2].textContent=UI_ZH.copy;
-    var us=document.querySelector('.upsell h3');if(us)us.textContent=UI_ZH.upsellH;
-    var up=document.querySelector('.upsell p');if(up)up.textContent=UI_ZH.upsellP;
-    var ub=document.querySelector('.btn-upsell');if(ub)ub.textContent=UI_ZH.upsellBtn;
-    var rr=document.querySelector('.reset-link button');if(rr)rr.textContent=UI_ZH.reset;
-    var ft=document.querySelector('.footer-tag');if(ft)ft.textContent=UI_ZH.footer;
-  } else {
-    document.querySelector('.pre-title').textContent='DestinyOS presents';
-    document.querySelector('.subtitle').textContent='Your birth code, decoded.';
-    var ps=document.querySelectorAll('.intro-box p');if(ps[0])ps[0].textContent='Every birth code has a meaning.';if(ps[1])ps[1].textContent='Drawing on 3,000 years of Ancient Chinese BaZi, let us interpret what yours truly implies.';if(ps[2])ps[2].textContent='You may discover something that has secretly been shaping your life \u2014 long before you ever noticed it was there.';
-    document.querySelector('.btn-main').textContent='DECODE MY SOURCE CODE \u2192';
-    document.querySelector('.privacy-line').textContent='\uD83D\uDD12 Processed locally \u2014 your data never leaves this device.';
-    document.querySelector('.path-title').textContent='What matters most right now?';
-    document.querySelector('.path-sub').textContent="Pick a lens. We'll decode your chart through it.";
-    var cards=document.querySelectorAll('.path-card');
-    if(cards[0]){cards[0].querySelector('h3').textContent='WEALTH & FORTUNE';cards[0].querySelector('p').textContent="Where's my money hiding?";}
-    if(cards[1]){cards[1].querySelector('h3').textContent='LOVE & RELATIONSHIPS';cards[1].querySelector('p').textContent="What's my connection pattern?";}
-    if(cards[2]){cards[2].querySelector('h3').textContent='2026 FORECAST';cards[2].querySelector('p').textContent="What's coming this year?";}
-    document.querySelector('.input-label').textContent='Enter your birth data.';
-    document.querySelector('#selYear option').textContent='Year';
-    document.querySelector('#selMonth option').textContent='Month';
-    document.querySelector('#selDay option').textContent='Day';
-    document.querySelector('#selHour option').textContent="I don't know my birth time";
-    var gl=document.querySelector('[style*="margin-bottom:6px"]');if(gl)gl.textContent='Gender (optional)';
-    var gb=document.querySelectorAll('.gender-btn');if(gb[0])gb[0].textContent='Male';if(gb[1])gb[1].textContent='Female';if(gb[2])gb[2].textContent='Skip';
-    document.querySelector('.privacy-sm').textContent='\uD83D\uDD12 Zero-Knowledge: Your data is calculated locally and never leaves your device.';
-    document.querySelector('.load-text').textContent='Reading your configuration...';
-    var ry=document.querySelector('.r-you');if(ry)ry.textContent='You are';
-    var re=document.querySelector('.r-eyebrow');if(re)re.textContent='YOUR BIRTH CODE DECODED';
-    var rt=document.querySelector('.roast-tag');if(rt)rt.textContent='The Truth About You';
-    var sb=document.querySelectorAll('.share-btn');if(sb[0])sb[0].textContent='\uD83D\uDCF8 Save Card';if(sb[1])sb[1].textContent='\u{1D54F} Share on X';if(sb[2])sb[2].textContent='\uD83D\uDCCB Copy';
-    var us=document.querySelector('.upsell h3');if(us)us.textContent='This is the surface.';
-    var up=document.querySelector('.upsell p');if(up)up.textContent='Your Five Element profile shows your factory settings \u2014 but your current operating cycle? The windows opening and closing right now? That\'s a deeper layer.';
-    var ub=document.querySelector('.btn-upsell');if(ub)ub.textContent='FULL REPORT \u2014 COMING SOON';
-    var rr=document.querySelector('.reset-link button');if(rr)rr.textContent='Decode another birth code';
-    var ft=document.querySelector('.footer-tag');if(ft)ft.textContent='Pattern recognition, not prediction.';
-  }
-  if(curRes){aiCache={};renderResult();}
-}
+var selectedPath='wealth',selectedGender='';
 function goTo(n){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active','active-block')});var s=document.getElementById(n===4?'resultScreen':'s'+n);if(n===4)s.classList.add('active-block');else s.classList.add('active');window.scrollTo({top:0,behavior:'instant'})}
-function selectPath(p,el){selectedPath=p;document.querySelectorAll('.path-card').forEach(function(c){c.classList.remove('selected')});el.classList.add('selected');var L=lang==='zh'?UI_ZH.pathLocks:{wealth:'\uD83D\uDCB0 Wealth & Fortune',love:'\uD83D\uDC98 Love & Relationships','2026':'\uD83D\uDD25 2026 Forecast'};var prefix=lang==='zh'?UI_ZH.pathLocked:'Path locked: ';document.getElementById('pathLabel').textContent=prefix+L[p];setTimeout(function(){goTo(3)},400)}
+function selectPath(p,el){selectedPath=p;document.querySelectorAll('.path-card').forEach(function(c){c.classList.remove('selected')});el.classList.add('selected');var L={wealth:'\uD83D\uDCB0 Wealth & Fortune',love:'\uD83D\uDC98 Love & Relationships','2026':'\uD83D\uDD25 2026 Forecast'};document.getElementById('pathLabel').textContent='Path locked: '+L[p];setTimeout(function(){goTo(3)},400)}
 function pickGender(g,el){selectedGender=g;document.querySelectorAll('.gender-btn').forEach(function(b){b.classList.remove('selected')});el.classList.add('selected')}
 !function(){var y=document.getElementById('selYear');for(var i=2010;i>=1930;i--){var o=document.createElement('option');o.value=i;o.textContent=i;y.appendChild(o)}var m=document.getElementById('selMonth');for(var i=1;i<=12;i++){var o=document.createElement('option');o.value=i;o.textContent=String(i).padStart(2,'0');m.appendChild(o)}var d=document.getElementById('selDay');for(var i=1;i<=31;i++){var o=document.createElement('option');o.value=i;o.textContent=String(i).padStart(2,'0');d.appendChild(o)}}();
 function checkInput(){var y=document.getElementById('selYear').value,m=document.getElementById('selMonth').value,d=document.getElementById('selDay').value,b=document.getElementById('btnDecode');if(y&&m&&d){b.disabled=false;b.className='btn-decode active'}else{b.disabled=true;b.className='btn-decode disabled'}}
@@ -437,18 +291,7 @@ function checkInput(){var y=document.getElementById('selYear').value,m=document.
 // ═══════════════════════════════════════
 // DATA
 // ═══════════════════════════════════════
-var K={
-'甲':{name:'Yang Wood',arch:'THE PIONEER',tagline:'"You grow toward light even when there\'s nothing to grow toward."',roast:"Your integrity protocol guarantees catastrophic structural failure. You confuse rigidity with strength. The first major impact will snap you in half.",mA:"THE BEAM \u2014 Load-bearing infrastructure. The spinal column of empires.",mB:"THE ANCIENT TREE \u2014 Branches proliferate without strategic intent.",el:'wood'},
-'乙':{name:'Yin Wood',arch:'THE ADAPTER',tagline:'"You bend in every storm. You have never broken."',roast:"Your survival strategy is elegant cowardice: wrap yourself around stronger entities and call it \u2018collaboration.\u2019 You\u2019re not building anything \u2014 you\u2019re just good at not dying alone.",mA:"THE VINE \u2014 Leverages others\u2019 stability for vertical ascension.",mB:"THE WEED \u2014 Immune to surface destruction but perpetually underfoot.",el:'wood'},
-'丙':{name:'Yang Fire',arch:'THE BEACON',tagline:'"Every room you enter gets brighter. Every room you leave gets quieter."',roast:"You come with a permanent spotlight and zero dimmer switch. Everyone sees you, nobody can stand next to you. You\u2019re the sun of a dead solar system \u2014 bright, lonely, wondering why all the planets went cold.",mA:"THE SUN \u2014 Illuminates indiscriminately. Demands nothing in return.",mB:"THE INFERNO \u2014 Consumes oxygen, leaves ash, occasionally self-immolates.",el:'fire'},
-'丁':{name:'Yin Fire',arch:'THE EMBER',tagline:'"You burn longer than anyone expects. Longer than you expect."',roast:"You project \u2018harmless nightlight\u2019 while running targeted psychological warfare. Once offended, you don\u2019t explode \u2014 you calculate. Then you burn a hole through their credibility with surgical precision.",mA:"THE CANDLE \u2014 Navigational beacon. Mystique is the product.",mB:"THE FURNACE \u2014 Holds grudges at the molecular level.",el:'fire'},
-'戊':{name:'Yang Earth',arch:'THE FORTRESS',tagline:'"You hold things together that would fall apart without you. Nobody notices until you stop."',roast:"Your frame rate is stuck at 0.5 FPS. You mistake processing latency for wisdom. The mountain that refuses to erode doesn\u2019t become eternal \u2014 it becomes irrelevant.",mA:"THE DAM \u2014 Contains chaos through sheer immovable mass.",mB:"THE BARREN MOUNTAIN \u2014 Confuses \u2018unchanging\u2019 with \u2018immortal.\u2019",el:'earth'},
-'己':{name:'Yin Earth',arch:'THE CULTIVATOR',tagline:'"You are the soil. Everything grows in you. Nobody thinks about the soil."',roast:"You consume everything and store it with zero indexing system. Nobody knows what you think because you\u2019ve cached 47 contradictory opinions and deploy whichever suits the moment.",mA:"THE GARDEN \u2014 The ultimate talent incubator.",mB:"THE SWAMP \u2014 Absorbs pollutants without processing.",el:'earth'},
-'庚':{name:'Yang Metal',arch:'THE SWORD',tagline:'"You cut through. It\'s not cruelty. It\'s clarity."',roast:"Your conflict resolution has one function: physical elimination. Subtlety and diplomacy weren\u2019t absent from your system \u2014 they were never installed.",mA:"THE WEAPON \u2014 Executes justice, clears forests, establishes borders.",mB:"THE SCRAP \u2014 Too coarse for precision, too brittle for construction.",el:'metal'},
-'辛':{name:'Yin Metal',arch:'THE REFINED ARTIFACT',tagline:'"You don\'t break. You outlast."',roast:"Your quality control is so astronomical you\u2019ve filtered out 99% of reality as \u2018beneath you.\u2019 You\u2019re priceless, flawless, and completely alone.",mA:"THE JEWEL \u2014 Commands premium through scarcity and aesthetic perfection.",mB:"THE ORE \u2014 Buried in Earth, encrusted with sediment. Dim, anonymous, latent.",el:'metal'},
-'壬':{name:'Yang Water',arch:'THE HYPER FLUX',tagline:'"You have no shape and no ceiling. The problem is finding a container."',roast:"You have no shape and no principles \u2014 just velocity. Genius-level intellect paired with toddler-level impulse control. You don\u2019t build systems; you short-circuit them.",mA:"THE RIVER \u2014 Channeled flow. Enables irrigation, commerce, energy generation.",mB:"THE FLOOD \u2014 Intelligence without ethics; motion without purpose.",el:'water'},
-'癸':{name:'Yin Water',arch:'THE DEEP CURRENT',tagline:'"You move silently. You move everything."',roast:"You seep into every crack like humidity in a server room \u2014 invisible, persistent, corrosive. Your superpower is making others feel suffocated without identifiable cause.",mA:"THE RAIN \u2014 Invisible infrastructure of fertility.",mB:"THE MIST \u2014 Emotional weather system that suffocates through ambient presence.",el:'water'}
-};
+var K={'甲':{name:'Yang Wood',cn:'甲木',arch:'THE PRIME PILLAR',roast:"Your integrity protocol guarantees catastrophic structural failure. You confuse rigidity with strength. The first major impact will snap you in half.",mA:"THE BEAM \u2014 Post-refinement architecture. Load-bearing infrastructure. The spinal column of empires.",mB:"THE ANCIENT TREE \u2014 Unprocessed growth. Branches proliferate without strategic intent.",el:'wood'},'乙':{name:'Yin Wood',cn:'乙木',arch:'THE LIVING NETWORK',roast:"Your survival strategy is elegant cowardice: wrap yourself around stronger entities and call it \u2018collaboration.\u2019 You\u2019re not building anything \u2014 you\u2019re just good at not dying alone.",mA:"THE VINE \u2014 Strategic attachment. Leverages others\u2019 stability for vertical ascension.",mB:"THE WEED \u2014 Survival-mode redundancy. Immune to surface destruction but perpetually underfoot.",el:'wood'},'丙':{name:'Yang Fire',cn:'丙火',arch:'THE FUSION CORE',roast:"You come with a permanent spotlight and zero dimmer switch. Everyone sees you, nobody can stand next to you. You\u2019re the sun of a dead solar system \u2014 bright, lonely, wondering why all the planets went cold.",mA:"THE SUN \u2014 Civilization-grade power source. Illuminates indiscriminately.",mB:"THE INFERNO \u2014 Runaway chain reaction. Consumes oxygen, leaves ash.",el:'fire'},'丁':{name:'Yin Fire',cn:'丁火',arch:'THE FOCUSED BEAM',roast:"You project \u2018harmless nightlight\u2019 while running targeted psychological warfare. Once offended, you don\u2019t explode \u2014 you calculate. Then you burn a hole through their credibility with surgical precision.",mA:"THE STAR/CANDLE \u2014 Navigational beacon. Mystique is the product.",mB:"THE FURNACE \u2014 Alchemical forge. Holds grudges at the molecular level.",el:'fire'},'戊':{name:'Yang Earth',cn:'戊土',arch:'THE SOLID BEDROCK',roast:"Your frame rate is stuck at 0.5 FPS. You mistake processing latency for wisdom. The mountain that refuses to erode doesn\u2019t become eternal \u2014 it becomes irrelevant.",mA:"THE DAM \u2014 Contains chaos through sheer immovable mass.",mB:"THE BARREN MOUNTAIN \u2014 Erosion-resistant wasteland.",el:'earth'},'己':{name:'Yin Earth',cn:'己土',arch:'THE MATRIX SOIL',roast:"You consume everything and store it with zero indexing system. Nobody knows what you think because you\u2019ve cached 47 contradictory opinions and deploy whichever suits the moment.",mA:"THE GARDEN \u2014 Agricultural substrate. The ultimate talent incubator.",mB:"THE SWAMP \u2014 Absorbs pollutants without processing.",el:'earth'},'庚':{name:'Yang Metal',cn:'庚金',arch:'THE RAW ORE',roast:"Your conflict resolution has one function: physical elimination. Subtlety and diplomacy weren\u2019t absent from your system \u2014 they were never installed.",mA:"THE WEAPON \u2014 Post-forge armament. Executes justice.",mB:"THE SCRAP \u2014 Too coarse for precision, too brittle for construction.",el:'metal'},'辛':{name:'Yin Metal',cn:'辛金',arch:'THE REFINED ARTIFACT',roast:"Your quality control is so astronomical you\u2019ve filtered out 99% of reality as \u2018beneath you.\u2019 You\u2019re priceless, flawless, and completely alone.",mA:"THE JEWEL \u2014 Polished by Water. Commands premium through scarcity and aesthetic perfection.",mB:"THE ORE \u2014 Buried in Earth, encrusted with sediment. Dim, anonymous, latent.",el:'metal'},'壬':{name:'Yang Water',cn:'壬水',arch:'THE HYPER FLUX',roast:"You have no shape and no principles \u2014 just velocity. Genius-level intellect paired with toddler-level impulse control. You don\u2019t build systems; you short-circuit them.",mA:"THE RIVER \u2014 Channeled flow. Enables irrigation, commerce, and energy generation.",mB:"THE FLOOD \u2014 Catastrophic overflow. Intelligence without ethics.",el:'water'},'癸':{name:'Yin Water',cn:'癸水',arch:'THE SILENT PERMEATOR',roast:"You seep into every crack like humidity in a server room \u2014 invisible, persistent, corrosive. Your superpower is making others feel suffocated without identifiable cause.",mA:"THE RAIN \u2014 Atmospheric precipitation. Invisible infrastructure of fertility.",mB:"THE MIST \u2014 Light-occluding vapor. Suffocates through ambient presence.",el:'water'}};
 var SM={'比肩':{c:'SHIELD WALL',i:'🛡️',d:'Allies with same code. Strength in numbers.'},'劫财':{c:'SHADOW CLONE',i:'⚔️',d:'Rivals with same code. Competition sharpens.'},'食神':{c:'SOUL FEED',i:'🎵',d:'Passive creative output. Art without agenda.'},'伤官':{c:'CHAOS SURGE',i:'💥',d:'Explosive expression. Breaks rules, makes waves.'},'正财':{c:'RESOURCE MINING',i:'💰',d:'Steady wealth acquisition. The salary path.'},'偏财':{c:'LOOT DROP',i:'🎰',d:'Windfall potential. High risk, high reward.'},'正官':{c:'LAW & ORDER',i:'⚖️',d:'Authority alignment. Plays by the rules.'},'七杀':{c:'THE EXECUTIONER',i:'🗡️',d:'Extreme pressure. Either breaks or forges you.'},'正印':{c:'THE GREAT FIREWALL',i:'🏛️',d:'Protected by institutions. Stable but stagnant.'},'偏印':{c:'MIND PALACE',i:'🧠',d:'Backdoor knowledge. You learn in the dark.'}};
 var VM={'比肩':'SHIELD WALL VARIANT','劫财':'SHADOW CLONE VARIANT','食神':'SOUL FEED VARIANT','伤官':'CHAOS SURGE VARIANT','正财':'RESOURCE MINING VARIANT','偏财':'LOOT DROP VARIANT','正官':'LAW & ORDER VARIANT','七杀':'EXECUTIONER VARIANT','正印':'FIREWALL VARIANT','偏印':'MIND PALACE VARIANT'};
 var AM={'桃花':{c:"SIREN'S AURA",d:'Social magnetism active.'},'红艳':{c:'FATAL ATTRACTION',d:"Dangerous charisma."},'华盖':{c:'VOID SHELL',d:'Lone wolf mode.'},'羊刃':{c:'BERSERK MODE',d:'Aggression overflow.'},'魁罡':{c:"KING'S HAKI",d:'Command presence.'},'将星':{c:'COMMAND AURA',d:'Natural leadership.'},'禄神':{c:'IRON RICE BOWL',d:'Salary-grade income locked.'},'驿马':{c:'SPEEDSTER',d:'Born to move.'},'天乙贵人':{c:'DIVINE SHIELD',d:'Lucky saves.'}};
@@ -545,7 +388,7 @@ var vn=[];
 // Variant
 var variantText='CORE VARIANT';
 if(sg.length>=1){var topG=sg[0],isB=sg.length>=2&&(topG[1]-sg[1][1])<=1;variantText=isB?'SYSTEM EQUILIBRIUM VARIANT':(VM[topG[0]]||'CORE VARIANT')}
-curRes={k:K[ds],ds:ds,elC:elC,sg:sg,af:af,vn:vn,hh:h>=0,ec:ec,variant:variantText,variantKey:sg.length>=1?sg[0][0]:null,variantIsB:sg.length>=2&&(sg[0][1]-sg[1][1])<=1};
+curRes={k:K[ds],ds:ds,elC:elC,sg:sg,af:af,vn:vn,hh:h>=0,ec:ec,variant:variantText};
 setTimeout(function(){ls.style.display='none';renderResult()},2300);
 }
 
@@ -553,44 +396,36 @@ setTimeout(function(){ls.style.display='none';renderResult()},2300);
 // RENDER
 // ═══════════════════════════════════════
 function renderResult(){
-var r=curRes;
-var k=lang==='zh'?(KZH[r.ds]||r.k):r.k;
-var curSM=lang==='zh'?SMZH:SM;
-var curAM=lang==='zh'?AMZH:AM;
-var curVT=lang==='zh'?VTZH:VT;
-var curVM=lang==='zh'?VMZH:VM;
-var variantText=r.variantIsB?(lang==='zh'?UI_ZH.systemEquil:'SYSTEM EQUILIBRIUM VARIANT'):(curVM[r.variantKey]||(lang==='zh'?UI_ZH.coreVariant:'CORE VARIANT'));
-document.getElementById('rType').textContent=k.arch;
-document.getElementById('rTagline').textContent=k.tagline||'';
+var k=curRes.k,r=curRes;
+document.getElementById('rCn').textContent=k.cn;
+document.getElementById('rArch').textContent=k.arch;
+document.getElementById('rVariant').textContent='// '+r.variant;
+document.getElementById('rDm').textContent='Day Master: '+k.name;
 document.getElementById('rRoast').textContent='\u201C'+k.roast+'\u201D';
-// Data panel — Day Master
-document.getElementById('dataDm').textContent=k.name;
+document.getElementById('rMA').textContent=k.mA;
+document.getElementById('rMB').textContent=k.mB;
 // Path Answer
-loadReading(selectedPath);
+showPathAnswer(selectedPath);
 // Path switch buttons
 var ps=document.getElementById('pathSwitch');
-var paths=lang==='zh'?[{k:'wealth',l:UI_ZH.pathBtns.wealth},{k:'love',l:UI_ZH.pathBtns.love},{k:'2026',l:UI_ZH.pathBtns['2026']}]:[{k:'wealth',l:'\uD83D\uDCB0 Money'},{k:'love',l:'\uD83D\uDC98 Relationships'},{k:'2026',l:'\uD83D\uDD25 This Year'}];
+var paths=[{k:'wealth',l:'\uD83D\uDCB0 Money'},{k:'love',l:'\uD83D\uDC98 Relationships'},{k:'2026',l:'\uD83D\uDD25 This Year'}];
 ps.innerHTML=paths.map(function(p){return '<div class="ps-btn'+(p.k===selectedPath?' active':'')+'" onclick="switchPath(\''+p.k+'\',this)">'+p.l+'</div>'}).join('');
-// Skills (in data panel)
-var sl=document.getElementById('dataSkills');
-sl.innerHTML='<div class="data-label" style="display:block;margin-bottom:10px">Skill Tree (Top 3)</div>'+r.sg.map(function(g){var n=g[0],c=g[1],m=curSM[n]||{c:n,i:'\u26A1',d:''};var p=Math.min(c*25,100);return '<div class="skill-item"><div class="skill-icon">'+m.i+'</div><div class="skill-info"><div class="skill-name">'+m.c+'</div><div class="skill-desc">'+m.d+'</div><div class="skill-bar"><div class="skill-fill" data-w="'+p+'%" style="width:0%"></div></div></div></div>'}).join('');
-// Affixes (in data panel)
-var al=document.getElementById('dataAffixes');
-var noAffix=lang==='zh'?UI_ZH.noAffix:'No special stars detected.';
-al.innerHTML='<div class="data-label" style="display:block;margin-bottom:10px">Special Stars</div>'+(r.af.length?r.af.map(function(a){var m=curAM[a]||{c:a};return '<div class="affix-item"><span class="affix-star">\u2726</span><span class="affix-name">'+m.c+'</span></div>'}).join(''):'<div style="font-size:14px;color:var(--text3);font-style:italic">'+noAffix+'</div>');
-// Elements + Vulns (in data panel)
+// Skills
+var sl=document.getElementById('skillList');
+sl.innerHTML=r.sg.map(function(g){var n=g[0],c=g[1],m=SM[n]||{c:n,i:'\u26A1',d:''};var p=Math.min(c*25,100);return '<div class="skill-item"><div class="skill-icon">'+m.i+'</div><div class="skill-info"><div class="skill-name">'+m.c+'</div><div class="skill-cn">'+n+'</div><div class="skill-desc">'+m.d+'</div><div class="skill-bar"><div class="skill-fill" data-w="'+p+'%" style="width:0%"></div></div></div></div>'}).join('');
+// Affixes
+var al=document.getElementById('affixList');
+al.innerHTML=r.af.length?r.af.map(function(a){var m=AM[a]||{c:a};return '<div class="affix-item"><span class="affix-star">\u2726</span><span class="affix-name">'+m.c+'</span><span class="affix-cn">('+a+')</span></div>'}).join(''):'<div style="font-size:14px;color:var(--text3);font-style:italic">No legendary affixes detected in this configuration.</div>';
+// Vulns
+var vl=document.getElementById('vulnList');
+vl.innerHTML=r.vn.length?r.vn.map(function(v){var t=VT[v]||[v,''];return '<div class="vuln-item"><div class="vuln-icon">\u26A0\uFE0F</div><div><div class="vuln-label">'+t[0]+'</div><div class="vuln-desc">'+t[1]+'</div></div></div>'}).join(''):'<div style="font-size:14px;color:var(--text3);font-style:italic">Balanced configuration. No critical vulnerabilities.</div>';
+// Elements
 var sorted=Object.entries(r.elC).sort(function(a,b){return b[1]-a[1]});
 var mx=Math.max.apply(null,sorted.map(function(x){return x[1]}))||1;
-var elHtml='<div class="data-label" style="display:block;margin-bottom:10px">Five Elements</div>'+sorted.map(function(x){var n=x[0],s=x[1],e=EM[n],p=(s/mx)*100;return '<div class="el-row"><div class="el-top"><span class="el-emoji">'+e.e+'</span><span class="el-name" style="color:'+e.co+'">'+n+'</span><span class="el-spacer"></span><span class="el-score" style="color:'+e.co+'">'+s+'</span></div><div class="el-track"><div class="el-fill '+e.cl+'" data-w="'+p+'%"></div></div></div>'}).join('');
-document.getElementById('dataElements').innerHTML=elHtml;
-// Reset data panel state on new result
-var dp=document.getElementById('dataPanel');
-var dt=document.querySelector('.data-toggle');
-dp.style.display='none';
-dt.textContent='See the data behind this reading \u25BE';
+document.getElementById('elContent').innerHTML=sorted.map(function(x){var n=x[0],s=x[1],e=EM[n],p=(s/mx)*100;return '<div class="el-row"><div class="el-top"><span class="el-emoji">'+e.e+'</span><span class="el-name" style="color:'+e.co+'">'+n+'</span><span class="el-spacer"></span><span class="el-score" style="color:'+e.co+'">'+s+'</span></div><div class="el-track"><div class="el-fill '+e.cl+'" data-w="'+p+'%"></div></div></div>'}).join('');
 goTo(4);
-requestAnimationFrame(function(){setTimeout(function(){document.querySelectorAll('.skill-fill').forEach(function(b){b.style.width=b.dataset.w})},200)});
-var st='I just decoded my birth code with CIPHER.\n\nI\'m '+k.arch+'\n\n\u201C'+k.roast.slice(0,100)+'...\u201D\n\nDecode yours \u2192';
+requestAnimationFrame(function(){setTimeout(function(){document.querySelectorAll('.skill-fill,.el-fill').forEach(function(b){b.style.width=b.dataset.w})},200)});
+var st='I just decoded my birth code with CIPHER.\n\nI\'m '+k.cn+' \u2014 '+k.arch+'\n// '+r.variant+'\n\n\u201C'+k.roast.slice(0,100)+'...\u201D\n\nDecode yours \u2192';
 var pu=window.location.href.split('?')[0];
 document.getElementById('shareXBtn').href='https://twitter.com/intent/tweet?text='+encodeURIComponent(st)+'&url='+encodeURIComponent(pu);
 window._st=st+'\n'+pu;
@@ -599,12 +434,14 @@ var WORKER_URL='https://cipher-proxy.cipher-api.workers.dev';
 var aiCache={};
 function buildAiMessage(p){
 var r=curRes,ec=r.ec,ds=r.ds,k=r.k;
-var pathLabel={'wealth':'MONEY','love':'RELATIONSHIPS','2026':'THIS YEAR'}[p]||'MONEY';
-var msg=lang==='zh'
-?'请用中文分析这份八字命盘，维度：'+pathLabel+'。请全程用中文回答，语气直接、深刻，避免算命式表达。\n用以下结构输出（标题原样保留）：\nWHO YOU ARE\n[2-3段]\nYOUR '+pathLabel+' PATTERN\n[3-4段]\nYOUR BLIND SPOT\n[2条bullet，以•开头]\n\n'
-:'Analyze this birth chart for path: '+pathLabel+'.\nRespond in plain English — no Chinese characters, no BaZi jargon. Write like a sharp psychologist, not a fortune teller.\nUse EXACTLY these section headers on their own lines:\nWHO YOU ARE\nYOUR '+pathLabel+' PATTERN\nYOUR BLIND SPOT\n\nFor WHO YOU ARE: 2-3 paragraphs of psychological insight.\nFor YOUR '+pathLabel+' PATTERN: 3-4 paragraphs specific to this chart.\nFor YOUR BLIND SPOT: exactly 2 bullet points starting with •\n\n';
-msg+='Four Pillars:\nYear: '+ec.getYearGan()+ec.getYearZhi()+'\nMonth: '+ec.getMonthGan()+ec.getMonthZhi()+'\nDay: '+ec.getDayGan()+ec.getDayZhi()+'\n';
-if(r.hh)msg+='Hour: '+ec.getTimeGan()+ec.getTimeZhi()+'\n';else msg+='Hour: Unknown\n';
+var pathLabel={wealth:'WEALTH',love:'RELATIONSHIPS','2026':'2026'}[p]||'WEALTH';
+var msg='Analyze this birth chart. Path: '+pathLabel+'\n\n';
+msg+='Four Pillars:\n';
+msg+='Year: '+ec.getYearGan()+ec.getYearZhi()+' ('+ec.getYearShiShenGan()+')\n';
+msg+='Month: '+ec.getMonthGan()+ec.getMonthZhi()+' ('+ec.getMonthShiShenGan()+')\n';
+msg+='Day: '+ec.getDayGan()+ec.getDayZhi()+'\n';
+if(r.hh){msg+='Hour: '+ec.getTimeGan()+ec.getTimeZhi()+' ('+ec.getTimeShiShenGan()+')\n';}
+else{msg+='Hour: Unknown\n';}
 msg+='\nDay Master: '+ds+' ('+k.name+')\n';
 msg+='Top Skills: '+r.sg.slice(0,3).map(function(g){return g[0]+'\u00D7'+g[1]}).join(', ')+'\n';
 msg+='Shen Sha: '+(r.af.length?r.af.join(', '):'None')+'\n';
@@ -615,65 +452,75 @@ if(missing.length)msg+='Missing: '+missing.join(', ')+'\n';
 if(excess.length)msg+='Excess: '+excess.join(', ')+'\n';
 return msg;
 }
-function loadReading(p){
-var ld=document.getElementById('readingLoading');
-var el=document.getElementById('readingContent');
-var cacheKey=curRes.ds+'_'+p+'_ai_'+lang;
-if(aiCache[cacheKey]){ld.style.display='none';el.style.display='block';el.innerHTML=aiCache[cacheKey];return}
-ld.style.display='block';el.style.display='none';
-var msg=buildAiMessage(p);
-fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})})
-.then(function(res){return res.json()})
-.then(function(data){
-ld.style.display='none';el.style.display='block';
-if(data.analysis&&!data.error){
-var html=formatReading(data.analysis);
-aiCache[cacheKey]=html;
-el.innerHTML=html;
-}else{fallbackReading(p)}
-})
-.catch(function(){ld.style.display='none';el.style.display='block';fallbackReading(p)});
-}
-function fallbackReading(p){
-var key=curRes.ds+'_'+p;
-var text=lang==='zh'?(PAZH[key]||'分析暂不可用。'):(PA[key]||'Analysis not available.');
-document.getElementById('readingContent').innerHTML='<p>'+text+'</p>';
-}
 function formatReading(text){
 if(!text)return '<p>Reading unavailable.</p>';
+// Split by section headers
 var html=text
-.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-.replace(/^(WHO YOU ARE|YOUR WEALTH PATTERN|YOUR MONEY PATTERN|YOUR CONNECTION PATTERN|YOUR RELATIONSHIPS PATTERN|YOUR 2026 PATTERN|THIS YEAR|YOUR BLIND SPOT)/gm,'<h3>$1</h3>')
-.replace(/^[•·\-]\s*(.+)$/gm,'<li>$1</li>');
+  .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+  .replace(/\*(.*?)\*/g,'<em>$1</em>');
+// Convert section headers to h3
+html=html.replace(/^(WHO YOU ARE|YOUR WEALTH PATTERN|YOUR MONEY PATTERN|YOUR CONNECTION PATTERN|YOUR RELATIONSHIPS PATTERN|YOUR 2026 PATTERN|YOUR BLIND SPOT)\s*/gm,'<h3>$1</h3>');
+// Convert bullet points
+html=html.replace(/^[•·\-]\s*(.+)$/gm,'<li>$1</li>');
+// Split into paragraphs by double newlines
 var parts=html.split(/\n\n+/);
-html=parts.map(function(p){
-p=p.trim();
-if(!p)return '';
-if(p.startsWith('<h3>')||p.startsWith('<li>'))return p;
-if(!p.startsWith('<'))return '<p>'+p+'</p>';
-return p;
+var result=parts.map(function(p){
+  p=p.trim();
+  if(!p)return '';
+  if(p.startsWith('<h3>')||p.startsWith('<li>'))return p;
+  // Single newlines within a block become spaces
+  p=p.replace(/\n/g,' ');
+  if(!p.startsWith('<'))return '<p>'+p+'</p>';
+  return p;
 }).join('');
-html=html.replace(/(<li>[^]*?<\/li>)/g,function(m){return '<ul>'+m+'</ul>'});
-html=html.replace(/<\/ul>\s*<ul>/g,'');
-return html||'<p>'+text+'</p>';
+// Wrap consecutive li elements in ul
+result=result.replace(/(<li>[\s\S]*?<\/li>)/g,'<ul>$1</ul>');
+result=result.replace(/<\/ul>\s*<ul>/g,'');
+return result||'<p>'+text+'</p>';
+}
+function showPathAnswer(p){
+var cacheKey=curRes.ds+'_'+p+'_ai';
+var content=document.getElementById('readingContent');
+var loading=document.getElementById('readingLoading');
+if(aiCache[cacheKey]){
+  loading.style.display='none';
+  content.innerHTML=aiCache[cacheKey];
+  return;
+}
+loading.style.display='block';
+content.innerHTML='';
+var msg=buildAiMessage(p);
+fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,lang:'en'})})
+.then(function(res){return res.json()})
+.then(function(data){
+loading.style.display='none';
+if(data.analysis&&!data.error){
+  var html=formatReading(data.analysis);
+  aiCache[cacheKey]=html;
+  content.innerHTML=html;
+}else{fallbackPA(p)}
+})
+.catch(function(){loading.style.display='none';fallbackPA(p)});
+}
+function fallbackPA(p){
+var key=curRes.ds+'_'+p;
+var text=PA[key]||'Analysis not available.';
+document.getElementById('readingContent').innerHTML='<p>'+text+'</p>';
 }
 function switchPath(p,el){
-selectedPath=p;document.querySelectorAll('.ps-btn').forEach(function(b){b.classList.remove('active')});el.classList.add('active');loadReading(p);
+selectedPath=p;document.querySelectorAll('.ps-btn').forEach(function(b){b.classList.remove('active')});el.classList.add('active');showPathAnswer(p);
 }
-function toggleDataPanel(){
-var p=document.getElementById('dataPanel');
-var t=document.querySelector('.data-toggle');
-if(p.style.display==='none'){
-p.style.display='block';
-t.textContent='Hide the data \u25B4';
-requestAnimationFrame(function(){setTimeout(function(){p.querySelectorAll('.el-fill,.skill-fill').forEach(function(b){b.style.width=b.dataset.w})},100)});
-}else{
-p.style.display='none';
-t.textContent='See the data behind this reading \u25BE';
-}
+function togglePanel(id){
+var panels={vuln:'vulnPanel',el:'elPanel'};
+var panel=document.getElementById(panels[id]);
+var toggles=document.querySelectorAll('.panel-toggle');
+var idx=id==='vuln'?0:1;
+toggles[idx].classList.toggle('open');
+panel.classList.toggle('open');
+if(panel.classList.contains('open')&&id==='el'){requestAnimationFrame(function(){setTimeout(function(){panel.querySelectorAll('.el-fill').forEach(function(b){b.style.width=b.dataset.w})},100)})}
 }
 function copyShare(){if(!window._st)return;navigator.clipboard.writeText(window._st).then(function(){var b=document.getElementById('copyBtn');b.textContent='\u2713 Copied!';setTimeout(function(){b.textContent='\uD83D\uDCCB Copy'},1500)})}
-function doReset(){goTo(1);document.getElementById('selYear').value='';document.getElementById('selMonth').value='';document.getElementById('selDay').value='';document.getElementById('selHour').value='-1';selectedPath='wealth';checkInput()}
+function doReset(){goTo(1);document.getElementById('selYear').value='';document.getElementById('selMonth').value='';document.getElementById('selDay').value='';document.getElementById('selHour').value='-1';selectedPath='wealth';checkInput();document.querySelectorAll('.panel-toggle').forEach(function(t){t.classList.remove('open')});document.querySelectorAll('.panel-content').forEach(function(c){c.classList.remove('open')})}
 
 // ═══════════════════════════════════════
 // SHARE CARD (9:16 + element glow)
@@ -696,41 +543,39 @@ c.fillStyle=gl.m;for(var x=0;x<W;x+=50)for(var y=0;y<H;y+=50){c.beginPath();c.ar
 c.fillStyle=gl.a;c.fillRect(0,0,W,3);
 // Bottom line
 c.fillRect(0,H-3,W,3);
-// CIPHER wordmark top
-c.textAlign='center';
-c.fillStyle='#484f58';c.font='500 24px "Segoe UI",system-ui';
-c.fillText('CIPHER',W/2,68);
-// "You are" subtext
-c.fillStyle='#484f58';c.font='300 22px "Segoe UI",system-ui';
-c.fillText('You are',W/2,420);
-// Type name — wrap if needed
-c.fillStyle='#e6edf3';c.font='800 88px "Segoe UI",system-ui';
-var archLines=wt(c,k.arch,W-120);
-var ay=530;
-archLines.forEach(function(ln){c.fillText(ln,W/2,ay);ay+=100});
-// Tagline
-var tly=ay+30;
-c.fillStyle=gl.a;c.font='italic 300 26px "Segoe UI",system-ui';
-var tlLines=wt(c,k.tagline||'',W-160);
-tlLines.forEach(function(ln){c.fillText(ln,W/2,tly);tly+=38});
-// Divider + "The Truth About You"
-var dy=tly+70;
-c.fillStyle='rgba(255,255,255,0.08)';c.fillRect(80,dy,W-160,1);
-c.fillStyle='#0a0b10';c.fillRect(W/2-130,dy-10,260,22);
-c.fillStyle='#8b949e';c.font='600 14px "Segoe UI",system-ui';
-c.letterSpacing='3px';c.fillText('THE TRUTH ABOUT YOU',W/2,dy+6);
-// Roast text
-var ry=dy+70;
-c.fillStyle='#c9d1d9';c.font='italic 300 22px "Segoe UI",system-ui';
-var rl=wt(c,'\u201C'+k.roast+'\u201D',W-180);
-rl.slice(0,10).forEach(function(ln){c.fillText(ln,W/2,ry);ry+=36});
+// Top label
+c.textAlign='center';c.fillStyle='#484f58';c.font='500 22px "Segoe UI",system-ui';c.fillText('CIPHER \u00B7 YOUR SOURCE CODE DECODED',W/2,50);
+// Core Kernel
+c.fillStyle='#e6edf3';c.font='800 72px "Segoe UI",system-ui';c.fillText(k.cn,W/2,170);
+c.font='600 28px "Segoe UI",system-ui';c.fillText(k.arch,W/2,215);
+c.fillStyle=gl.a;c.font='400 18px "Courier New",monospace';c.fillText('// '+r.variant,W/2,250);
+c.fillStyle='#8b949e';c.font='300 20px "Segoe UI",system-ui';c.fillText('Day Master: '+k.name,W/2,285);
+// Roast box
+c.strokeStyle='rgba(255,85,85,0.2)';c.lineWidth=1.5;rr(c,70,320,W-140,240,10);c.stroke();
+c.fillStyle='rgba(255,255,255,0.02)';rr(c,70,320,W-140,240,10);c.fill();
+c.fillStyle='#0a0b10';c.fillRect(100,310,200,24);
+c.fillStyle='#f85149';c.font='600 16px "Segoe UI",system-ui';c.textAlign='left';c.fillText('SYSTEM ROAST',106,326);
+c.fillStyle='#e6edf3';c.font='italic 300 20px "Segoe UI",system-ui';
+var rl=wt(c,'\u201C'+k.roast+'\u201D',W-220),ry=365;
+for(var i=0;i<Math.min(rl.length,7);i++){c.fillText(rl[i],100,ry);ry+=30}
+// Skills
+var sy=600;c.fillStyle='#8b949e';c.font='600 18px "Segoe UI",system-ui';c.textAlign='left';c.fillText('SKILLS',90,sy);sy+=32;
+r.sg.slice(0,3).forEach(function(g){var m=SM[g[0]]||{c:g[0],i:'\u26A1'};c.fillStyle=gl.a;c.font='700 18px "Segoe UI",system-ui';c.fillText(m.i+' '+m.c,90,sy);c.fillStyle='#484f58';c.font='300 14px "Segoe UI",system-ui';c.fillText(g[0],420,sy);sy+=32});
+sy+=12;c.fillStyle='#8b949e';c.font='600 18px "Segoe UI",system-ui';c.fillText('AFFIXES',90,sy);sy+=28;
+c.fillStyle='#d29922';c.font='400 17px "Segoe UI",system-ui';c.fillText(r.af.length?r.af.map(function(a){return'\u2726 '+(AM[a]?AM[a].c:a)}).join('  \u00B7  '):'None detected',90,sy);
+sy+=40;c.fillStyle='#8b949e';c.font='600 18px "Segoe UI",system-ui';c.fillText('VULNERABILITY',90,sy);sy+=28;
+if(r.vn.length)r.vn.slice(0,3).forEach(function(v){var t=VT[v]||[v,''];c.fillStyle='#f85149';c.font='600 15px "Segoe UI",system-ui';c.fillText(t[0],90,sy);c.fillStyle='#8b949e';c.font='300 13px "Segoe UI",system-ui';c.fillText(t[1],90,sy+18);sy+=44});
+else{c.fillStyle='#484f58';c.font='italic 300 15px "Segoe UI",system-ui';c.fillText('Balanced. No critical vulnerabilities.',90,sy);sy+=30}
+// Element bars
+sy+=30;var elCols={Metal:'#c9d1d9',Water:'#58a6ff',Wood:'#56d364',Fire:'#f85149',Earth:'#d29922'};
+var srt=Object.entries(r.elC).sort(function(a,b){return b[1]-a[1]});var emx=Math.max.apply(null,srt.map(function(x){return x[1]}))||1;
+srt.forEach(function(x){var n=x[0],s=x[1],col=elCols[n];c.fillStyle=col;c.font='700 15px "Segoe UI",system-ui';c.fillText(n.toUpperCase(),90,sy);c.textAlign='right';c.fillText(''+s,W-90,sy);c.textAlign='left';var bx=220,bw=W-420;c.fillStyle='rgba(255,255,255,0.04)';rr(c,bx,sy-8,bw,10,3);c.fill();c.fillStyle=col;rr(c,bx,sy-8,Math.max((s/emx)*bw,2),10,3);c.fill();sy+=28});
 // Footer
-c.fillStyle='rgba(255,255,255,0.08)';c.fillRect(80,H-170,W-160,1);
-c.fillStyle='#484f58';c.font='400 22px "Segoe UI",system-ui';
-c.fillText('Decode yours \u2192 cipher-bazi.pages.dev',W/2,H-120);
-c.fillStyle='#383d44';c.font='italic 300 18px "Segoe UI",system-ui';
-c.fillText('CIPHER by DestinyOS',W/2,H-80);
-cv.toBlob(function(blob){var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='CIPHER_'+k.arch.replace(/\s/g,'_')+'.png';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);var btn=document.querySelector('.share-btn.cyan');btn.textContent='\u2713 Saved!';setTimeout(function(){btn.textContent='\uD83D\uDCF8 Save Card'},1500)},'image/png');
+c.textAlign='center';c.fillStyle='#484f58';c.font='400 20px "Segoe UI",system-ui';c.fillText('Decode yours \u2192 cipher-bazi.vercel.app',W/2,H-80);
+c.fillStyle='#383d44';c.font='italic 300 16px "Segoe UI",system-ui';c.fillText('CIPHER by DestinyOS \u00B7 Pattern recognition, not prediction.',W/2,H-50);
+// Watermark
+c.textAlign='right';c.fillStyle='rgba(0,212,255,0.06)';c.font='800 36px "Segoe UI",system-ui';c.fillText('CIPHER',W-40,40);
+cv.toBlob(function(blob){var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='CIPHER_'+k.cn.replace(/\s/g,'')+'.png';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);var btn=document.querySelector('.share-btn.cyan');btn.textContent='\u2713 Saved!';setTimeout(function(){btn.textContent='\uD83D\uDCF8 Save Card'},1500)},'image/png');
 }
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath()}
 function wt(c,t,mw){var w=t.split(' '),ls=[],l='';for(var i=0;i<w.length;i++){var x=l+(l?' ':'')+w[i];if(c.measureText(x).width>mw&&l){ls.push(l);l=w[i]}else l=x}if(l)ls.push(l);return ls}
