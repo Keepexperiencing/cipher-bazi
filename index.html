@@ -190,6 +190,7 @@ select option{background:#12141c;color:var(--text)}
 </style>
 </head>
 <body>
+<button id="langToggle" onclick="toggleLang()" style="position:fixed;top:16px;right:16px;z-index:200;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:#8b949e;cursor:pointer;letter-spacing:1px;font-family:inherit">中文</button>
 <div class="dot-grid"></div>
 <div class="container">
 
@@ -451,6 +452,14 @@ window._st=st+'\n'+pu;
 }
 var WORKER_URL='https://cipher-proxy.cipher-api.workers.dev';
 var aiCache={};
+window.lang = 'en';
+function toggleLang(){
+  window.lang = window.lang === 'en' ? 'zh' : 'en';
+  document.getElementById('langToggle').textContent = window.lang === 'en' ? '中文' : 'EN';
+  // Clear cached readings so the next render refetches in the new language
+  if(typeof aiCache !== 'undefined') aiCache = {};
+  if(typeof curRes !== 'undefined' && curRes) renderResult();
+}
 
 function buildAiMessage(p){
 var r=curRes,ec=r.ec,ds=r.ds,k=r.k;
@@ -470,6 +479,9 @@ var missing=Object.entries(r.elC).filter(function(e){return e[1]===0}).map(funct
 var excess=Object.entries(r.elC).filter(function(e){return e[1]>=3}).map(function(e){return e[0]+'\u22653'});
 if(missing.length)msg+='Missing: '+missing.join(', ')+'\n';
 if(excess.length)msg+='Excess: '+excess.join(', ')+'\n';
+if(window.lang === 'zh'){
+  msg = '请用简体中文分析以下八字命盘。极其严格的要求：\n1. 正文中文，但三个小节标题必须保持英文大写原样，不要翻译。\n2. 控制总长度在 350 字以内，必须写完全部三个小节，不能中途停止。\n3. 用以下结构输出：\n\n# WHO YOU ARE\n[1-2 段心理分析，每段 2 句]\n\n# YOUR ' + pathLabel + ' PATTERN\n[1-2 段具体分析，每段 2 句]\n\n# YOUR BLIND SPOT\n• [一句话盲点，不超过 25 字]\n• [一句话盲点，不超过 25 字]\n\n再次强调：标题写作 # WHO YOU ARE 、# YOUR ' + pathLabel + ' PATTERN 、# YOUR BLIND SPOT ，一字不差保持英文。必须完整写完两条盲点。\n\n' + msg;
+}
 return msg;
 }
 
@@ -479,6 +491,14 @@ function formatReading(text){
   // Normalize: remove --- lines (any whitespace tolerance, incl. inline)
   text = text.replace(/(^|\n)[ \t]*-{3,}[ \t]*(?=\n|$)/g, '$1');
   text = text.replace(/\s-{3,}\s/g, ' ');
+
+  // Pre-normalize: if Haiku returned Chinese headers despite instructions,
+  // rewrite them to the canonical English form so the section splitter works.
+  text = text.replace(/#{0,3}\s*你是谁\b/g, '# WHO YOU ARE');
+  text = text.replace(/#{0,3}\s*你的(?:财富|金钱)模式\b/g, '# YOUR WEALTH PATTERN');
+  text = text.replace(/#{0,3}\s*你的(?:关系|连接|情感|爱情)模式\b/g, '# YOUR CONNECTION PATTERN');
+  text = text.replace(/#{0,3}\s*你的?\s*2026\s*模式\b/g, '# YOUR 2026 PATTERN');
+  text = text.replace(/#{0,3}\s*你的盲点\b/g, '# YOUR BLIND SPOT');
 
   // Normalize headers to §§§ markers. Works whether the header is on its own
   // line, at the start, or inline after a sentence/#/newline. Handles Haiku's
@@ -506,10 +526,15 @@ function formatReading(text){
 
     // Check if this is blind spot content (contains bullet points).
     // Handles both line-start bullets and inline bullets like "• one • two".
-    if(/[•·]\s/.test(part)){
-      var bullets = part.split(/\s*[•·]\s+/).filter(function(s){ return s.trim(); });
-      html += '<ul>' + bullets.map(function(b){ return '<li>' + b.trim().replace(/\n/g,' ').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>') + '</li>'; }).join('') + '</ul>';
-      continue;
+    if(/[•·]/.test(part)){
+      // Strip any leading/trailing bullet chars before splitting so orphan
+      // "• " at the end of truncated responses doesn't leak into the last item.
+      var cleaned = part.replace(/^[\s•·]+/, '').replace(/[\s•·]+$/, '');
+      var bullets = cleaned.split(/\s*[•·]\s*/).map(function(s){ return s.trim(); }).filter(function(s){ return s && !/^[\s•·]*$/.test(s); });
+      if(bullets.length){
+        html += '<ul>' + bullets.map(function(b){ return '<li>' + b.replace(/\n/g,' ').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>') + '</li>'; }).join('') + '</ul>';
+        continue;
+      }
     }
 
     // Regular content: split into paragraphs by double newline, or group sentences
@@ -556,7 +581,7 @@ if(aiCache[cacheKey]){
 loading.style.display='block';
 content.innerHTML='';
 var msg=buildAiMessage(p);
-fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,lang:'en'})})
+fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,lang: window.lang || 'en'})})
 .then(function(res){return res.json()})
 .then(function(data){
   loading.style.display='none';
