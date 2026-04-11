@@ -90,11 +90,11 @@ select option{background:#12141c;color:var(--text)}
 .reading-box h3:first-child{margin-top:0;border-top:none}
 .reading-box strong{color:#fff;font-weight:600}
 .reading-box em{color:var(--cyan);font-style:italic}
-.reading-box p{font-size:16px;line-height:1.8;color:rgba(230,237,243,0.85);font-weight:300;margin-bottom:18px}
+.reading-box p{font-size:15px;line-height:1.8;color:rgba(230,237,243,0.85);font-weight:300;margin-bottom:20px;letter-spacing:0.2px}
 .reading-box p:last-child{margin-bottom:0}
-.reading-box ul{list-style:none;padding:0;margin:16px 0 0}
-.reading-box li{font-size:16px;line-height:1.6;color:var(--text);font-weight:300;margin-bottom:12px;padding:12px 16px;background:rgba(248,81,73,.03);border:1px solid rgba(248,81,73,.08);border-radius:8px;position:relative;padding-left:28px}
-.reading-box li::before{content:'\2022';position:absolute;left:12px;color:var(--red);font-weight:700}
+.reading-box ul{list-style:none;padding:0;margin:20px 0 0}
+.reading-box li{font-size:15px;line-height:1.7;color:var(--text);font-weight:400;margin-bottom:14px;padding:14px 18px;background:rgba(248,81,73,.04);border-left:3px solid var(--red);border-radius:0 8px 8px 0}
+.reading-box li::before{display:none}
 .reading-loading{text-align:center;padding:40px 20px;color:var(--cyan);font-style:italic;font-size:16px}
 .path-switch{display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap}
 .ps-btn{padding:8px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;font-size:13px;color:var(--text3);cursor:pointer;transition:all .2s;font-family:inherit}
@@ -474,30 +474,64 @@ return msg;
 }
 
 function formatReading(text){
-if(!text)return '<p>Reading unavailable.</p>';
-// Force paragraph breaks where Haiku runs sentences together
-text=text.replace(/\. ([A-Z])/g,'.\n\n$1');
-var html=text
-  .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-  .replace(/\*(.*?)\*/g,'<em>$1</em>');
-// Remove markdown hr lines
-html=html.replace(/^-{3,}\s*$/gm,'');
-// Match # or ## style headers AND plain text headers
-html=html.replace(/^#{1,3}\s*(WHO YOU ARE|YOUR WEALTH PATTERN|YOUR MONEY PATTERN|YOUR CONNECTION PATTERN|YOUR RELATIONSHIPS? PATTERN|YOUR 2026 PATTERN|YOUR BLIND SPOT)\s*/gm,'<h3>$1</h3>');
-html=html.replace(/^(WHO YOU ARE|YOUR WEALTH PATTERN|YOUR MONEY PATTERN|YOUR CONNECTION PATTERN|YOUR RELATIONSHIPS? PATTERN|YOUR 2026 PATTERN|YOUR BLIND SPOT)\s*$/gm,'<h3>$1</h3>');
-html=html.replace(/^[•·\-]\s*(.+)$/gm,'<li>$1</li>');
-var parts=html.split(/\n{2,}/);
-var result=parts.map(function(p){
-  p=p.trim();
-  if(!p)return '';
-  if(p.startsWith('<h3>')||p.startsWith('<li>'))return p;
-  p=p.replace(/\n/g,' ');
-  if(!p.startsWith('<'))return '<p>'+p+'</p>';
-  return p;
-}).join('');
-result=result.replace(/(<li>[^]*?<\/li>)/g,function(m){return '<ul>'+m+'</ul>'});
-result=result.replace(/<\/ul>\s*<ul>/g,'');
-return result||'<p>'+text+'</p>';
+  if(!text) return '<p>Reading unavailable.</p>';
+
+  // Normalize: remove --- lines, strip # from headers but keep the title text
+  text = text.replace(/^-{3,}\s*$/gm, '');
+
+  // First pass: normalize all header formats to a consistent marker
+  text = text.replace(/([.!?])\s*(WHO YOU ARE|YOUR (?:WEALTH|MONEY|CONNECTION|RELATIONSHIPS?|2026) PATTERN|YOUR BLIND SPOT)/g, '$1\n\n$2');
+  text = text.replace(/^#{1,3}\s*(WHO YOU ARE|YOUR (?:WEALTH|MONEY|CONNECTION|RELATIONSHIPS?|2026) PATTERN|YOUR BLIND SPOT)\s*$/gm, '§§§$1§§§');
+  text = text.replace(/^(WHO YOU ARE|YOUR (?:WEALTH|MONEY|CONNECTION|RELATIONSHIPS?|2026) PATTERN|YOUR BLIND SPOT)\s*$/gm, '§§§$1§§§');
+
+  // Split by our markers
+  var parts = text.split('§§§').filter(function(s){ return s.trim(); });
+
+  var html = '';
+  for(var i = 0; i < parts.length; i++){
+    var part = parts[i].trim();
+
+    // Check if this part is a header title
+    if(/^(WHO YOU ARE|YOUR (?:WEALTH|MONEY|CONNECTION|RELATIONSHIPS?|2026) PATTERN|YOUR BLIND SPOT)$/.test(part)){
+      html += '<h3>' + part + '</h3>';
+      continue;
+    }
+
+    // Check if this is blind spot content (contains bullet points)
+    if(part.match(/^[•·]\s/m)){
+      var bullets = part.split(/(?:^|\n)[•·]\s*/).filter(function(s){ return s.trim(); });
+      html += '<ul>' + bullets.map(function(b){ return '<li>' + b.trim().replace(/\n/g,' ').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>') + '</li>'; }).join('') + '</ul>';
+      continue;
+    }
+
+    // Regular content: split into paragraphs by double newline, or group sentences
+    var paragraphs = part.split(/\n\n+/).filter(function(s){ return s.trim(); });
+
+    // If no double newlines found, try to group every 2-3 sentences into paragraphs
+    if(paragraphs.length <= 1 && part.length > 200){
+      var sentences = part.replace(/\n/g,' ').split(/(?<=[.!?])\s+/);
+      paragraphs = [];
+      var current = '';
+      for(var j = 0; j < sentences.length; j++){
+        current += (current ? ' ' : '') + sentences[j];
+        // Group 2-3 sentences per paragraph
+        if((j + 1) % 3 === 0 || j === sentences.length - 1){
+          paragraphs.push(current);
+          current = '';
+        }
+      }
+    }
+
+    html += paragraphs.map(function(p){
+      p = p.trim().replace(/\n/g,' ');
+      if(!p) return '';
+      p = p.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+      p = p.replace(/\*(.*?)\*/g,'<em>$1</em>');
+      return '<p>' + p + '</p>';
+    }).join('');
+  }
+
+  return html || '<p>' + text + '</p>';
 }
 
 function showPathAnswer(p){
