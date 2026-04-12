@@ -99,6 +99,14 @@ select option{background:#12141c;color:var(--text)}
 .path-switch{display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap}
 .ps-btn{padding:8px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;font-size:13px;color:var(--text3);cursor:pointer;transition:all .2s;font-family:inherit}
 .ps-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(210,153,34,.06)}
+/* Feedback vote */
+.feedback-row{text-align:center;margin-bottom:24px;padding:20px 0}
+.feedback-q{font-size:14px;color:var(--text3);margin-bottom:12px;letter-spacing:.5px}
+.feedback-btns{display:flex;justify-content:center;gap:12px}
+.feedback-btn{background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:8px 18px;font-size:14px;cursor:pointer;transition:all .2s;font-family:inherit;color:var(--text2)}
+.feedback-btn:hover{border-color:var(--cyan);color:var(--text)}
+.feedback-btn.voted{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,255,.06);pointer-events:none}
+.feedback-thanks{font-size:13px;color:var(--text3);margin-top:10px;display:none}
 
 /* Sections */
 .sec-guide{font-size:13px;color:var(--text3);font-weight:300;margin-bottom:4px;font-style:italic}
@@ -200,7 +208,6 @@ select option{background:#12141c;color:var(--text)}
 <p class="subtitle">Your birth code, decoded.</p>
 <div class="intro-box"><p>Ancient Chinese life-mapping (BaZi) rebuilt as tactical intelligence.</p><p style="margin-top:10px">3,000 years of pattern recognition. Zero fortune-telling. Your birth date encodes your operating system — we just read it.</p></div>
 <button class="btn-main" onclick="goTo(2)">DECODE MY SOURCE CODE →</button>
-<div class="privacy-line"><span>🔒</span> Processed locally — your data never leaves this device.</div>
 </div>
 
 <!-- S2 PATH -->
@@ -241,7 +248,7 @@ select option{background:#12141c;color:var(--text)}
 <div class="gender-btn selected" onclick="pickGender('',this)">Skip</div>
 </div>
 <button id="btnDecode" class="btn-decode disabled" disabled onclick="doDecode()">DECODE →</button>
-<p class="privacy-sm">🔒 Zero-Knowledge: Your data is calculated locally and never leaves your device.</p>
+<p class="privacy-sm">🔒 Your data stays on your phone. We never see it.</p>
 </div>
 </div>
 
@@ -259,17 +266,27 @@ select option{background:#12141c;color:var(--text)}
 
 <div class="roast"><div class="roast-tag">The Truth About You</div><p class="roast-text" id="rRoast"></p></div>
 
-<div class="share-row">
-<button class="share-btn cyan" onclick="saveCard()">📸 Save Card</button>
-<a class="share-btn" id="shareXBtn" href="#" target="_blank" rel="noopener">𝕏 Share on X</a>
-<button class="share-btn" id="copyBtn" onclick="copyShare()">📋 Copy</button>
-</div>
-
 <div class="reading-box" id="readingBox">
 <div class="reading-loading" id="readingLoading"><span>⏳ Analyzing your specific pattern...</span></div>
 <div id="readingContent"></div>
 </div>
 <div class="path-switch" id="pathSwitch"></div>
+
+<div class="feedback-row" id="feedbackRow">
+<div class="feedback-q">Was this accurate?</div>
+<div class="feedback-btns">
+<button class="feedback-btn" onclick="voteFeedback('meh',this)">😐 Meh</button>
+<button class="feedback-btn" onclick="voteFeedback('accurate',this)">😮 Accurate</button>
+<button class="feedback-btn" onclick="voteFeedback('how',this)">🤯 How did you know</button>
+</div>
+<div class="feedback-thanks" id="feedbackThanks">Thanks. Your feedback makes CIPHER smarter.</div>
+</div>
+
+<div class="share-row">
+<button class="share-btn cyan" onclick="saveCard()">📸 Save Card</button>
+<a class="share-btn" id="shareXBtn" href="#" target="_blank" rel="noopener">𝕏 Share on X</a>
+<button class="share-btn" id="copyBtn" onclick="copyShare()">📋 Copy</button>
+</div>
 
 <div class="data-toggle" onclick="toggleDataPanel()">See the data behind this reading ▾</div>
 <div class="data-panel" id="dataPanel" style="display:none;">
@@ -444,8 +461,9 @@ document.getElementById('dataPanel').style.display='none';
 document.querySelector('.data-toggle').textContent='See the data behind this reading \u25BE';
 goTo(4);
 requestAnimationFrame(function(){setTimeout(function(){document.querySelectorAll('.skill-fill,.el-fill').forEach(function(b){b.style.width=b.dataset.w})},200)});
-var st='I just decoded my birth code with CIPHER.\n\nI\'m '+k.arch+'\n'+k.tagline+'\n\n\u201C'+k.roast.slice(0,100)+'...\u201D\n\nDecode yours \u2192';
-var pu=window.location.href.split('?')[0];
+var roastShort=k.roast.length>80?k.roast.slice(0,k.roast.lastIndexOf(' ',80))+'...':k.roast;
+var st='My birth code: '+k.arch+' \u2694\uFE0F\n\u201C'+roastShort+'\u201D\n\nYours? \u2192';
+var pu=window.location.href.split('?')[0]+'?utm_source=twitter&utm_medium=share';
 document.getElementById('shareXBtn').href='https://twitter.com/intent/tweet?text='+encodeURIComponent(st)+'&url='+encodeURIComponent(pu);
 window._st=st+'\n'+pu;
 }
@@ -595,6 +613,13 @@ if(p.style.display==='none'){
 }
 }
 function copyShare(){if(!window._st)return;navigator.clipboard.writeText(window._st).then(function(){var b=document.getElementById('copyBtn');b.textContent='\u2713 Copied!';setTimeout(function(){b.textContent='\uD83D\uDCCB Copy'},1500)})}
+function voteFeedback(vote,btn){
+  document.querySelectorAll('.feedback-btn').forEach(function(b){b.classList.remove('voted');b.style.opacity='.4'});
+  btn.classList.add('voted');btn.style.opacity='1';
+  document.getElementById('feedbackThanks').style.display='block';
+  // Store locally for now; POST to Worker /feedback when endpoint is ready
+  try{localStorage.setItem('cipher_feedback',JSON.stringify({vote:vote,ds:curRes?curRes.ds:'',path:selectedPath,t:Date.now()}));}catch(e){}
+}
 function doReset(){goTo(1);document.getElementById('selYear').value='';document.getElementById('selMonth').value='';document.getElementById('selDay').value='';document.getElementById('selHour').value='-1';selectedPath='wealth';checkInput();document.querySelectorAll('.panel-toggle').forEach(function(t){t.classList.remove('open')});document.querySelectorAll('.panel-content').forEach(function(c){c.classList.remove('open')})}
 
 // ═══════════════════════════════════════
