@@ -10,10 +10,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=Noto+Serif+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.7.7/lunar.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0a0b10;--bg2:rgba(255,255,255,0.02);--bg3:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.08);--text:#e6edf3;--text2:#8b949e;--text3:#484f58;--text4:#383d44;--cyan:#00d4ff;--cyan15:rgba(0,212,255,0.15);--cyan30:rgba(0,212,255,0.3);--cyan08:rgba(0,212,255,0.08);--red:#f85149;--red-b:rgba(255,85,85,0.12);--red-bg:rgba(255,85,73,0.03);--gold:#d29922}
+:root{--bg:#0a0b10;--bg2:rgba(255,255,255,0.02);--bg3:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.08);--text:#e6edf3;--text2:#8b949e;--text3:#484f58;--text4:#383d44;--cyan:#00d4ff;--cyan15:rgba(0,212,255,0.15);--cyan30:rgba(0,212,255,0.3);--cyan08:rgba(0,212,255,0.08);--red:#f85149;--red-b:rgba(255,85,85,0.12);--red-bg:rgba(255,85,73,0.03);--gold:#d29922;
+  /* CIPHER v3 辛金 palette */
+  --ink-950:#070A0F;--ink-900:#0B1016;--ink-800:#121924;--ink-700:#1A2636;
+  --mercury-50:#F2F4F7;--mercury-200:#C9D0DA;--mercury-300:#8A95A5;--mercury-400:#5A6476;
+  --frost:#B8D4E6}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,-apple-system,sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.6}
 ::selection{background:var(--cyan30)}
 .dot-grid{position:fixed;inset:0;opacity:.03;z-index:0;pointer-events:none;background-image:radial-gradient(circle at 25% 25%,var(--cyan) 1px,transparent 1px),radial-gradient(circle at 75% 75%,var(--cyan) 1px,transparent 1px);background-size:60px 60px}
@@ -195,6 +200,75 @@ select option{background:#12141c;color:var(--text)}
 .r-eyebrow{font-size:11px;color:var(--text3);letter-spacing:4px;text-transform:uppercase;margin-bottom:16px}
 .r-type{font-size:36px;font-weight:800;margin:0 0 8px;line-height:1.1;color:#fff;letter-spacing:1px;text-transform:uppercase}
 .r-tagline{font-size:18px;color:var(--cyan);font-style:italic;font-weight:300;line-height:1.4;margin-bottom:0}
+
+/* ═══════════════════════════════════════
+   CIPHER v3 — CORE KERNEL + THE HIT (辛金 only, PR1)
+   Namespaced under .cv3 to avoid collision with existing styles.
+   ═══════════════════════════════════════ */
+.cv3{max-width:420px;margin:0 auto 24px;border-radius:16px;overflow:hidden;position:relative;background:radial-gradient(140% 95% at 50% 22%,#15202E 0%,#0B1016 55%,#070A0F 100%);color:var(--mercury-50);font-family:"Inter",ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.cv3::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(58% 30% at 76% 11%,rgba(184,212,230,.10),transparent 62%),radial-gradient(50% 28% at 18% 66%,rgba(184,212,230,.055),transparent 62%)}
+.cv3::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.22;mix-blend-mode:overlay;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.015) 0 1px,transparent 1px 3px)}
+.cv3 > *{position:relative;z-index:2}
+
+/* Core Kernel screen */
+.cv3-kernel{padding:40px 28px 32px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.cv3-top{width:100%;display:flex;justify-content:space-between;align-items:center;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--mercury-300)}
+.cv3-top .cv3-wm{display:flex;align-items:center;gap:10px;color:var(--mercury-200);font-family:"Space Grotesk",sans-serif;letter-spacing:.32em;font-weight:500}
+.cv3-top .cv3-wm .cv3-logo{width:12px;height:12px;position:relative}
+.cv3-top .cv3-wm .cv3-logo::before{content:"";position:absolute;inset:0;border:1px solid var(--mercury-200);transform:rotate(45deg)}
+.cv3-top .cv3-wm .cv3-logo::after{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;background:var(--frost);transform:translate(-50%,-50%) rotate(45deg)}
+.cv3-top .cv3-meta{display:flex;gap:10px;align-items:center}
+.cv3-top .cv3-meta .cv3-dot{width:4px;height:4px;background:var(--mercury-400);border-radius:50%}
+.cv3-index{width:100%;margin-top:22px;display:flex;justify-content:space-between;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--mercury-300);padding-bottom:14px;border-bottom:1px solid rgba(184,212,230,.12)}
+.cv3-index b{color:var(--frost);font-weight:500;letter-spacing:.28em}
+.cv3-badge-wrap{margin-top:36px;display:flex;justify-content:center;align-items:center}
+.cv3-badge{width:168px;height:168px;position:relative}
+.cv3-badge svg{width:100%;height:100%;display:block}
+.cv3-badge-floor{width:72%;margin:16px auto 0;height:1px;position:relative;background:linear-gradient(90deg,transparent 0%,rgba(184,212,230,.35) 15%,rgba(184,212,230,.35) 85%,transparent 100%)}
+.cv3-badge-floor::before{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;transform:translate(-50%,-50%);background:var(--frost);border-radius:50%;box-shadow:0 0 10px rgba(184,212,230,.7)}
+.cv3-name-block{margin-top:22px}
+.cv3-cn-name{font-family:"Noto Serif SC",serif;font-weight:300;font-size:36px;line-height:1;letter-spacing:.08em;color:var(--mercury-50)}
+.cv3-en-name{margin-top:8px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:var(--mercury-300)}
+.cv3-en-name .cv3-tick{display:inline-block;width:12px;height:1px;background:var(--mercury-400);vertical-align:middle;margin:0 8px 3px}
+.cv3-arche{margin-top:28px;padding:0 4px}
+.cv3-arche .cv3-eyebrow{font-family:"JetBrains Mono",monospace;font-size:9.5px;letter-spacing:.38em;text-transform:uppercase;color:var(--mercury-300);margin-bottom:10px}
+.cv3-arche .cv3-eyebrow .cv3-dash{display:inline-block;width:14px;height:1px;background:var(--mercury-400);vertical-align:middle;margin:0 8px 3px}
+.cv3-arche h1{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:30px;line-height:1.02;letter-spacing:-.01em;color:var(--mercury-50);text-transform:uppercase;margin:0}
+.cv3-handle-wrap{margin-top:18px;display:flex;justify-content:center}
+.cv3-handle{display:inline-flex;align-items:center;gap:10px;padding:7px 12px 7px 14px;border:1px solid rgba(184,212,230,.28);border-radius:100px;background:rgba(255,255,255,.015);font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--frost);cursor:pointer;transition:background .18s ease,border-color .18s ease;font-family:"JetBrains Mono",monospace}
+.cv3-handle:hover{background:rgba(184,212,230,.06);border-color:rgba(184,212,230,.5)}
+.cv3-handle .cv3-prefix{color:var(--mercury-400);letter-spacing:.18em}
+.cv3-handle .cv3-word{color:var(--mercury-50);letter-spacing:.28em;font-weight:500}
+.cv3-pos-divider{margin:28px auto 0;width:40%;height:1px;background:linear-gradient(90deg,transparent 0%,rgba(184,212,230,.4) 50%,transparent 100%)}
+.cv3-position{margin:18px auto 0;max-width:300px;font-family:"Cormorant","Noto Serif SC",serif;font-weight:300;font-style:italic;font-size:20px;line-height:1.36;letter-spacing:-.003em;color:var(--mercury-200);text-wrap:pretty}
+.cv3-position em{font-style:italic;color:var(--frost);font-weight:400}
+.cv3-position .cv3-em-dash{color:var(--mercury-400);font-style:normal;margin:0 2px}
+.cv3-scroll-hint{margin-top:28px;text-align:center;font-family:"JetBrains Mono",monospace;font-size:9.5px;letter-spacing:.38em;text-transform:uppercase;color:var(--mercury-400)}
+.cv3-arrow{width:1px;height:38px;margin:10px auto 0;background:linear-gradient(180deg,rgba(184,212,230,.5) 0%,rgba(184,212,230,0) 100%);position:relative;animation:cv3-drip 2.4s ease-in-out infinite}
+.cv3-arrow::after{content:"";position:absolute;left:50%;bottom:-4px;width:4px;height:4px;background:var(--frost);transform:translateX(-50%);border-radius:50%;box-shadow:0 0 8px rgba(184,212,230,.8)}
+@keyframes cv3-drip{0%,100%{opacity:.4;transform:translateY(0)}50%{opacity:1;transform:translateY(4px)}}
+
+/* The Hit screen */
+.cv3-hit{padding:48px 32px 40px;border-top:1px solid rgba(184,212,230,.08)}
+.cv3-hit-label{display:flex;align-items:center;gap:12px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.38em;text-transform:uppercase;color:var(--frost);margin-bottom:24px}
+.cv3-hit-label .cv3-dash{display:inline-block;width:18px;height:1px;background:var(--frost);opacity:.8}
+.cv3-hit-label .cv3-idx{color:var(--mercury-300);letter-spacing:.22em}
+.cv3-hit-body{display:flex;flex-direction:column;justify-content:center;padding:8px 0}
+.cv3-line{font-family:"Fraunces",serif;font-weight:300;font-size:28px;line-height:1.18;letter-spacing:-.018em;color:var(--mercury-50);text-wrap:pretty;margin:0}
+.cv3-line em{font-style:italic;font-weight:300;color:var(--frost)}
+.cv3-hit-rule{position:relative;width:72%;height:1px;margin:26px auto;background:linear-gradient(90deg,transparent 0%,rgba(184,212,230,.55) 15%,rgba(184,212,230,.55) 85%,transparent 100%)}
+.cv3-hit-rule::before{content:"";position:absolute;left:50%;top:50%;width:5px;height:5px;transform:translate(-50%,-50%);background:var(--frost);border-radius:50%;box-shadow:0 0 12px rgba(184,212,230,.9)}
+
+/* Coming soon hint for non-Xin day masters */
+.cv3-soon{max-width:420px;margin:0 auto 24px;padding:18px 22px;border-radius:12px;background:rgba(184,212,230,.04);border:1px solid rgba(184,212,230,.1);text-align:center}
+.cv3-soon-eyebrow{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--frost);margin-bottom:8px}
+.cv3-soon-text{font-family:"Inter",sans-serif;font-size:13px;color:var(--mercury-300);line-height:1.5;font-weight:300}
+
+/* PR1 fallback notice overlay on reading box */
+.cv3-pr1-notice{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--mercury-400);margin-bottom:16px;padding:10px 14px;border:1px dashed rgba(184,212,230,.15);border-radius:4px;text-align:center}
+
+/* Mobile polish */
+@media(max-width:480px){.cv3-kernel{padding:32px 22px 28px}.cv3-arche h1{font-size:26px}.cv3-line{font-size:24px}.cv3-hit{padding:36px 24px 32px}}
 </style>
 </head>
 <body>
@@ -257,14 +331,71 @@ select option{background:#12141c;color:var(--text)}
 
 <!-- S4 RESULT — reordered per spec -->
 <div id="resultScreen" class="screen">
-<div class="r-header">
+
+<!-- PR1: CIPHER v3 Core Kernel + The Hit (Xin Metal only; others see coming-soon + old header) -->
+<div class="cv3" id="cv3Block" style="display:none">
+  <div class="cv3-kernel">
+    <div class="cv3-top">
+      <div class="cv3-wm"><span class="cv3-logo" aria-hidden="true"></span>CIPHER</div>
+      <div class="cv3-meta">&sect; 01 / 06 <span class="cv3-dot"></span> CORE KERNEL</div>
+    </div>
+    <div class="cv3-index">
+      <span>Day Master</span>
+      <b id="cv3IndexDm">\u2014</b>
+    </div>
+    <div class="cv3-badge-wrap">
+      <div class="cv3-badge" id="cv3Badge" aria-label="Day Master badge"></div>
+    </div>
+    <div class="cv3-badge-floor" aria-hidden="true"></div>
+    <div class="cv3-name-block">
+      <div class="cv3-cn-name" id="cv3CnName">\u8f9b\u91d1</div>
+      <div class="cv3-en-name"><span class="cv3-tick"></span><span id="cv3EnName">YIN \u00B7 METAL</span><span class="cv3-tick"></span></div>
+    </div>
+    <div class="cv3-arche">
+      <div class="cv3-eyebrow"><span class="cv3-dash"></span>ARCHETYPE<span class="cv3-dash"></span></div>
+      <h1 id="cv3Arch">THE REFINED ARTIFACT</h1>
+    </div>
+    <div class="cv3-handle-wrap">
+      <button class="cv3-handle" type="button" aria-label="Day master handle">
+        <span class="cv3-prefix">I &middot; AM &middot; AN</span>
+        <span class="cv3-word" id="cv3Handle">ARTIFACT</span>
+      </button>
+    </div>
+    <div class="cv3-pos-divider" aria-hidden="true"></div>
+    <p class="cv3-position" id="cv3Position"></p>
+    <div class="cv3-scroll-hint">&sect; THE HIT &middot; BELOW</div>
+    <div class="cv3-arrow" aria-hidden="true"></div>
+  </div>
+
+  <div class="cv3-hit">
+    <div class="cv3-hit-label">
+      <span class="cv3-dash" aria-hidden="true"></span>
+      <span>THE HIT</span>
+      <span class="cv3-idx">&middot; 02 / 06</span>
+    </div>
+    <div class="cv3-hit-body">
+      <p class="cv3-line" id="cv3Hit1"></p>
+      <div class="cv3-hit-rule" role="separator" aria-hidden="true"></div>
+      <p class="cv3-line" id="cv3Hit2"></p>
+    </div>
+  </div>
+</div>
+
+<!-- Non-Xin coming-soon hint (shown instead of cv3Block for other day masters) -->
+<div class="cv3-soon" id="cv3Soon" style="display:none">
+  <div class="cv3-soon-eyebrow">&sect; 01 / 06 &middot; CORE KERNEL</div>
+  <div class="cv3-soon-text" id="cv3SoonText"></div>
+</div>
+
+<!-- Legacy header (shown for non-Xin users in PR1; hidden for Xin) -->
+<div class="r-header" id="rHeaderLegacy">
   <div class="r-eyebrow">YOUR BIRTH CODE DECODED</div>
   <div class="r-you">You are</div>
   <h2 class="r-type" id="rType"></h2>
   <div class="r-tagline" id="rTagline"></div>
 </div>
 
-<div class="roast"><div class="roast-tag">The Truth About You</div><p class="roast-text" id="rRoast"></p></div>
+<div class="roast" id="rRoastBox"><div class="roast-tag">The Truth About You</div><p class="roast-text" id="rRoast"></p></div>
 
 <div class="reading-box" id="readingBox">
 <div class="reading-loading" id="readingLoading"><span>⏳ Analyzing your specific pattern...</span></div>
@@ -434,11 +565,13 @@ setTimeout(function(){ls.style.display='none';renderResult()},2300);
 // ═══════════════════════════════════════
 function renderResult(){
 var k=curRes.k,r=curRes;
-// Header v3
+// PR1: CIPHER v3 visual branching
+renderCv3Visuals();
+// Header v3 (legacy — only shown for non-Xin in PR1)
 document.getElementById('rType').textContent=k.arch;
 document.getElementById('rTagline').textContent=k.tagline||'';
 document.getElementById('rRoast').textContent='\u201C'+k.roast+'\u201D';
-// AI Reading
+// AI Reading (or PR1 fallback if CV3_FALLBACK_ACTIVE)
 showPathAnswer(selectedPath);
 // Path switch buttons
 var ps=document.getElementById('pathSwitch');
@@ -467,8 +600,160 @@ var pu=window.location.href.split('?')[0]+'?utm_source=twitter&utm_medium=share'
 document.getElementById('shareXBtn').href='https://twitter.com/intent/tweet?text='+encodeURIComponent(st)+'&url='+encodeURIComponent(pu);
 window._st=st+'\n'+pu;
 }
+/* ═══════════════════════════════════════
+   PR1 — CIPHER v3 visual renderer
+   Xin (辛) users → new Core Kernel + The Hit screen
+   All others   → coming-soon hint + legacy header
+   ═══════════════════════════════════════ */
+function renderCv3Visuals(){
+  var ds=curRes.ds;
+  var isXin=(ds==='\u8f9b');
+  var fb=FALLBACK_CORE[ds]||FALLBACK_CORE['\u8f9b'];
+  var cv3=document.getElementById('cv3Block');
+  var soon=document.getElementById('cv3Soon');
+  var legacy=document.getElementById('rHeaderLegacy');
+  var roast=document.getElementById('rRoastBox');
+  if(isXin){
+    cv3.style.display='block';
+    soon.style.display='none';
+    legacy.style.display='none';
+    roast.style.display='none';
+    // Populate 辛金 Core Kernel
+    document.getElementById('cv3IndexDm').textContent='\u8f9b \u00B7 Specimen 0008 / 10';
+    document.getElementById('cv3Badge').innerHTML=buildXinBadgeSvg();
+    document.getElementById('cv3CnName').textContent=fb.cn;
+    document.getElementById('cv3EnName').textContent=fb.en.toUpperCase().replace(' ',' \u00B7 ');
+    document.getElementById('cv3Arch').innerHTML=fb.arch.replace(' ','<br/>');
+    document.getElementById('cv3Handle').textContent=fb.handle.toUpperCase();
+    // Positioning: italicize the phrase between the em-dashes if present
+    var pos=fb.positioning;
+    var posHtml=pos.replace(/\u2014/g,'<span class="cv3-em-dash">\u2014</span>');
+    // Wrap the descriptor phrase in <em> (precision instrument)
+    posHtml=posHtml.replace(/precision instrument/,'<em>precision instrument</em>').replace(/displayed\./,'<em>displayed.</em>');
+    document.getElementById('cv3Position').innerHTML=posHtml;
+    // The Hit — PR1 "still loading" fallback (NOT benchmark quality — clearly marked as placeholder)
+    document.getElementById('cv3Hit1').innerHTML=FALLBACK_GENERIC.the_hit.s1;
+    document.getElementById('cv3Hit2').innerHTML=FALLBACK_GENERIC.the_hit.s2;
+  }else{
+    cv3.style.display='none';
+    soon.style.display='block';
+    legacy.style.display='block';
+    roast.style.display='block';
+    document.getElementById('cv3SoonText').innerHTML='Full visual treatment for <strong style="color:var(--mercury-50)">'+fb.cn+' \u00B7 '+fb.arch+'</strong> is coming soon. The reading below is currently a placeholder \u2014 real AI analysis lands in the next update.';
+  }
+}
+
+/* 辛金 badge SVG — ported 1:1 from design spec */
+function buildXinBadgeSvg(){
+  return '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img">'+
+  '<defs>'+
+    '<linearGradient id="cv3obsid" x1="0%" y1="0%" x2="100%" y2="100%">'+
+      '<stop offset="0%" stop-color="#1A2636"/>'+
+      '<stop offset="60%" stop-color="#0B1016"/>'+
+      '<stop offset="100%" stop-color="#070A0F"/>'+
+    '</linearGradient>'+
+    '<linearGradient id="cv3sheen" x1="0%" y1="0%" x2="100%" y2="100%">'+
+      '<stop offset="0%" stop-color="#F2F4F7" stop-opacity="0"/>'+
+      '<stop offset="47%" stop-color="#B8D4E6" stop-opacity=".65"/>'+
+      '<stop offset="53%" stop-color="#F2F4F7" stop-opacity=".75"/>'+
+      '<stop offset="100%" stop-color="#B8D4E6" stop-opacity="0"/>'+
+    '</linearGradient>'+
+    '<pattern id="cv3mline" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(22)">'+
+      '<path d="M0 2 L4 2" stroke="#B8D4E6" stroke-width=".35" stroke-opacity=".55"/>'+
+    '</pattern>'+
+  '</defs>'+
+  '<polygon points="100,6 150,20 184,60 184,140 150,180 100,194 50,180 16,140 16,60 50,20" fill="url(#cv3obsid)" stroke="#0B1016" stroke-width="1"/>'+
+  '<polygon points="100,6 150,20 184,60 184,140 150,180 100,194 50,180 16,140 16,60 50,20" fill="url(#cv3mline)"/>'+
+  '<g stroke="#B8D4E6" stroke-width=".55" stroke-opacity=".55" fill="none">'+
+    '<polygon points="100,28 142,44 164,74 164,126 142,156 100,170 58,156 36,126 36,74 58,44"/>'+
+    '<line x1="100" y1="28" x2="100" y2="170"/>'+
+    '<line x1="36" y1="74" x2="164" y2="126"/>'+
+    '<line x1="36" y1="126" x2="164" y2="74"/>'+
+  '</g>'+
+  '<polygon points="100,6 150,20 184,60 184,140 150,180 100,194 50,180 16,140 16,60 50,20" fill="url(#cv3sheen)" opacity=".32"/>'+
+  '<g stroke="#B8D4E6" stroke-width=".5" stroke-opacity=".7">'+
+    '<line x1="100" y1="2" x2="100" y2="8"/>'+
+    '<line x1="100" y1="192" x2="100" y2="198"/>'+
+    '<line x1="2" y1="100" x2="8" y2="100"/>'+
+    '<line x1="192" y1="100" x2="198" y2="100"/>'+
+  '</g>'+
+  '<text x="100" y="122" text-anchor="middle" font-family="Noto Serif SC, serif" font-weight="400" font-size="74" fill="#F2F4F7" letter-spacing="0">\u8f9b</text>'+
+  '</svg>';
+}
+
 var WORKER_URL='https://cipher-proxy.cipher-api.workers.dev';
 var aiCache={};
+
+/* ═══════════════════════════════════════
+   PR1 — Fallback static content (no AI call yet)
+   Per Work Order v3 §五. Replaced by real AI in PR2.
+   ═══════════════════════════════════════ */
+var CV3_FALLBACK_ACTIVE=true; // PR1 flag — flip to false when PR2 lands
+
+/* Core Kernel per-day-master (§5.4) */
+var FALLBACK_CORE={
+  '甲':{cn:'甲木',en:'Yang Wood',handle:'Keystone',arch:'THE PILLAR',positioning:'You are a load-bearing structure \u2014 one that doesn\u2019t need approval to stand.'},
+  '乙':{cn:'乙木',en:'Yin Wood',handle:'Ivy',arch:'THE VINE',positioning:'You are a climbing system \u2014 one that doesn\u2019t need its own trunk to reach the light.'},
+  '丙':{cn:'丙火',en:'Yang Fire',handle:'Beacon',arch:'THE SUN',positioning:'You are a broadcast signal \u2014 one that doesn\u2019t need permission to illuminate a room.'},
+  '丁':{cn:'丁火',en:'Yin Fire',handle:'Ember',arch:'THE FLAME',positioning:'You are a quiet burn \u2014 one that outlasts the fireworks.'},
+  '戊':{cn:'戊土',en:'Yang Earth',handle:'Bedrock',arch:'THE MOUNTAIN',positioning:'You are a holding structure \u2014 one that doesn\u2019t need to move to be powerful.'},
+  '己':{cn:'己土',en:'Yin Earth',handle:'Grove',arch:'THE FIELD',positioning:'You are fertile ground \u2014 one that grows other people\u2019s work into legacy.'},
+  '庚':{cn:'庚金',en:'Yang Metal',handle:'Blade',arch:'THE AXE',positioning:'You are a decision instrument \u2014 one that cuts without apology.'},
+  '辛':{cn:'辛金',en:'Yin Metal',handle:'Artifact',arch:'THE REFINED ARTIFACT',positioning:'You are a precision instrument that doesn\u2019t need to be forged \u2014 it needs to be displayed.'},
+  '壬':{cn:'壬水',en:'Yang Water',handle:'Current',arch:'THE OCEAN',positioning:'You are a moving body \u2014 one that reshapes every container it enters.'},
+  '癸':{cn:'癸水',en:'Yin Water',handle:'Mist',arch:'THE DEW',positioning:'You are quiet saturation \u2014 one that changes the weather without being seen.'}
+};
+
+/* Generic fallback content (§5.1) — same for all day masters in PR1 */
+var FALLBACK_GENERIC={
+  the_hit:{
+    s1:'You carry <em>patterns older than your memory.</em>',
+    s2:'This reading is still loading the deeper ones \u2014 please retry.'
+  },
+  the_map:[
+    'Your chart is rich in meaning \u2014 so rich that our rule engine needed a moment to catch up.',
+    'In the meantime, know this: your configuration is not average. You have patterns that most people don\u2019t.',
+    'Please retry in a few seconds to see the full reading generated from your specific chart.'
+  ],
+  blind_spot:{
+    you_think:'You think this reading failed.',
+    the_truth:'It\u2019s just loading deeper. Real analysis takes real rules \u2014 we\u2019re not willing to shortcut.',
+    expansion:'Please retry.'
+  },
+  the_move:{
+    instruction:'Retry in a moment.',
+    examples:[
+      'Sometimes depth needs a second pass.',
+      'Our engine is checking your chart against 2,500 years of rules.',
+      'We\u2019d rather wait than give you noise.'
+    ],
+    reason:'The reading you\u2019ll see is worth the retry.'
+  }
+};
+
+/* Build the PR1 placeholder HTML that fills the reading-box.
+   Corresponds to THE MAP / BLIND SPOT / THE MOVE sections of the
+   final Work Order §4.2 JSON, rendered with fallback copy. */
+function buildPr1FallbackHtml(){
+  var g=FALLBACK_GENERIC;
+  var html='<div class="cv3-pr1-notice">\u00A7 03\u201305 \u00B7 PLACEHOLDER \u00B7 REAL AI IN NEXT UPDATE</div>';
+  // THE MAP
+  html+='<h3>THE MAP</h3>';
+  g.the_map.forEach(function(p){html+='<p>'+p+'</p>'});
+  // BLIND SPOT — use the "you_think / the_truth" reversal structure
+  html+='<h3>YOUR BLIND SPOT</h3>';
+  html+='<ul>'+
+        '<li><strong>You think:</strong> '+g.blind_spot.you_think+'</li>'+
+        '<li><strong>The truth:</strong> '+g.blind_spot.the_truth+'</li>'+
+        '</ul>';
+  html+='<p>'+g.blind_spot.expansion+'</p>';
+  // THE MOVE
+  html+='<h3>THE MOVE</h3>';
+  html+='<p><strong>'+g.the_move.instruction+'</strong></p>';
+  html+='<ul>'+g.the_move.examples.map(function(e){return '<li>'+e+'</li>'}).join('')+'</ul>';
+  html+='<p><em>'+g.the_move.reason+'</em></p>';
+  return html;
+}
 
 function buildAiMessage(p){
 var r=curRes,ec=r.ec,ds=r.ds,k=r.k;
@@ -566,6 +851,12 @@ function showPathAnswer(p){
 var cacheKey=curRes.ds+'_'+p+'_ai';
 var content=document.getElementById('readingContent');
 var loading=document.getElementById('readingLoading');
+// PR1: short-circuit to fallback static content — no AI call
+if(CV3_FALLBACK_ACTIVE){
+  loading.style.display='none';
+  content.innerHTML=buildPr1FallbackHtml();
+  return;
+}
 if(aiCache[cacheKey]){
   loading.style.display='none';
   content.innerHTML=aiCache[cacheKey];
