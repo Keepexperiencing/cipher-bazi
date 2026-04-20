@@ -1,0 +1,7 @@
+# Cloudflare Pages headers
+# https://developers.cloudflare.com/pages/configuration/headers/
+
+/rules/*
+  Cache-Control: public, max-age=86400
+  Content-Type: text/plain; charset=utf-8
+  Access-Control-Allow-Origin: *

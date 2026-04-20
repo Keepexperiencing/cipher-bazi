@@ -470,6 +470,75 @@ window._st=st+'\n'+pu;
 var WORKER_URL='https://cipher-proxy.cipher-api.workers.dev';
 var aiCache={};
 
+/* ═══════════════════════════════════════
+   CIPHER Rule Engine — Work Order v2
+   Load per-day-master rules from same-origin /rules/*-for-ai.md
+   and ship them to the Worker alongside the existing `message`
+   payload for backward compatibility.
+   ═══════════════════════════════════════ */
+var DAY_MASTER_FILE_MAP={
+  '\u7532':'jia-mu','\u4e59':'yi-mu',
+  '\u4e19':'bing-huo','\u4e01':'ding-huo',
+  '\u620a':'wu-tu','\u5df1':'ji-tu',
+  '\u5e9a':'geng-jin','\u8f9b':'xin-jin',
+  '\u58ec':'ren-shui','\u7678':'gui-shui'
+};
+var rulesCache={}; // {dayMasterKey: {coreRules, dmRules}}
+
+function loadRulesForDayMaster(dayMasterCn){
+  var file=DAY_MASTER_FILE_MAP[dayMasterCn];
+  if(!file){console.warn('Unknown day master:',dayMasterCn);return Promise.resolve(null)}
+  if(rulesCache[dayMasterCn])return Promise.resolve(rulesCache[dayMasterCn]);
+  return Promise.all([
+    fetch('/rules/engine-core-for-ai.md').then(function(r){
+      if(!r.ok)throw new Error('Core rules fetch failed: '+r.status);
+      return r.text();
+    }),
+    fetch('/rules/'+file+'-for-ai.md').then(function(r){
+      if(!r.ok)throw new Error('Day master rules fetch failed: '+r.status);
+      return r.text();
+    })
+  ]).then(function(arr){
+    var bundle={coreRules:arr[0],dmRules:arr[1]};
+    rulesCache[dayMasterCn]=bundle;
+    return bundle;
+  }).catch(function(err){
+    console.error('Rules load failed:',err);
+    return null; // graceful degrade — Worker will use fallback path
+  });
+}
+
+/* Build v2 payload — keeps `message` for old-Worker compatibility
+   (deployment window), adds `chart` + `rules` for new Worker. */
+function buildAiPayloadV2(p,rules){
+  var r=curRes,ec=r.ec,k=r.k;
+  var pathLabel={wealth:'Money',love:'Love','2026':'2026'}[p]||'Money';
+  var chart={
+    year_pillar:ec.getYearGan()+ec.getYearZhi(),
+    month_pillar:ec.getMonthGan()+ec.getMonthZhi(),
+    day_pillar:ec.getDayGan()+ec.getDayZhi(),
+    hour_pillar:r.hh?(ec.getTimeGan()+ec.getTimeZhi()):'Unknown',
+    day_master_cn:r.ds,
+    day_master_en:k.name,
+    five_elements:{
+      metal:r.elC.Metal,earth:r.elC.Earth,water:r.elC.Water,wood:r.elC.Wood,fire:r.elC.Fire
+    },
+    top_skills:r.sg.slice(0,3).map(function(g){return {god:g[0],count:g[1]}}),
+    shen_sha:r.af,
+    variant:r.variant,
+    path_label:pathLabel
+  };
+  return {
+    // new fields (ignored by old Worker, used by new Worker)
+    chart:chart,
+    rules:rules,          // {coreRules, dmRules} or null if load failed
+    path:pathLabel,
+    // legacy field (still used by old Worker + as a fallback text prompt)
+    message:buildAiMessage(p),
+    lang:'en'
+  };
+}
+
 function buildAiMessage(p){
 var r=curRes,ec=r.ec,ds=r.ds,k=r.k;
 var pathLabel={wealth:'WEALTH',love:'RELATIONSHIPS','2026':'2026'}[p]||'WEALTH';
@@ -573,8 +642,11 @@ if(aiCache[cacheKey]){
 }
 loading.style.display='block';
 content.innerHTML='';
-var msg=buildAiMessage(p);
-fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,lang:'en'})})
+// Load rules first (or null on failure — Worker will degrade gracefully)
+loadRulesForDayMaster(curRes.ds).then(function(rules){
+  var payload=buildAiPayloadV2(p,rules);
+  return fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+})
 .then(function(res){return res.json()})
 .then(function(data){
   loading.style.display='none';
