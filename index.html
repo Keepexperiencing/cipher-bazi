@@ -96,6 +96,16 @@ select option{background:#12141c;color:var(--text)}
 .reading-box li{font-size:15px;line-height:1.7;color:var(--text);font-weight:400;margin-bottom:14px;padding:14px 18px;background:rgba(248,81,73,.04);border-left:3px solid var(--red);border-radius:0 8px 8px 0}
 .reading-box li::before{display:none}
 .reading-loading{text-align:center;padding:40px 20px;color:var(--cyan);font-style:italic;font-size:16px}
+/* Reading divider — "more below" hint between reading-box and pathSwitch */
+.reading-divider{display:flex;align-items:center;gap:12px;margin:24px 0 16px 0;opacity:0;animation:fadeInDivider .6s ease-in 1s forwards}
+.reading-divider .rd-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--bg3),transparent)}
+.reading-divider .rd-text{font-size:11px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap}
+@keyframes fadeInDivider{to{opacity:.7}}
+/* Floating scroll hint — shows when user is mid-page on #resultScreen */
+.scroll-hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(11,16,22,.92);border:1px solid var(--bg3);border-radius:20px;padding:8px 16px;font-size:12px;color:var(--text3);letter-spacing:1px;pointer-events:none;opacity:0;transition:opacity .3s ease;z-index:100;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.scroll-hint.visible{opacity:1}
+.scroll-hint span{animation:scrollHintBounce 1.5s ease-in-out infinite;display:inline-block}
+@keyframes scrollHintBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 .path-switch{display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap}
 .ps-btn{padding:8px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;font-size:13px;color:var(--text3);cursor:pointer;transition:all .2s;font-family:inherit}
 .ps-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(210,153,34,.06)}
@@ -270,6 +280,11 @@ select option{background:#12141c;color:var(--text)}
 <div class="reading-loading" id="readingLoading"><span>⏳ Analyzing your specific pattern...</span></div>
 <div id="readingContent"></div>
 </div>
+<div class="reading-divider" id="readingDivider" aria-hidden="true">
+  <div class="rd-line"></div>
+  <div class="rd-text">&darr; Choose a focus area below for more</div>
+  <div class="rd-line"></div>
+</div>
 <div class="path-switch" id="pathSwitch"></div>
 
 <div class="feedback-row" id="feedbackRow">
@@ -304,6 +319,7 @@ select option{background:#12141c;color:var(--text)}
 <div class="footer"><div class="footer-brand">CIPHER by <span>DestinyOS</span></div><div class="footer-tag">Pattern recognition, not prediction.</div><div class="footer-link"><a href="https://x.com/DestinyOS_io" target="_blank" rel="noopener">@DestinyOS_io</a></div></div>
 </div>
 <canvas id="shareCanvas" style="display:none"></canvas>
+<div class="scroll-hint" id="scrollHint" aria-hidden="true"><span>&darr; More below</span></div>
 </div>
 
 <script>
@@ -318,16 +334,16 @@ function checkInput(){var y=document.getElementById('selYear').value,m=document.
 // DATA
 // ═══════════════════════════════════════
 var K={
-'甲':{name:'Yang Wood',cn:'甲木',arch:'THE PIONEER',tagline:'"You grow toward light even when there\'s nothing to grow toward."',roast:"Your integrity protocol guarantees catastrophic structural failure. You confuse rigidity with strength. The first major impact will snap you in half.",mA:"THE BEAM \u2014 Load-bearing infrastructure. The spinal column of empires.",mB:"THE ANCIENT TREE \u2014 Branches proliferate without strategic intent.",el:'wood'},
-'乙':{name:'Yin Wood',cn:'乙木',arch:'THE ADAPTER',tagline:'"You bend in every storm. You have never broken."',roast:"Your survival strategy is elegant cowardice: wrap yourself around stronger entities and call it \u2018collaboration.\u2019 You\u2019re not building anything \u2014 you\u2019re just good at not dying alone.",mA:"THE VINE \u2014 Leverages others\u2019 stability for vertical ascension.",mB:"THE WEED \u2014 Immune to surface destruction but perpetually underfoot.",el:'wood'},
-'丙':{name:'Yang Fire',cn:'丙火',arch:'THE BEACON',tagline:'"Every room you enter gets brighter. Every room you leave gets quieter."',roast:"You come with a permanent spotlight and zero dimmer switch. Everyone sees you, nobody can stand next to you. You\u2019re the sun of a dead solar system \u2014 bright, lonely, wondering why all the planets went cold.",mA:"THE SUN \u2014 Illuminates indiscriminately. Demands nothing in return.",mB:"THE INFERNO \u2014 Consumes oxygen, leaves ash, occasionally self-immolates.",el:'fire'},
-'丁':{name:'Yin Fire',cn:'丁火',arch:'THE EMBER',tagline:'"You burn longer than anyone expects. Longer than you expect."',roast:"You project \u2018harmless nightlight\u2019 while running targeted psychological warfare. Once offended, you don\u2019t explode \u2014 you calculate. Then you burn a hole through their credibility with surgical precision.",mA:"THE CANDLE \u2014 Navigational beacon. Mystique is the product.",mB:"THE FURNACE \u2014 Holds grudges at the molecular level.",el:'fire'},
-'戊':{name:'Yang Earth',cn:'戊土',arch:'THE FORTRESS',tagline:'"You hold things together that would fall apart without you. Nobody notices until you stop."',roast:"Your frame rate is stuck at 0.5 FPS. You mistake processing latency for wisdom. The mountain that refuses to erode doesn\u2019t become eternal \u2014 it becomes irrelevant.",mA:"THE DAM \u2014 Contains chaos through sheer immovable mass.",mB:"THE BARREN MOUNTAIN \u2014 Confuses \u2018unchanging\u2019 with \u2018immortal.\u2019",el:'earth'},
-'己':{name:'Yin Earth',cn:'己土',arch:'THE CULTIVATOR',tagline:'"You are the soil. Everything grows in you. Nobody thinks about the soil."',roast:"You consume everything and store it with zero indexing system. Nobody knows what you think because you\u2019ve cached 47 contradictory opinions and deploy whichever suits the moment.",mA:"THE GARDEN \u2014 The ultimate talent incubator.",mB:"THE SWAMP \u2014 Absorbs pollutants without processing.",el:'earth'},
-'庚':{name:'Yang Metal',cn:'庚金',arch:'THE SWORD',tagline:'"You cut through. It\'s not cruelty. It\'s clarity."',roast:"Your conflict resolution has one function: physical elimination. Subtlety and diplomacy weren\u2019t absent from your system \u2014 they were never installed.",mA:"THE WEAPON \u2014 Executes justice, clears forests, establishes borders.",mB:"THE SCRAP \u2014 Too coarse for precision, too brittle for construction.",el:'metal'},
-'辛':{name:'Yin Metal',cn:'辛金',arch:'THE REFINED ARTIFACT',tagline:'"You don\'t break. You outlast."',roast:"Your quality control is so astronomical you\u2019ve filtered out 99% of reality as \u2018beneath you.\u2019 You\u2019re priceless, flawless, and completely alone.",mA:"THE JEWEL \u2014 Commands premium through scarcity and aesthetic perfection.",mB:"THE ORE \u2014 Buried in Earth, encrusted with sediment. Dim, anonymous, latent.",el:'metal'},
-'壬':{name:'Yang Water',cn:'壬水',arch:'THE HYPER FLUX',tagline:'"You have no shape and no ceiling. The problem is finding a container."',roast:"You have no shape and no principles \u2014 just velocity. Genius-level intellect paired with toddler-level impulse control. You don\u2019t build systems; you short-circuit them.",mA:"THE RIVER \u2014 Channeled flow. Enables irrigation, commerce, energy generation.",mB:"THE FLOOD \u2014 Intelligence without ethics; motion without purpose.",el:'water'},
-'癸':{name:'Yin Water',cn:'癸水',arch:'THE DEEP CURRENT',tagline:'"You move silently. You move everything."',roast:"You seep into every crack like humidity in a server room \u2014 invisible, persistent, corrosive. Your superpower is making others feel suffocated without identifiable cause.",mA:"THE RAIN \u2014 Invisible infrastructure of fertility.",mB:"THE MIST \u2014 Emotional weather system that suffocates through ambient presence.",el:'water'}
+'甲':{name:'Yang Wood',cn:'甲木',arch:'THE PIONEER',tagline:'"You grow toward light even when there\'s nothing to grow toward."',roast:"Reading your specific configuration as Yang Wood \u00B7 The Pioneer. Your pattern grows toward structure \u2014 analyzing what's specific to *your* chart now.",mA:"THE BEAM \u2014 Load-bearing infrastructure. The spinal column of empires.",mB:"THE ANCIENT TREE \u2014 Branches proliferate without strategic intent.",el:'wood'},
+'乙':{name:'Yin Wood',cn:'乙木',arch:'THE ADAPTER',tagline:'"You bend in every storm. You have never broken."',roast:"Reading your specific configuration as Yin Wood \u00B7 The Adapter. Your pattern survives by wrapping \u2014 analyzing what's specific to *your* chart now.",mA:"THE VINE \u2014 Leverages others\u2019 stability for vertical ascension.",mB:"THE WEED \u2014 Immune to surface destruction but perpetually underfoot.",el:'wood'},
+'丙':{name:'Yang Fire',cn:'丙火',arch:'THE BEACON',tagline:'"Every room you enter gets brighter. Every room you leave gets quieter."',roast:"Reading your specific configuration as Yang Fire \u00B7 The Beacon. Your pattern lights without dimming \u2014 analyzing what's specific to *your* chart now.",mA:"THE SUN \u2014 Illuminates indiscriminately. Demands nothing in return.",mB:"THE INFERNO \u2014 Consumes oxygen, leaves ash, occasionally self-immolates.",el:'fire'},
+'丁':{name:'Yin Fire',cn:'丁火',arch:'THE EMBER',tagline:'"You burn longer than anyone expects. Longer than you expect."',roast:"Reading your specific configuration as Yin Fire \u00B7 The Ember. Your pattern burns longer than expected \u2014 analyzing what's specific to *your* chart now.",mA:"THE CANDLE \u2014 Navigational beacon. Mystique is the product.",mB:"THE FURNACE \u2014 Holds grudges at the molecular level.",el:'fire'},
+'戊':{name:'Yang Earth',cn:'戊土',arch:'THE FORTRESS',tagline:'"You hold things together that would fall apart without you. Nobody notices until you stop."',roast:"Reading your specific configuration as Yang Earth \u00B7 The Fortress. Your pattern holds what would fall \u2014 analyzing what's specific to *your* chart now.",mA:"THE DAM \u2014 Contains chaos through sheer immovable mass.",mB:"THE BARREN MOUNTAIN \u2014 Confuses \u2018unchanging\u2019 with \u2018immortal.\u2019",el:'earth'},
+'己':{name:'Yin Earth',cn:'己土',arch:'THE CULTIVATOR',tagline:'"You are the soil. Everything grows in you. Nobody thinks about the soil."',roast:"Reading your specific configuration as Yin Earth \u00B7 The Cultivator. Your pattern grows everything in itself \u2014 analyzing what's specific to *your* chart now.",mA:"THE GARDEN \u2014 The ultimate talent incubator.",mB:"THE SWAMP \u2014 Absorbs pollutants without processing.",el:'earth'},
+'庚':{name:'Yang Metal',cn:'庚金',arch:'THE SWORD',tagline:'"You cut through. It\'s not cruelty. It\'s clarity."',roast:"Reading your specific configuration as Yang Metal \u00B7 The Sword. Your pattern cuts through with clarity \u2014 analyzing what's specific to *your* chart now.",mA:"THE WEAPON \u2014 Executes justice, clears forests, establishes borders.",mB:"THE SCRAP \u2014 Too coarse for precision, too brittle for construction.",el:'metal'},
+'辛':{name:'Yin Metal',cn:'辛金',arch:'THE REFINED ARTIFACT',tagline:'"You don\'t break. You outlast."',roast:"Reading your specific configuration as Yin Metal \u00B7 The Refined Artifact. Your pattern is precision-built \u2014 analyzing what's specific to *your* chart now.",mA:"THE JEWEL \u2014 Commands premium through scarcity and aesthetic perfection.",mB:"THE ORE \u2014 Buried in Earth, encrusted with sediment. Dim, anonymous, latent.",el:'metal'},
+'壬':{name:'Yang Water',cn:'壬水',arch:'THE HYPER FLUX',tagline:'"You have no shape and no ceiling. The problem is finding a container."',roast:"Reading your specific configuration as Yang Water \u00B7 The Hyper Flux. Your pattern moves without container \u2014 analyzing what's specific to *your* chart now.",mA:"THE RIVER \u2014 Channeled flow. Enables irrigation, commerce, energy generation.",mB:"THE FLOOD \u2014 Intelligence without ethics; motion without purpose.",el:'water'},
+'癸':{name:'Yin Water',cn:'癸水',arch:'THE DEEP CURRENT',tagline:'"You move silently. You move everything."',roast:"Reading your specific configuration as Yin Water \u00B7 The Deep Current. Your pattern moves silently through everything \u2014 analyzing what's specific to *your* chart now.",mA:"THE RAIN \u2014 Invisible infrastructure of fertility.",mB:"THE MIST \u2014 Emotional weather system that suffocates through ambient presence.",el:'water'}
 };
 var SM={'比肩':{c:'SHIELD WALL',i:'🛡️',d:'Allies with same code. Strength in numbers.'},'劫财':{c:'SHADOW CLONE',i:'⚔️',d:'Rivals with same code. Competition sharpens.'},'食神':{c:'SOUL FEED',i:'🎵',d:'Passive creative output. Art without agenda.'},'伤官':{c:'CHAOS SURGE',i:'💥',d:'Explosive expression. Breaks rules, makes waves.'},'正财':{c:'RESOURCE MINING',i:'💰',d:'Steady wealth acquisition. The salary path.'},'偏财':{c:'LOOT DROP',i:'🎰',d:'Windfall potential. High risk, high reward.'},'正官':{c:'LAW & ORDER',i:'⚖️',d:'Authority alignment. Plays by the rules.'},'七杀':{c:'THE EXECUTIONER',i:'🗡️',d:'Extreme pressure. Either breaks or forges you.'},'正印':{c:'THE GREAT FIREWALL',i:'🏛️',d:'Protected by institutions. Stable but stagnant.'},'偏印':{c:'MIND PALACE',i:'🧠',d:'Backdoor knowledge. You learn in the dark.'}};
 var VM={'比肩':'SHIELD WALL VARIANT','劫财':'SHADOW CLONE VARIANT','食神':'SOUL FEED VARIANT','伤官':'CHAOS SURGE VARIANT','正财':'RESOURCE MINING VARIANT','偏财':'LOOT DROP VARIANT','正官':'LAW & ORDER VARIANT','七杀':'EXECUTIONER VARIANT','正印':'FIREWALL VARIANT','偏印':'MIND PALACE VARIANT'};
@@ -437,8 +453,10 @@ var k=curRes.k,r=curRes;
 // Header v3
 document.getElementById('rType').textContent=k.arch;
 document.getElementById('rTagline').textContent=k.tagline||'';
-// Static K[].roast is the fallback; AI's THE TRUTH ABOUT YOU section overrides it after showPathAnswer returns
-(function(){var rr=document.getElementById('rRoast');var fb='\u201C'+k.roast+'\u201D';rr.setAttribute('data-fallback',fb);rr.textContent=fb;})();
+// Static K[].roast is the neutral "reading in progress" placeholder.
+// *your* markers in the copy are rendered as italic via renderItalicMarks.
+// AI's THE TRUTH ABOUT YOU section overrides this after showPathAnswer returns.
+(function(){var rr=document.getElementById('rRoast');var fb='\u201C'+renderItalicMarks(k.roast)+'\u201D';rr.setAttribute('data-fallback',fb);rr.innerHTML=fb;})();
 // AI Reading
 showPathAnswer(selectedPath);
 // Path switch buttons
@@ -467,6 +485,30 @@ var st='My birth code: '+k.arch+' \u2694\uFE0F\n\u201C'+roastShort+'\u201D\n\nYo
 var pu=window.location.href.split('?')[0]+'?utm_source=twitter&utm_medium=share';
 document.getElementById('shareXBtn').href='https://twitter.com/intent/tweet?text='+encodeURIComponent(st)+'&url='+encodeURIComponent(pu);
 window._st=st+'\n'+pu;
+setupScrollHint();
+}
+
+/* Floating "↓ More below" hint — only active on #resultScreen,
+   only when the user is mid-page (scrolled > 200px but not within 200px of bottom).
+   Listener attached exactly once; subsequent renderResult calls no-op. */
+var _scrollHintBound=false;
+function setupScrollHint(){
+  if(_scrollHintBound) return;
+  _scrollHintBound=true;
+  var hint=document.getElementById('scrollHint');
+  if(!hint) return;
+  function checkScrollPosition(){
+    var result=document.getElementById('resultScreen');
+    var onResult=result && (result.classList.contains('active')||result.classList.contains('active-block'));
+    if(!onResult){hint.classList.remove('visible');return}
+    var scrolled=window.scrollY;
+    var viewportHeight=window.innerHeight;
+    var documentHeight=document.documentElement.scrollHeight;
+    var isInMiddle=scrolled>200 && (scrolled+viewportHeight)<(documentHeight-200);
+    if(isInMiddle){hint.classList.add('visible')}else{hint.classList.remove('visible')}
+  }
+  window.addEventListener('scroll',checkScrollPosition,{passive:true});
+  setTimeout(checkScrollPosition,500);
 }
 var WORKER_URL='https://cipher-proxy.cipher-api.workers.dev';
 var aiCache={};
