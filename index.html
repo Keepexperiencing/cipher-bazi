@@ -437,7 +437,8 @@ var k=curRes.k,r=curRes;
 // Header v3
 document.getElementById('rType').textContent=k.arch;
 document.getElementById('rTagline').textContent=k.tagline||'';
-document.getElementById('rRoast').textContent='\u201C'+k.roast+'\u201D';
+// Static K[].roast is the fallback; AI's THE TRUTH ABOUT YOU section overrides it after showPathAnswer returns
+(function(){var rr=document.getElementById('rRoast');var fb='\u201C'+k.roast+'\u201D';rr.setAttribute('data-fallback',fb);rr.textContent=fb;})();
 // AI Reading
 showPathAnswer(selectedPath);
 // Path switch buttons
@@ -560,6 +561,52 @@ if(excess.length)msg+='Excess: '+excess.join(', ')+'\n';
 return msg;
 }
 
+/* Extract "THE TRUTH ABOUT YOU" section from AI analysis.
+   Returns {truth, remainder}. truth is null if not found. */
+function extractTruthAboutYou(text){
+  if(!text) return {truth:null, remainder:text};
+  var nextHeaderAlt='(WHO YOU ARE|YOUR (?:WEALTH|MONEY|CONNECTION|RELATIONSHIPS?|2026) PATTERN|YOUR BLIND SPOT)';
+  var truthRegex=new RegExp(
+    '(?:^|\\n)#{0,3}\\s*THE TRUTH ABOUT YOU\\s*\\n+([\\s\\S]*?)(?=\\n+#{0,3}\\s*'+nextHeaderAlt+'|$)',
+    'i'
+  );
+  var match=text.match(truthRegex);
+  if(!match) return {truth:null, remainder:text};
+  var truthText=match[1].trim();
+  var remainder=text.replace(match[0],'').trim();
+  return {truth:truthText, remainder:remainder};
+}
+
+/* Render *italic* markers to <em>italic</em>.
+   Used for the roast line specifically. */
+function renderItalicMarks(text){
+  if(!text) return '';
+  return text.replace(/\*([^\*\n]+)\*/g,'<em>$1</em>');
+}
+
+/* Build the "Under the hood" expandable block that surfaces
+   the rule IDs and pattern code behind a reading. */
+function renderUnderTheHood(data){
+  if(!data.rule_ids_used || !data.rule_ids_used.length) return '';
+  var ids=data.rule_ids_used.slice(0,6);
+  var pattern=data.pattern_detected||'';
+  var html='<details class="under-hood" style="margin-top:32px;padding:16px;background:var(--bg2);border:1px solid var(--bg3);border-radius:8px;">';
+  html+='<summary style="cursor:pointer;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);font-weight:600;">Under the hood \u2014 see the rules behind this reading</summary>';
+  html+='<div style="margin-top:16px;font-size:13px;line-height:1.6;color:var(--text3);">';
+  html+='<p style="margin-bottom:12px;">This reading was generated from the following rules:</p>';
+  html+='<ul style="list-style:none;padding-left:0;margin-bottom:12px;">';
+  ids.forEach(function(id){
+    html+='<li style="font-family:monospace;padding:4px 0;color:var(--text);font-size:12px;">'+id+'</li>';
+  });
+  html+='</ul>';
+  if(pattern){
+    html+='<p style="margin-top:12px;">Pattern detected: <strong style="color:var(--text);font-family:monospace;">'+pattern+'</strong></p>';
+  }
+  html+='<p style="margin-top:12px;font-size:11px;opacity:0.7;">Based on 2,500-year-old rules from \u300A\u7A77\u901A\u5B9D\u9274\u300B\u300A\u5B50\u5E73\u771F\u8BDE\u300B\u300A\u6EF4\u5929\u9AD3\u300B.</p>';
+  html+='</div></details>';
+  return html;
+}
+
 function formatReading(text){
   if(!text) return '<p>Reading unavailable.</p>';
 
@@ -632,12 +679,17 @@ function formatReading(text){
 }
 
 function showPathAnswer(p){
-var cacheKey=curRes.ds+'_'+p+'_ai';
+// cache v2: keyed with v2_ prefix so old HTML-only cache entries are bypassed
+var cacheKey='v2_'+curRes.ds+'_'+p+'_ai';
 var content=document.getElementById('readingContent');
 var loading=document.getElementById('readingLoading');
 if(aiCache[cacheKey]){
   loading.style.display='none';
-  content.innerHTML=aiCache[cacheKey];
+  var cached=aiCache[cacheKey];
+  if(cached.truth){
+    document.getElementById('rRoast').innerHTML='\u201C'+renderItalicMarks(cached.truth)+'\u201D';
+  }
+  content.innerHTML=cached.html;
   return;
 }
 loading.style.display='block';
@@ -651,8 +703,18 @@ loadRulesForDayMaster(curRes.ds).then(function(rules){
 .then(function(data){
   loading.style.display='none';
   if(data.analysis&&!data.error){
-    var html=formatReading(data.analysis);
-    aiCache[cacheKey]=html;
+    // Extract THE TRUTH ABOUT YOU and route it to the roast slot
+    var split=extractTruthAboutYou(data.analysis);
+    if(split.truth){
+      document.getElementById('rRoast').innerHTML='\u201C'+renderItalicMarks(split.truth)+'\u201D';
+    }
+    // Everything else goes into the reading box
+    var html=formatReading(split.remainder);
+    // Append "Under the hood" if the Worker returned real rule IDs
+    if(data.rule_ids_used && data.rule_ids_used.length){
+      html+=renderUnderTheHood(data);
+    }
+    aiCache[cacheKey]={truth:split.truth, html:html};
     content.innerHTML=html;
   }else{fallbackPA(p)}
 })
@@ -663,6 +725,10 @@ function fallbackPA(p){
 var key=curRes.ds+'_'+p;
 var text=PA[key]||'Analysis not available.';
 document.getElementById('readingContent').innerHTML='<p>'+text+'</p>';
+// AI failed → restore the static roast saved on data-fallback in renderResult
+var rRoast=document.getElementById('rRoast');
+var fb=rRoast.getAttribute('data-fallback');
+if(fb) rRoast.innerHTML=fb;
 }
 
 function switchPath(p,el){
