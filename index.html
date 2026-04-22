@@ -96,16 +96,13 @@ select option{background:#12141c;color:var(--text)}
 .reading-box li{font-size:15px;line-height:1.7;color:var(--text);font-weight:400;margin-bottom:14px;padding:14px 18px;background:rgba(248,81,73,.04);border-left:3px solid var(--red);border-radius:0 8px 8px 0}
 .reading-box li::before{display:none}
 .reading-loading{text-align:center;padding:40px 20px;color:var(--cyan);font-style:italic;font-size:16px}
-/* Reading divider — "more below" hint between reading-box and pathSwitch */
-.reading-divider{display:flex;align-items:center;gap:12px;margin:24px 0 16px 0;opacity:0;animation:fadeInDivider .6s ease-in 1s forwards}
+/* Reading divider — content hook between reading-box and pathSwitch.
+   Text uses var(--text) for readability (v3: was var(--text3) which got lost on dark bg). */
+.reading-divider{display:flex;align-items:center;gap:12px;margin:28px 0 16px 0;opacity:0;animation:fadeInDivider .6s ease-in 1s forwards}
 .reading-divider .rd-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--bg3),transparent)}
-.reading-divider .rd-text{font-size:11px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap}
-@keyframes fadeInDivider{to{opacity:.7}}
-/* Floating scroll hint — shows when user is mid-page on #resultScreen */
-.scroll-hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(11,16,22,.92);border:1px solid var(--bg3);border-radius:20px;padding:8px 16px;font-size:12px;color:var(--text3);letter-spacing:1px;pointer-events:none;opacity:0;transition:opacity .3s ease;z-index:100;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.scroll-hint.visible{opacity:1}
-.scroll-hint span{animation:scrollHintBounce 1.5s ease-in-out infinite;display:inline-block}
-@keyframes scrollHintBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.reading-divider .rd-text{font-size:13px;color:var(--text);letter-spacing:.5px;font-weight:500;white-space:nowrap;opacity:.85}
+@keyframes fadeInDivider{to{opacity:.85}}
+@media(max-width:480px){.reading-divider .rd-text{font-size:12px;white-space:normal;text-align:center;line-height:1.4}}
 .path-switch{display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap}
 .ps-btn{padding:8px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;font-size:13px;color:var(--text3);cursor:pointer;transition:all .2s;font-family:inherit}
 .ps-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(210,153,34,.06)}
@@ -282,7 +279,7 @@ select option{background:#12141c;color:var(--text)}
 </div>
 <div class="reading-divider" id="readingDivider" aria-hidden="true">
   <div class="rd-line"></div>
-  <div class="rd-text">&darr; Choose a focus area below for more</div>
+  <div class="rd-text" id="rdText">&darr; Your blind spot is below. Most people don't want to see theirs.</div>
   <div class="rd-line"></div>
 </div>
 <div class="path-switch" id="pathSwitch"></div>
@@ -319,7 +316,6 @@ select option{background:#12141c;color:var(--text)}
 <div class="footer"><div class="footer-brand">CIPHER by <span>DestinyOS</span></div><div class="footer-tag">Pattern recognition, not prediction.</div><div class="footer-link"><a href="https://x.com/DestinyOS_io" target="_blank" rel="noopener">@DestinyOS_io</a></div></div>
 </div>
 <canvas id="shareCanvas" style="display:none"></canvas>
-<div class="scroll-hint" id="scrollHint" aria-hidden="true"><span>&darr; More below</span></div>
 </div>
 
 <script>
@@ -485,31 +481,9 @@ var st='My birth code: '+k.arch+' \u2694\uFE0F\n\u201C'+roastShort+'\u201D\n\nYo
 var pu=window.location.href.split('?')[0]+'?utm_source=twitter&utm_medium=share';
 document.getElementById('shareXBtn').href='https://twitter.com/intent/tweet?text='+encodeURIComponent(st)+'&url='+encodeURIComponent(pu);
 window._st=st+'\n'+pu;
-setupScrollHint();
+updateDividerHook('initial');
 }
 
-/* Floating "↓ More below" hint — only active on #resultScreen,
-   only when the user is mid-page (scrolled > 200px but not within 200px of bottom).
-   Listener attached exactly once; subsequent renderResult calls no-op. */
-var _scrollHintBound=false;
-function setupScrollHint(){
-  if(_scrollHintBound) return;
-  _scrollHintBound=true;
-  var hint=document.getElementById('scrollHint');
-  if(!hint) return;
-  function checkScrollPosition(){
-    var result=document.getElementById('resultScreen');
-    var onResult=result && (result.classList.contains('active')||result.classList.contains('active-block'));
-    if(!onResult){hint.classList.remove('visible');return}
-    var scrolled=window.scrollY;
-    var viewportHeight=window.innerHeight;
-    var documentHeight=document.documentElement.scrollHeight;
-    var isInMiddle=scrolled>200 && (scrolled+viewportHeight)<(documentHeight-200);
-    if(isInMiddle){hint.classList.add('visible')}else{hint.classList.remove('visible')}
-  }
-  window.addEventListener('scroll',checkScrollPosition,{passive:true});
-  setTimeout(checkScrollPosition,500);
-}
 var WORKER_URL='https://cipher-proxy.cipher-api.workers.dev';
 var aiCache={};
 
@@ -732,6 +706,7 @@ if(aiCache[cacheKey]){
     document.getElementById('rRoast').innerHTML='\u201C'+renderItalicMarks(cached.truth)+'\u201D';
   }
   content.innerHTML=cached.html;
+  watchBlindSpotScroll();
   return;
 }
 loading.style.display='block';
@@ -758,6 +733,7 @@ loadRulesForDayMaster(curRes.ds).then(function(rules){
     }
     aiCache[cacheKey]={truth:split.truth, html:html};
     content.innerHTML=html;
+    watchBlindSpotScroll();
   }else{fallbackPA(p)}
 })
 .catch(function(){loading.style.display='none';fallbackPA(p)});
@@ -778,6 +754,38 @@ selectedPath=p;
 document.querySelectorAll('.ps-btn').forEach(function(b){b.classList.remove('active')});
 el.classList.add('active');
 showPathAnswer(p);
+updateDividerHook('path-selected');
+}
+
+/* Update the reading-divider content hook based on user progress.
+   initial         = before any path tab click
+   path-selected   = after user clicks a path tab
+   reading-complete = after user scrolls past YOUR BLIND SPOT section */
+function updateDividerHook(stage){
+  var rdText=document.getElementById('rdText');
+  if(!rdText) return;
+  var hooks={
+    'initial':           '\u2193 Your blind spot is below. Most people don\u2019t want to see theirs.',
+    'path-selected':     '\u2193 Keep reading. The part about your blind spot hits hardest.',
+    'reading-complete':  '\u2193 Now see the rules behind this reading.'
+  };
+  rdText.textContent=hooks[stage]||hooks['initial'];
+}
+
+/* Watch the BLIND SPOT header in the reading content and, once it
+   enters the viewport, swap the divider hook to 'reading-complete'. */
+var _blindObserver=null;
+function watchBlindSpotScroll(){
+  if(_blindObserver){try{_blindObserver.disconnect()}catch(_){}}
+  var header=Array.from(document.querySelectorAll('#readingContent h3'))
+    .find(function(h){return h.textContent.indexOf('BLIND SPOT')>=0});
+  if(!header || typeof IntersectionObserver==='undefined') return;
+  _blindObserver=new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){updateDividerHook('reading-complete')}
+    });
+  },{threshold:0.5});
+  _blindObserver.observe(header);
 }
 
 function toggleDataPanel(){
