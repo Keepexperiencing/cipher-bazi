@@ -96,20 +96,31 @@ select option{background:#12141c;color:var(--text)}
 .reading-box li{font-size:15px;line-height:1.7;color:var(--text);font-weight:400;margin-bottom:14px;padding:14px 18px;background:rgba(248,81,73,.04);border-left:3px solid var(--red);border-radius:0 8px 8px 0}
 .reading-box li::before{display:none}
 .reading-loading{text-align:center;padding:40px 20px;color:var(--cyan);font-style:italic;font-size:16px}
+/* v4 Progress bar — visible feedback during 10-15s AI wait */
+.rl-progress-wrap{max-width:400px;margin:0 auto}
+.rl-progress-bar{width:100%;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:16px}
+.rl-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--text));border-radius:2px;transition:width .5s ease-out;box-shadow:0 0 8px rgba(0,212,255,.4)}
+.rl-progress-label{font-size:13px;color:var(--text3);letter-spacing:.5px;font-style:italic;min-height:20px}
+/* v4 Bottom CTA hide/reveal during analysis */
+.hidden-during-analysis{display:none !important}
+.fade-in-after-analysis{animation:fadeInAfterAnalysis .5s ease-out forwards}
+@keyframes fadeInAfterAnalysis{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 /* Reading divider — content hook between reading-box and pathSwitch.
-   Text uses var(--text) for readability (v3: was var(--text3) which got lost on dark bg). */
-.reading-divider{display:flex;align-items:center;gap:12px;margin:28px 0 16px 0;opacity:0;animation:fadeInDivider .6s ease-in 1s forwards}
+   v4: drop fadeInDivider animation entirely (iOS Safari bug with missing
+   `from` keyframe + animation-delay + fill-forwards stranded the element
+   at opacity:0). Default opacity:1, cyan text, font-weight 600. */
+.reading-divider{display:flex;align-items:center;gap:12px;margin:28px 0 16px 0;opacity:1}
 .reading-divider .rd-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--bg3),transparent)}
-.reading-divider .rd-text{font-size:13px;color:var(--text);letter-spacing:.5px;font-weight:500;white-space:nowrap;opacity:.85}
-@keyframes fadeInDivider{to{opacity:.85}}
-/* Flash the divider briefly when the hook text changes so the swap is perceptible */
+.reading-divider .rd-text{font-size:14px;color:var(--cyan);letter-spacing:.5px;font-weight:600;white-space:nowrap;opacity:1}
+/* Flash the divider briefly when the hook text changes so the swap is perceptible.
+   v4: start at cyan (the resting color), pulse through white. */
 .reading-divider.rd-flash .rd-text{animation:rdFlash .7s ease}
 @keyframes rdFlash{
-  0%,100%{color:var(--text);opacity:.85;transform:translateY(0)}
-  30%{color:var(--cyan);opacity:1;transform:translateY(-2px)}
-  60%{color:var(--cyan);opacity:1;transform:translateY(0)}
+  0%,100%{color:var(--cyan);opacity:1;transform:translateY(0)}
+  30%{color:var(--text);opacity:1;transform:translateY(-2px)}
+  60%{color:var(--text);opacity:1;transform:translateY(0)}
 }
-@media(max-width:480px){.reading-divider .rd-text{font-size:12px;white-space:normal;text-align:center;line-height:1.4}}
+@media(max-width:480px){.reading-divider .rd-text{font-size:13px;white-space:normal;text-align:center;line-height:1.4}}
 .path-switch{display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap}
 .ps-btn{padding:8px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;font-size:13px;color:var(--text3);cursor:pointer;transition:all .2s;font-family:inherit}
 .ps-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(210,153,34,.06)}
@@ -281,7 +292,14 @@ select option{background:#12141c;color:var(--text)}
 <div class="roast"><div class="roast-tag">The Truth About You</div><p class="roast-text" id="rRoast"></p></div>
 
 <div class="reading-box" id="readingBox">
-<div class="reading-loading" id="readingLoading"><span>⏳ Analyzing your specific pattern...</span></div>
+<div class="reading-loading" id="readingLoading">
+  <div class="rl-progress-wrap">
+    <div class="rl-progress-bar">
+      <div class="rl-progress-fill" id="rlProgressFill"></div>
+    </div>
+    <div class="rl-progress-label" id="rlProgressLabel">Reading your four pillars...</div>
+  </div>
+</div>
 <div id="readingContent"></div>
 </div>
 <div class="reading-divider" id="readingDivider" aria-hidden="true">
@@ -489,6 +507,7 @@ var pu=window.location.href.split('?')[0]+'?utm_source=twitter&utm_medium=share'
 document.getElementById('shareXBtn').href='https://twitter.com/intent/tweet?text='+encodeURIComponent(st)+'&url='+encodeURIComponent(pu);
 window._st=st+'\n'+pu;
 updateDividerHook('initial');
+hideBottomCTAs();                      // v4: CTAs stay hidden until AI returns
 }
 
 var WORKER_URL='https://cipher-proxy.cipher-api.workers.dev';
@@ -701,6 +720,72 @@ function formatReading(text){
   return html || '<p>' + text + '</p>';
 }
 
+/* v4 — progress bar state machine. Fake progress timed against
+   typical AI latency (~10-15s). Staged labels give the user a sense
+   of what the engine is doing. Real completion calls completeProgressBar(). */
+var progressStages=[
+  { at: 0,     percent: 15, label: 'Reading your four pillars...' },
+  { at: 2000,  percent: 35, label: 'Matching against 2,500 years of rules...' },
+  { at: 5000,  percent: 60, label: "Finding what's specific to your chart..." },
+  { at: 8000,  percent: 80, label: 'Refining the truth...' },
+  { at: 11000, percent: 90, label: 'Almost there...' }
+];
+var _progressTimers=[];
+function startProgressBar(){
+  var fill=document.getElementById('rlProgressFill');
+  var label=document.getElementById('rlProgressLabel');
+  if(!fill||!label) return;
+  fill.style.width='0%';
+  label.textContent=progressStages[0].label;
+  _progressTimers.forEach(function(t){clearTimeout(t)});
+  _progressTimers=[];
+  progressStages.forEach(function(stage){
+    _progressTimers.push(setTimeout(function(){
+      var loading=document.getElementById('readingLoading');
+      if(!loading||loading.style.display==='none') return;
+      fill.style.width=stage.percent+'%';
+      label.textContent=stage.label;
+    }, stage.at));
+  });
+}
+function completeProgressBar(){
+  var fill=document.getElementById('rlProgressFill');
+  var label=document.getElementById('rlProgressLabel');
+  _progressTimers.forEach(function(t){clearTimeout(t)});
+  _progressTimers=[];
+  if(!fill||!label) return;
+  fill.style.width='100%';
+  label.textContent='Done.';
+}
+
+/* v4 — bottom CTAs stay hidden while the AI is working so the
+   screen doesn't look "finished" prematurely. They reveal one at
+   a time after the reading renders. */
+var BOTTOM_CTA_SELECTORS=['#feedbackRow', '.share-row', '.data-toggle', '.data-panel', '.upsell'];
+function hideBottomCTAs(){
+  BOTTOM_CTA_SELECTORS.forEach(function(sel){
+    var el=document.querySelector(sel);
+    if(el){
+      el.classList.add('hidden-during-analysis');
+      el.classList.remove('fade-in-after-analysis');
+    }
+  });
+}
+function showBottomCTAs(){
+  BOTTOM_CTA_SELECTORS.forEach(function(sel,index){
+    setTimeout(function(){
+      var el=document.querySelector(sel);
+      if(!el) return;
+      // Don't un-hide #dataPanel — it's controlled by toggleDataPanel's
+      // inline style:display:none, and revealing it here would pop the
+      // folded data open unsolicited.
+      if(sel==='.data-panel') return;
+      el.classList.remove('hidden-during-analysis');
+      el.classList.add('fade-in-after-analysis');
+    }, index*400);
+  });
+}
+
 function showPathAnswer(p){
 // cache v2: keyed with v2_ prefix so old HTML-only cache entries are bypassed
 var cacheKey='v2_'+curRes.ds+'_'+p+'_ai';
@@ -714,10 +799,13 @@ if(aiCache[cacheKey]){
   }
   content.innerHTML=cached.html;
   watchBlindSpotScroll();
+  showBottomCTAs();                    // cache-hit: reveal immediately
   return;
 }
 loading.style.display='block';
 content.innerHTML='';
+startProgressBar();                    // v4: visible progress during AI wait
+hideBottomCTAs();                      // v4: hide CTAs while analysis runs
 // Load rules first (or null on failure — Worker will degrade gracefully)
 loadRulesForDayMaster(curRes.ds).then(function(rules){
   var payload=buildAiPayloadV2(p,rules);
@@ -726,6 +814,7 @@ loadRulesForDayMaster(curRes.ds).then(function(rules){
 .then(function(res){return res.json()})
 .then(function(data){
   loading.style.display='none';
+  completeProgressBar();
   if(data.analysis&&!data.error){
     // Extract THE TRUTH ABOUT YOU and route it to the roast slot
     var split=extractTruthAboutYou(data.analysis);
@@ -741,9 +830,10 @@ loadRulesForDayMaster(curRes.ds).then(function(rules){
     aiCache[cacheKey]={truth:split.truth, html:html};
     content.innerHTML=html;
     watchBlindSpotScroll();
-  }else{fallbackPA(p)}
+    showBottomCTAs();
+  }else{fallbackPA(p); showBottomCTAs();}
 })
-.catch(function(){loading.style.display='none';fallbackPA(p)});
+.catch(function(){loading.style.display='none';completeProgressBar();fallbackPA(p);showBottomCTAs();});
 }
 
 function fallbackPA(p){
