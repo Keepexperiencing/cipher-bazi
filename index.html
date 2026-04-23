@@ -102,6 +102,13 @@ select option{background:#12141c;color:var(--text)}
 .reading-divider .rd-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--bg3),transparent)}
 .reading-divider .rd-text{font-size:13px;color:var(--text);letter-spacing:.5px;font-weight:500;white-space:nowrap;opacity:.85}
 @keyframes fadeInDivider{to{opacity:.85}}
+/* Flash the divider briefly when the hook text changes so the swap is perceptible */
+.reading-divider.rd-flash .rd-text{animation:rdFlash .7s ease}
+@keyframes rdFlash{
+  0%,100%{color:var(--text);opacity:.85;transform:translateY(0)}
+  30%{color:var(--cyan);opacity:1;transform:translateY(-2px)}
+  60%{color:var(--cyan);opacity:1;transform:translateY(0)}
+}
 @media(max-width:480px){.reading-divider .rd-text{font-size:12px;white-space:normal;text-align:center;line-height:1.4}}
 .path-switch{display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap}
 .ps-btn{padding:8px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;font-size:13px;color:var(--text3);cursor:pointer;transition:all .2s;font-family:inherit}
@@ -758,9 +765,11 @@ updateDividerHook('path-selected');
 }
 
 /* Update the reading-divider content hook based on user progress.
-   initial         = before any path tab click
-   path-selected   = after user clicks a path tab
-   reading-complete = after user scrolls past YOUR BLIND SPOT section */
+   initial          = before any path tab click
+   path-selected    = after user clicks a path tab
+   reading-complete = after user scrolls PAST the BLIND SPOT section
+   Adds a brief flash on text change so the transition is visible
+   even when the user's focus is on another part of the page. */
 function updateDividerHook(stage){
   var rdText=document.getElementById('rdText');
   if(!rdText) return;
@@ -769,23 +778,49 @@ function updateDividerHook(stage){
     'path-selected':     '\u2193 Keep reading. The part about your blind spot hits hardest.',
     'reading-complete':  '\u2193 Now see the rules behind this reading.'
   };
-  rdText.textContent=hooks[stage]||hooks['initial'];
+  var next=hooks[stage]||hooks['initial'];
+  if(rdText.textContent===next) return;       // skip flash if no change
+  rdText.textContent=next;
+  var rd=document.getElementById('readingDivider');
+  if(!rd) return;
+  rd.classList.remove('rd-flash');
+  void rd.offsetWidth;                         // force reflow so animation restarts
+  rd.classList.add('rd-flash');
 }
 
-/* Watch the BLIND SPOT header in the reading content and, once it
-   enters the viewport, swap the divider hook to 'reading-complete'. */
-var _blindObserver=null;
+/* Watch the BLIND SPOT header in the reading content. Fire
+   'reading-complete' only when the user has scrolled PAST it
+   (h3 bottom above viewport top).
+
+   Uses a scroll listener rather than IntersectionObserver:
+   - IO doesn't reliably fire when an instant/jumped scroll
+     crosses the viewport between frames (no "visible" frame
+     captured → no state change → no callback).
+   - Scroll listener runs on every scroll event including jumps,
+     and updateDividerHook already no-ops on unchanged text so
+     the per-scroll cost is negligible.
+   - On path-switch, _blindHeader is re-resolved against the new
+     #readingContent (old h3 node was replaced). */
+var _blindHeader=null;
+var _blindScrollBound=false;
 function watchBlindSpotScroll(){
-  if(_blindObserver){try{_blindObserver.disconnect()}catch(_){}}
-  var header=Array.from(document.querySelectorAll('#readingContent h3'))
-    .find(function(h){return h.textContent.indexOf('BLIND SPOT')>=0});
-  if(!header || typeof IntersectionObserver==='undefined') return;
-  _blindObserver=new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(entry.isIntersecting){updateDividerHook('reading-complete')}
-    });
-  },{threshold:0.5});
-  _blindObserver.observe(header);
+  _blindHeader=Array.from(document.querySelectorAll('#readingContent h3'))
+    .find(function(h){return h.textContent.indexOf('BLIND SPOT')>=0}) || null;
+  if(_blindScrollBound) return;                // attach the listener exactly once
+  _blindScrollBound=true;
+  window.addEventListener('scroll', function(){
+    // Re-resolve if the cached node has been detached (tab switch in flight)
+    if(!_blindHeader || !document.body.contains(_blindHeader)){
+      _blindHeader=Array.from(document.querySelectorAll('#readingContent h3'))
+        .find(function(h){return h.textContent.indexOf('BLIND SPOT')>=0}) || null;
+      if(!_blindHeader) return;
+    }
+    var rect=_blindHeader.getBoundingClientRect();
+    // Element has fully exited the viewport upward = user is past the section
+    if(rect.bottom < 0){
+      updateDividerHook('reading-complete');
+    }
+  }, {passive:true});
 }
 
 function toggleDataPanel(){
