@@ -105,22 +105,28 @@ select option{background:#12141c;color:var(--text)}
 .hidden-during-analysis{display:none !important}
 .fade-in-after-analysis{animation:fadeInAfterAnalysis .5s ease-out forwards}
 @keyframes fadeInAfterAnalysis{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-/* Reading divider — content hook between reading-box and pathSwitch.
-   v4: drop fadeInDivider animation entirely (iOS Safari bug with missing
-   `from` keyframe + animation-delay + fill-forwards stranded the element
-   at opacity:0). Default opacity:1, cyan text, font-weight 600. */
-.reading-divider{display:flex;align-items:center;gap:12px;margin:28px 0 16px 0;opacity:1}
-.reading-divider .rd-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--bg3),transparent)}
-.reading-divider .rd-text{font-size:14px;color:var(--cyan);letter-spacing:.5px;font-weight:600;white-space:nowrap;opacity:1}
-/* Flash the divider briefly when the hook text changes so the swap is perceptible.
-   v4: start at cyan (the resting color), pulse through white. */
+/* === Reading Divider / Hook ===
+   v5: moved above reading-box (between roast and reading-box). Visual
+   weight upgraded — vertical column layout, chunky cyan text (17px /
+   mobile 16px), bounce arrow, subtle text-shadow glow. This is the
+   single hook between the punchline roast and the long-form reading. */
+.reading-divider{display:flex;flex-direction:column;align-items:center;gap:16px;margin:48px 0 32px 0;opacity:1}
+.reading-divider .rd-line{width:60%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.35),transparent)}
+.reading-divider .rd-text{font-size:17px;color:var(--cyan);letter-spacing:.5px;font-weight:600;line-height:1.5;text-align:center;max-width:480px;padding:0 16px;opacity:1;text-shadow:0 0 12px rgba(0,212,255,0.25)}
+.reading-divider .rd-text::before{content:"\2193";display:inline-block;margin-right:8px;animation:bounceArrow 2s ease-in-out infinite}
+@keyframes bounceArrow{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+/* Legacy flash animation kept in case anything still toggles rd-flash */
 .reading-divider.rd-flash .rd-text{animation:rdFlash .7s ease}
 @keyframes rdFlash{
   0%,100%{color:var(--cyan);opacity:1;transform:translateY(0)}
   30%{color:var(--text);opacity:1;transform:translateY(-2px)}
   60%{color:var(--text);opacity:1;transform:translateY(0)}
 }
-@media(max-width:480px){.reading-divider .rd-text{font-size:13px;white-space:normal;text-align:center;line-height:1.4}}
+@media(max-width:480px){
+  .reading-divider{margin:40px 0 28px 0;gap:12px}
+  .reading-divider .rd-line{width:70%}
+  .reading-divider .rd-text{font-size:16px;padding:0 12px;line-height:1.4}
+}
 .path-switch{display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap}
 .ps-btn{padding:8px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;font-size:13px;color:var(--text3);cursor:pointer;transition:all .2s;font-family:inherit}
 .ps-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(210,153,34,.06)}
@@ -291,6 +297,12 @@ select option{background:#12141c;color:var(--text)}
 
 <div class="roast"><div class="roast-tag">The Truth About You</div><p class="roast-text" id="rRoast"></p></div>
 
+<div class="reading-divider" id="readingDivider" aria-hidden="true">
+  <div class="rd-line"></div>
+  <div class="rd-text" id="rdText">The surface was the warning. Below is the pattern.</div>
+  <div class="rd-line"></div>
+</div>
+
 <div class="reading-box" id="readingBox">
 <div class="reading-loading" id="readingLoading">
   <div class="rl-progress-wrap">
@@ -301,11 +313,6 @@ select option{background:#12141c;color:var(--text)}
   </div>
 </div>
 <div id="readingContent"></div>
-</div>
-<div class="reading-divider" id="readingDivider" aria-hidden="true">
-  <div class="rd-line"></div>
-  <div class="rd-text" id="rdText">&darr; Your blind spot is below. Most people don't want to see theirs.</div>
-  <div class="rd-line"></div>
 </div>
 <div class="path-switch" id="pathSwitch"></div>
 
@@ -863,10 +870,13 @@ updateDividerHook('path-selected');
 function updateDividerHook(stage){
   var rdText=document.getElementById('rdText');
   if(!rdText) return;
+  // v5: single hook for all stages — hook now sits between roast and
+  // reading-box, so it's visible from page entry; no need for stage swaps.
+  // The arrow is rendered via CSS ::before (so plain text here).
   var hooks={
-    'initial':           '\u2193 Your blind spot is below. Most people don\u2019t want to see theirs.',
-    'path-selected':     '\u2193 Keep reading. The part about your blind spot hits hardest.',
-    'reading-complete':  '\u2193 Now see the rules behind this reading.'
+    'initial':           'The surface was the warning. Below is the pattern.',
+    'path-selected':     'The surface was the warning. Below is the pattern.',
+    'reading-complete':  'The surface was the warning. Below is the pattern.'
   };
   var next=hooks[stage]||hooks['initial'];
   if(rdText.textContent===next) return;       // skip flash if no change
