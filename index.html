@@ -62,6 +62,22 @@ select option{background:#12141c;color:var(--text)}
 .btn-decode.active{background:var(--cyan);color:var(--bg);box-shadow:0 0 24px var(--cyan30)}
 .privacy-sm{font-size:13px;color:var(--text3);text-align:center;margin-top:14px;line-height:1.6}
 
+/* Birthplace autocomplete */
+.place-wrap{position:relative;margin-bottom:6px}
+.place-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:14px 12px;font-size:16px;outline:none;font-family:inherit;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+.place-input::placeholder{color:var(--text3)}
+.place-input:focus{border-color:rgba(0,212,255,.3)}
+.place-input.selected{border-color:rgba(0,212,255,.5);background:rgba(0,212,255,.04)}
+.place-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#12141c;border:1px solid var(--border2);border-radius:8px;max-height:240px;overflow-y:auto;z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+.place-dropdown.open{display:block}
+.place-item{padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--border);font-size:14px;color:var(--text)}
+.place-item:last-child{border-bottom:none}
+.place-item:hover{background:rgba(0,212,255,.05)}
+.place-item .pi-name{font-weight:600}
+.place-item .pi-region{color:var(--text3);font-size:12px;margin-top:2px}
+.place-loading,.place-empty{padding:14px;font-size:13px;color:var(--text3);text-align:center;font-style:italic}
+.place-hint{font-size:12px;color:var(--text3);margin:8px 0 14px;line-height:1.5;font-style:italic}
+
 /* Loading */
 #loadScreen{display:none;position:fixed;inset:0;z-index:100;background:var(--bg);flex-direction:column;justify-content:center;align-items:center}
 .load-text{font-size:14px;color:var(--cyan);letter-spacing:4px;margin-bottom:24px;text-transform:uppercase}
@@ -272,6 +288,11 @@ select option{background:#12141c;color:var(--text)}
 <option value="10">19:00–21:00 (戌)</option><option value="11">21:00–23:00 (亥)</option>
 </select>
 <p style="font-size:12px;color:var(--text3);margin:8px 0 14px;line-height:1.5;font-style:italic">Don't know your birth time? No problem — your core type is determined by your birth date. Birth time adds detail to your creative and relationship patterns.</p>
+<div class="place-wrap">
+<input type="text" id="inpPlace" class="place-input" placeholder="Birth place (city)" autocomplete="off" oninput="onPlaceInput(this.value)" onfocus="onPlaceFocus()">
+<div id="placeDropdown" class="place-dropdown"></div>
+</div>
+<p class="place-hint">We use your city's longitude to compute true solar time — this is what BaZi needs for an accurate chart.</p>
 <div style="margin-bottom:6px;font-size:13px;color:var(--text3)">Gender (optional)</div>
 <div class="gender-row">
 <div class="gender-btn" onclick="pickGender('M',this)">Male</div>
@@ -351,12 +372,76 @@ select option{background:#12141c;color:var(--text)}
 </div>
 
 <script>
-var selectedPath='wealth',selectedGender='';
+var selectedPath='wealth',selectedGender='',selectedPlace=null,placeSearchTimer=null;
 function goTo(n){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active','active-block')});var s=document.getElementById(n===4?'resultScreen':'s'+n);if(n===4)s.classList.add('active-block');else s.classList.add('active');window.scrollTo({top:0,behavior:'instant'})}
 function selectPath(p,el){selectedPath=p;document.querySelectorAll('.path-card').forEach(function(c){c.classList.remove('selected')});el.classList.add('selected');var L={wealth:'\uD83D\uDCB0 Wealth & Fortune',love:'\uD83D\uDC98 Love & Relationships','2026':'\uD83D\uDD25 2026 Forecast'};document.getElementById('pathLabel').textContent='Path locked: '+L[p];setTimeout(function(){goTo(3)},400)}
 function pickGender(g,el){selectedGender=g;document.querySelectorAll('.gender-btn').forEach(function(b){b.classList.remove('selected')});el.classList.add('selected')}
 !function(){var y=document.getElementById('selYear');for(var i=2010;i>=1930;i--){var o=document.createElement('option');o.value=i;o.textContent=i;y.appendChild(o)}var m=document.getElementById('selMonth');for(var i=1;i<=12;i++){var o=document.createElement('option');o.value=i;o.textContent=String(i).padStart(2,'0');m.appendChild(o)}var d=document.getElementById('selDay');for(var i=1;i<=31;i++){var o=document.createElement('option');o.value=i;o.textContent=String(i).padStart(2,'0');d.appendChild(o)}}();
-function checkInput(){var y=document.getElementById('selYear').value,m=document.getElementById('selMonth').value,d=document.getElementById('selDay').value,b=document.getElementById('btnDecode');if(y&&m&&d){b.disabled=false;b.className='btn-decode active'}else{b.disabled=true;b.className='btn-decode disabled'}}
+function checkInput(){var y=document.getElementById('selYear').value,m=document.getElementById('selMonth').value,d=document.getElementById('selDay').value,b=document.getElementById('btnDecode');if(y&&m&&d&&selectedPlace){b.disabled=false;b.className='btn-decode active'}else{b.disabled=true;b.className='btn-decode disabled'}}
+
+// ═══════════════════════════════════════
+// BIRTHPLACE AUTOCOMPLETE (Open-Meteo geocoding, no API key)
+// ═══════════════════════════════════════
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function closePlaceDropdown(){document.getElementById('placeDropdown').classList.remove('open')}
+function onPlaceFocus(){var dd=document.getElementById('placeDropdown');if(dd.children.length>0)dd.classList.add('open')}
+function onPlaceInput(val){
+  if(selectedPlace){selectedPlace=null;document.getElementById('inpPlace').classList.remove('selected');checkInput()}
+  clearTimeout(placeSearchTimer);
+  if(!val||val.trim().length<2){closePlaceDropdown();return}
+  placeSearchTimer=setTimeout(function(){searchPlaces(val.trim())},300);
+}
+function searchPlaces(q){
+  var dd=document.getElementById('placeDropdown');
+  dd.innerHTML='<div class="place-loading">Searching…</div>';
+  dd.classList.add('open');
+  fetch('https://geocoding-api.open-meteo.com/v1/search?count=6&language=en&format=json&name='+encodeURIComponent(q))
+    .then(function(r){return r.json()})
+    .then(function(data){
+      var results=(data&&data.results)||[];
+      if(results.length===0){dd.innerHTML='<div class="place-empty">No matches. Try a major city nearby.</div>';return}
+      dd.innerHTML='';
+      results.forEach(function(p){
+        var item=document.createElement('div');
+        item.className='place-item';
+        var label=p.name+(p.country?', '+p.country:'');
+        var region=(p.admin1?p.admin1+' · ':'')+(p.timezone||'');
+        item.innerHTML='<div class="pi-name">'+escapeHTML(label)+'</div><div class="pi-region">'+escapeHTML(region)+'</div>';
+        item.onclick=function(){selectPlace({label:label,longitude:p.longitude,latitude:p.latitude,timezone:p.timezone||'UTC'})};
+        dd.appendChild(item);
+      });
+    })
+    .catch(function(){dd.innerHTML='<div class="place-empty">Search failed. Check your connection.</div>'});
+}
+function selectPlace(p){
+  selectedPlace=p;
+  var inp=document.getElementById('inpPlace');
+  inp.value=p.label;
+  inp.classList.add('selected');
+  closePlaceDropdown();
+  checkInput();
+}
+document.addEventListener('click',function(e){if(!e.target.closest('.place-wrap'))closePlaceDropdown()});
+
+// True solar time helpers
+function getTimezoneOffsetHours(tz,date){
+  try{
+    var fmt=new Intl.DateTimeFormat('en-US',{timeZone:tz,timeZoneName:'longOffset'});
+    var parts=fmt.formatToParts(date);
+    var tzPart=parts.find(function(p){return p.type==='timeZoneName'});
+    if(!tzPart)return 0;
+    var m=tzPart.value.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/);
+    if(!m)return 0;
+    var sign=m[1]==='+'?1:-1;
+    return sign*(parseInt(m[2],10)+(m[3]?parseInt(m[3],10)/60:0));
+  }catch(e){return 0}
+}
+function computeTrueSolarCorrection(place,y,m,d){
+  var date=new Date(Date.UTC(y,m-1,d,12,0,0));
+  var offsetHours=getTimezoneOffsetHours(place.timezone,date);
+  var meridian=offsetHours*15;
+  return Math.round((place.longitude-meridian)*4);
+}
 
 // ═══════════════════════════════════════
 // DATA
@@ -434,8 +519,20 @@ document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('act
 var ls=document.getElementById('loadScreen');ls.style.display='flex';
 var lb=document.getElementById('loadBar');lb.style.width='0%';
 requestAnimationFrame(function(){setTimeout(function(){lb.style.width='100%'},50)});
-var hMap=[23,1,3,5,7,9,11,13,15,17,19,21],hh=h>=0?hMap[h]:12;
-var solar=Solar.fromYmdHms(y,m,d,hh,0,0),lunar=solar.getLunar(),ec=lunar.getEightChar();
+// True solar time correction: use 时辰 midpoint + longitude correction when place is set.
+// Skip correction for 子时 (h=0, spans 23:00–01:00) since shifting it can cross day boundary.
+var hStartMap=[23,1,3,5,7,9,11,13,15,17,19,21],hMidMap=[0,2,4,6,8,10,12,14,16,18,20,22];
+var hh,mm=0;
+if(h<0){hh=12}
+else if(h===0||!selectedPlace){hh=hStartMap[h]}
+else{
+  var corrMin=computeTrueSolarCorrection(selectedPlace,y,m,d);
+  var totalMin=hMidMap[h]*60+corrMin;
+  if(totalMin<0)totalMin+=1440;
+  if(totalMin>=1440)totalMin-=1440;
+  hh=Math.floor(totalMin/60);mm=totalMin%60;
+}
+var solar=Solar.fromYmdHms(y,m,d,hh,mm,0),lunar=solar.getLunar(),ec=lunar.getEightChar();
 var ds=ec.getDayGan(),dz=ec.getDayZhi(),yz=ec.getYearZhi();
 var allZ=[ec.getYearZhi(),ec.getMonthZhi(),ec.getDayZhi()];
 if(h>=0)allZ.push(ec.getTimeZhi());
