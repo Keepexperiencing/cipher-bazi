@@ -242,6 +242,13 @@ select option{background:#12141c;color:var(--text)}
 .r-eyebrow{font-size:11px;color:var(--text3);letter-spacing:4px;text-transform:uppercase;margin-bottom:16px}
 .r-type{font-size:36px;font-weight:800;margin:0 0 8px;line-height:1.1;color:#fff;letter-spacing:1px;text-transform:uppercase}
 .r-tagline{font-size:18px;color:var(--cyan);font-style:italic;font-weight:300;line-height:1.4;margin-bottom:0}
+/* S5(2/2) — Configuration + Season modules */
+.config-sec,.season-sec{margin:0 0 28px}
+.config-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.config-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px}
+.config-label{font-size:12px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;flex-shrink:0}
+.config-val{font-size:16px;color:var(--text);font-weight:600;text-align:right}
+.season-soon{padding:18px;background:var(--bg2);border:1px dashed var(--border2);border-radius:10px;color:var(--text3);font-size:14px;line-height:1.6;font-style:italic;text-align:center}
 </style>
 </head>
 <body>
@@ -337,6 +344,20 @@ select option{background:#12141c;color:var(--text)}
 <div id="readingContent"></div>
 </div>
 <div class="path-switch" id="pathSwitch"></div>
+
+<div class="config-sec" id="configSec">
+  <div class="sec">⚙️ YOUR CONFIGURATION</div>
+  <div class="config-grid">
+    <div class="config-row"><span class="config-label">Your Pattern</span><span class="config-val" id="cfgPattern">—</span></div>
+    <div class="config-row"><span class="config-label">Your Edge</span><span class="config-val" id="cfgEdge">—</span></div>
+  </div>
+  <div id="cfgElements"></div>
+</div>
+
+<div class="season-sec" id="seasonSec">
+  <div class="sec">🌡️ YOUR CURRENT SEASON</div>
+  <div class="season-soon">Coming soon — your luck-cycle (大运) layer arrives in v2. Your Five Element profile above is your factory setting; the windows opening and closing right now are the next layer.</div>
+</div>
 
 <div class="feedback-row" id="feedbackRow">
 <div class="feedback-q">Was this accurate?</div>
@@ -878,6 +899,28 @@ function showBottomCTAs(){
   });
 }
 
+// S5(2/2) — 格局 standard English (设 may rebrand later). Chinese kept in parens.
+var PATTERN_EN={'正官格':'Direct Officer','七杀格':'Seven Killings','正印格':'Direct Resource','偏印格':'Indirect Resource','财格':'Wealth','食神格':'Eating God','伤官格':'Hurting Officer','建禄格':'Self-Prosperity','阳刃格':'Yang Blade','从财格':'Following Wealth','从杀格':'Following Power','从儿格':'Following Output','化气格':'Transformation','曲直格':'Curved-Straight','炎上格':'Blazing Fire','稼穑格':'Harvest','从革格':'Reform','润下格':'Flowing Water'};
+
+/* Render YOUR CONFIGURATION from the Worker judgment (Pattern + Edge) + the
+   chart's five-element counts. judgment is absent on legacy fallback → show "—". */
+function renderConfiguration(judgment){
+  var r=curRes; if(!r) return;
+  var pt=judgment&&judgment.pattern_type;
+  var patEl=document.getElementById('cfgPattern');
+  if(patEl) patEl.textContent = pt ? ((PATTERN_EN[pt]||pt)+' ('+pt+')') : '—';
+  var edgeEl=document.getElementById('cfgEdge');
+  if(edgeEl){
+    var ys=(judgment&&judgment.yong_shen)||[],seen={},parts=[];
+    ys.forEach(function(s){var el=stemEl[s];if(el&&!seen[el]){seen[el]=1;parts.push((EM[el]?EM[el].e+' ':'')+el+' ('+s+')');}});
+    edgeEl.textContent = parts.length?parts.join('  ·  '):'—';
+  }
+  var box=document.getElementById('cfgElements'); if(!box) return;
+  var sorted=Object.entries(r.elC).sort(function(a,b){return b[1]-a[1]});
+  var mx=Math.max.apply(null,sorted.map(function(x){return x[1]}))||1;
+  box.innerHTML=sorted.map(function(x){var n=x[0],s=x[1],e=EM[n],p=(s/mx)*100;return '<div class="el-row"><div class="el-top"><span class="el-emoji">'+e.e+'</span><span class="el-name" style="color:'+e.co+'">'+n+'</span><span class="el-spacer"></span><span class="el-score" style="color:'+e.co+'">'+s+'</span></div><div class="el-track"><div class="el-fill '+e.cl+'" style="width:'+p+'%"></div></div></div>'}).join('');
+}
+
 function showPathAnswer(p){
 // cache v2: keyed with v2_ prefix so old HTML-only cache entries are bypassed
 var cacheKey='v2_'+curRes.ds+'_'+p+'_ai';
@@ -891,6 +934,7 @@ if(aiCache[cacheKey]){
   }
   content.innerHTML=cached.html;
   watchBlindSpotScroll();
+  renderConfiguration(cached.judgment);
   showBottomCTAs();                    // cache-hit: reveal immediately
   return;
 }
@@ -919,13 +963,14 @@ loadRulesForDayMaster(curRes.ds).then(function(rules){
     if(data.rule_ids_used && data.rule_ids_used.length){
       html+=renderUnderTheHood(data);
     }
-    aiCache[cacheKey]={truth:split.truth, html:html};
+    aiCache[cacheKey]={truth:split.truth, html:html, judgment:data.judgment};
     content.innerHTML=html;
     watchBlindSpotScroll();
+    renderConfiguration(data.judgment);
     showBottomCTAs();
-  }else{fallbackPA(p); showBottomCTAs();}
+  }else{fallbackPA(p); renderConfiguration(null); showBottomCTAs();}
 })
-.catch(function(){loading.style.display='none';completeProgressBar();fallbackPA(p);showBottomCTAs();});
+.catch(function(){loading.style.display='none';completeProgressBar();fallbackPA(p);renderConfiguration(null);showBottomCTAs();});
 }
 
 function fallbackPA(p){
