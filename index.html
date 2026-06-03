@@ -697,9 +697,11 @@ return msg;
    Returns {truth, remainder}. truth is null if not found. */
 function extractTruthAboutYou(text){
   if(!text) return {truth:null, remainder:text};
-  var nextHeaderAlt='(WHO YOU ARE|YOUR (?:WEALTH|MONEY|CONNECTION|RELATIONSHIPS?|2026) PATTERN|YOUR BLIND SPOT)';
+  // Lead section → roast slot: THE HIT (new schema, S3) or THE TRUTH ABOUT YOU (legacy).
+  var leadAlt='(?:THE HIT|THE TRUTH ABOUT YOU)';
+  var nextHeaderAlt='(THE MAP|WHO YOU ARE|YOUR (?:WEALTH|MONEY|CONNECTION|RELATIONSHIPS?|2026) PATTERN|BLIND SPOT|YOUR BLIND SPOT|THE MOVE)';
   var truthRegex=new RegExp(
-    '(?:^|\\n)#{0,3}\\s*THE TRUTH ABOUT YOU\\s*\\n+([\\s\\S]*?)(?=\\n+#{0,3}\\s*'+nextHeaderAlt+'|$)',
+    '(?:^|\\n)#{0,3}\\s*'+leadAlt+'\\s*\\n+([\\s\\S]*?)(?=\\n+#{0,3}\\s*'+nextHeaderAlt+'|$)',
     'i'
   );
   var match=text.match(truthRegex);
@@ -749,7 +751,7 @@ function formatReading(text){
   // Normalize headers to §§§ markers. Works whether the header is on its own
   // line, at the start, or inline after a sentence/#/newline. Handles Haiku's
   // tendency to run "# WHO YOU ARE You are..." as one continuous line.
-  var headerAlt = '(WHO YOU ARE|YOUR (?:WEALTH|MONEY|CONNECTION|RELATIONSHIPS?|2026) PATTERN|YOUR BLIND SPOT)';
+  var headerAlt = '(THE MAP|WHO YOU ARE|YOUR (?:WEALTH|MONEY|CONNECTION|RELATIONSHIPS?|2026) PATTERN|BLIND SPOT|YOUR BLIND SPOT|THE MOVE)';
   // 1) #/##/### prefixed header (any position)
   text = text.replace(new RegExp('#{1,3}\\s*' + headerAlt + '\\b\\s*', 'g'), '\n\n§§§$1§§§\n\n');
   // 2) Plain-text header at start of string or after newline
@@ -765,7 +767,7 @@ function formatReading(text){
     var part = parts[i].trim();
 
     // Check if this part is a header title
-    if(/^(WHO YOU ARE|YOUR (?:WEALTH|MONEY|CONNECTION|RELATIONSHIPS?|2026) PATTERN|YOUR BLIND SPOT)$/.test(part)){
+    if(/^(THE MAP|WHO YOU ARE|YOUR (?:WEALTH|MONEY|CONNECTION|RELATIONSHIPS?|2026) PATTERN|BLIND SPOT|YOUR BLIND SPOT|THE MOVE)$/.test(part)){
       html += '<h3>' + part + '</h3>';
       continue;
     }
