@@ -634,26 +634,11 @@ var DAY_MASTER_FILE_MAP={
 var rulesCache={}; // {dayMasterKey: {coreRules, dmRules}}
 
 function loadRulesForDayMaster(dayMasterCn){
-  var file=DAY_MASTER_FILE_MAP[dayMasterCn];
-  if(!file){console.warn('Unknown day master:',dayMasterCn);return Promise.resolve(null)}
-  if(rulesCache[dayMasterCn])return Promise.resolve(rulesCache[dayMasterCn]);
-  return Promise.all([
-    fetch('/rules/engine-core-for-ai.md').then(function(r){
-      if(!r.ok)throw new Error('Core rules fetch failed: '+r.status);
-      return r.text();
-    }),
-    fetch('/rules/'+file+'-for-ai.md').then(function(r){
-      if(!r.ok)throw new Error('Day master rules fetch failed: '+r.status);
-      return r.text();
-    })
-  ]).then(function(arr){
-    var bundle={coreRules:arr[0],dmRules:arr[1]};
-    rulesCache[dayMasterCn]=bundle;
-    return bundle;
-  }).catch(function(err){
-    console.error('Rules load failed:',err);
-    return null; // graceful degrade — Worker will use fallback path
-  });
+  // S2 (2026-06-04): rules are now embedded server-side inside the Cloudflare
+  // Worker. The frontend no longer fetches /rules/ (those files were removed to
+  // close the IP-leak), and the Worker ignores any client-supplied rules.
+  // Kept as a no-op so the existing call site (showPathAnswer) is unchanged.
+  return Promise.resolve(null);
 }
 
 /* Build v2 payload — keeps `message` for old-Worker compatibility
