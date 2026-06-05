@@ -765,6 +765,11 @@ function renderUnderTheHood(data){
 function formatReading(text){
   if(!text) return '<p>Reading unavailable.</p>';
 
+  // SECURITY: AI output is untrusted (prompt-injection / future cache poisoning) —
+  // escape HTML before we build markup. The *,**,• markdown markers survive escaping;
+  // the structural tags below are added by us on already-escaped content.
+  text = escapeHTML(text);
+
   // Normalize: remove --- lines (any whitespace tolerance, incl. inline)
   text = text.replace(/(^|\n)[ \t]*-{3,}[ \t]*(?=\n|$)/g, '$1');
   text = text.replace(/\s-{3,}\s/g, ' ');
@@ -930,7 +935,7 @@ if(aiCache[cacheKey]){
   loading.style.display='none';
   var cached=aiCache[cacheKey];
   if(cached.truth){
-    document.getElementById('rRoast').innerHTML='\u201C'+renderItalicMarks(cached.truth)+'\u201D';
+    document.getElementById('rRoast').innerHTML='\u201C'+renderItalicMarks(escapeHTML(cached.truth))+'\u201D';
   }
   content.innerHTML=cached.html;
   watchBlindSpotScroll();
@@ -955,7 +960,7 @@ loadRulesForDayMaster(curRes.ds).then(function(rules){
     // Extract THE TRUTH ABOUT YOU and route it to the roast slot
     var split=extractTruthAboutYou(data.analysis);
     if(split.truth){
-      document.getElementById('rRoast').innerHTML='\u201C'+renderItalicMarks(split.truth)+'\u201D';
+      document.getElementById('rRoast').innerHTML='\u201C'+renderItalicMarks(escapeHTML(split.truth))+'\u201D';
     }
     // Everything else goes into the reading box
     var html=formatReading(split.remainder);
