@@ -10,7 +10,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,300&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.7.7/lunar.js"></script>
+<!-- Self-hosted (same-origin) — jsdelivr/unpkg are unreliable in mainland China. -->
+<script src="lunar.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0a0b10;--bg2:rgba(255,255,255,0.02);--bg3:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.08);--text:#e6edf3;--text2:#8b949e;--text3:#484f58;--text4:#383d44;--cyan:#00d4ff;--cyan15:rgba(0,212,255,0.15);--cyan30:rgba(0,212,255,0.3);--cyan08:rgba(0,212,255,0.08);--red:#f85149;--red-b:rgba(255,85,85,0.12);--red-bg:rgba(255,85,73,0.03);--gold:#d29922}
@@ -444,7 +445,7 @@ function applyLangZh(){
   var oh=Q('#selHour option[value="-1"]');if(oh)oh.textContent='我不知道我的出生时辰';
   QA('.input-card p').forEach(function(p){if(/Don't know your birth time/.test(p.textContent))p.textContent='不知道出生时辰？没关系——你的核心类型由出生日期决定；出生时辰只为你的创造力与关系模式增加细节。';});
   var inp=Q('#inpPlace');if(inp)inp.setAttribute('placeholder','出生地（城市）');
-  set('.place-hint','我们用你所在城市的经度来计算真太阳时——这是八字精准排盘所必需的。');
+  set('.place-hint','我们用你所在城市的经度来计算真太阳时——八字精准排盘所需。搜不到可用拼音/英文。');
   var grow=Q('.gender-row');if(grow&&grow.previousElementSibling)grow.previousElementSibling.textContent='性别（可选）';
   var gbT=['男','女','跳过'];QA('.gender-btn').forEach(function(b,i){if(gbT[i])b.textContent=gbT[i];});
   set('#btnDecode','解码 →');
@@ -492,27 +493,26 @@ function onPlaceInput(val){
   if(!val||val.trim().length<2){closePlaceDropdown();return}
   placeSearchTimer=setTimeout(function(){searchPlaces(val.trim())},300);
 }
+// Bundled China city → longitude. open-meteo can't match Chinese characters, so zh
+// search uses this first. All mainland = UTC+8 (Asia/Shanghai); longitude is what
+// BaZi true-solar-time needs. 直辖市/省会/广东主要市县 + 港澳台. (DRAFT coverage — extend as needed.)
+var CN_CITIES={'北京':116.41,'上海':121.47,'天津':117.20,'重庆':106.55,'广州':113.26,'深圳':114.06,'汕头':116.68,'澄海':116.77,'潮州':116.62,'揭阳':116.37,'潮汕':116.68,'珠海':113.55,'佛山':113.12,'东莞':113.75,'中山':113.39,'惠州':114.42,'江门':113.08,'湛江':110.36,'茂名':110.93,'肇庆':112.47,'梅州':116.12,'汕尾':115.38,'河源':114.70,'阳江':111.98,'清远':113.05,'韶关':113.60,'云浮':112.04,'杭州':120.16,'南京':118.80,'济南':117.00,'青岛':120.38,'武汉':114.30,'长沙':112.94,'成都':104.07,'西安':108.94,'郑州':113.62,'合肥':117.23,'福州':119.30,'厦门':118.09,'泉州':118.58,'南昌':115.86,'昆明':102.83,'贵阳':106.63,'南宁':108.37,'海口':110.20,'三亚':109.51,'太原':112.55,'石家庄':114.51,'沈阳':123.43,'大连':121.62,'长春':125.32,'哈尔滨':126.53,'兰州':103.83,'西宁':101.78,'银川':106.27,'乌鲁木齐':87.62,'拉萨':91.13,'呼和浩特':111.75,'苏州':120.62,'无锡':120.30,'常州':119.97,'南通':120.86,'宁波':121.55,'温州':120.70,'绍兴':120.58,'嘉兴':120.76,'金华':119.65,'台州':121.42,'烟台':121.39,'潍坊':119.16,'临沂':118.36,'洛阳':112.45,'徐州':117.18,'扬州':119.42,'香港':114.17,'澳门':113.54,'台北':121.56,'高雄':120.31,'台中':120.68};
+function cnCityMatches(q){var out=[];for(var name in CN_CITIES){if(name.indexOf(q)>=0){out.push({name:name,country:'中国',admin1:'',longitude:CN_CITIES[name],latitude:0,timezone:'Asia/Shanghai'});if(out.length>=8)break;}}return out;}
+function renderPlaceResults(dd,results){dd.innerHTML='';results.forEach(function(p){var item=document.createElement('div');item.className='place-item';var label=p.name+(p.country?', '+p.country:'');var region=(p.admin1?p.admin1+' · ':'')+(p.timezone||'');item.innerHTML='<div class="pi-name">'+escapeHTML(label)+'</div><div class="pi-region">'+escapeHTML(region)+'</div>';item.onclick=function(){selectPlace({label:label,longitude:p.longitude,latitude:p.latitude,timezone:p.timezone||'UTC'})};dd.appendChild(item);});}
 function searchPlaces(q){
   var dd=document.getElementById('placeDropdown');
-  dd.innerHTML='<div class="place-loading">Searching…</div>';
+  // zh: try the bundled China city list first (open-meteo can't match Chinese characters)
+  if(LANG==='zh'){var local=cnCityMatches(q);if(local.length){dd.classList.add('open');renderPlaceResults(dd,local);return;}}
+  dd.innerHTML='<div class="place-loading">'+(LANG==='zh'?'搜索中…':'Searching…')+'</div>';
   dd.classList.add('open');
   fetch('https://geocoding-api.open-meteo.com/v1/search?count=6&language='+(LANG==='zh'?'zh':'en')+'&format=json&name='+encodeURIComponent(q))
     .then(function(r){return r.json()})
     .then(function(data){
       var results=(data&&data.results)||[];
-      if(results.length===0){dd.innerHTML='<div class="place-empty">No matches. Try a major city nearby.</div>';return}
-      dd.innerHTML='';
-      results.forEach(function(p){
-        var item=document.createElement('div');
-        item.className='place-item';
-        var label=p.name+(p.country?', '+p.country:'');
-        var region=(p.admin1?p.admin1+' · ':'')+(p.timezone||'');
-        item.innerHTML='<div class="pi-name">'+escapeHTML(label)+'</div><div class="pi-region">'+escapeHTML(region)+'</div>';
-        item.onclick=function(){selectPlace({label:label,longitude:p.longitude,latitude:p.latitude,timezone:p.timezone||'UTC'})};
-        dd.appendChild(item);
-      });
+      if(results.length===0){dd.innerHTML='<div class="place-empty">'+(LANG==='zh'?'没找到。可试拼音/英文，或就近的大城市。':'No matches. Try a major city nearby.')+'</div>';return}
+      renderPlaceResults(dd,results);
     })
-    .catch(function(){dd.innerHTML='<div class="place-empty">Search failed. Check your connection.</div>'});
+    .catch(function(){dd.innerHTML='<div class="place-empty">'+(LANG==='zh'?'搜索失败，请检查网络。':'Search failed. Check your connection.')+'</div>'});
 }
 function selectPlace(p){
   selectedPlace=p;
@@ -616,6 +616,7 @@ var curRes=null;
 function doDecode(){
 var y=+document.getElementById('selYear').value,m=+document.getElementById('selMonth').value,d=+document.getElementById('selDay').value,h=+document.getElementById('selHour').value;
 if(!y||!m||!d)return;var test=new Date(y,m-1,d);if(test.getMonth()!==m-1)return;
+if(typeof Solar==='undefined'){alert(LANG==='zh'?'排盘引擎未能加载（可能网络问题），请刷新页面重试。':'The chart engine failed to load. Please refresh and try again.');return;}
 document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active','active-block')});
 var ls=document.getElementById('loadScreen');ls.style.display='flex';
 var lb=document.getElementById('loadBar');lb.style.width='0%';
@@ -701,7 +702,7 @@ al.innerHTML='<div class="data-dlabel" style="margin-bottom:10px">'+(LANG==='zh'
 // Elements in data panel
 var sorted=Object.entries(r.elC).sort(function(a,b){return b[1]-a[1]});
 var mx=Math.max.apply(null,sorted.map(function(x){return x[1]}))||1;
-document.getElementById('dataElements').innerHTML='<div class="data-dlabel" style="margin-bottom:10px">'+(LANG==='zh'?'五行':'Five Elements')+'</div>'+sorted.map(function(x){var n=x[0],s=x[1],e=EM[n],p=(s/mx)*100;return '<div class="el-row"><div class="el-top"><span class="el-emoji">'+e.e+'</span><span class="el-name" style="color:'+e.co+'">'+n+'</span><span class="el-spacer"></span><span class="el-score" style="color:'+e.co+'">'+s+'</span></div><div class="el-track"><div class="el-fill '+e.cl+'" data-w="'+p+'%"></div></div></div>'}).join('');
+document.getElementById('dataElements').innerHTML='<div class="data-dlabel" style="margin-bottom:10px">'+(LANG==='zh'?'五行':'Five Elements')+'</div>'+sorted.map(function(x){var n=x[0],s=x[1],e=EM[n],p=(s/mx)*100;return '<div class="el-row"><div class="el-top"><span class="el-emoji">'+e.e+'</span><span class="el-name" style="color:'+e.co+'">'+(LANG==='zh'&&e?e.c:n)+'</span><span class="el-spacer"></span><span class="el-score" style="color:'+e.co+'">'+s+'</span></div><div class="el-track"><div class="el-fill '+e.cl+'" data-w="'+p+'%"></div></div></div>'}).join('');
 // Data panel closed by default
 document.getElementById('dataPanel').style.display='none';
 document.querySelector('.data-toggle').textContent=(LANG==='zh'?'\u67E5\u770B\u8FD9\u4EFD\u89E3\u8BFB\u80CC\u540E\u7684\u6570\u636E \u25BE':'See the data behind this reading \u25BE');
@@ -1009,7 +1010,7 @@ function renderConfiguration(judgment){
   var box=document.getElementById('cfgElements'); if(!box) return;
   var sorted=Object.entries(r.elC).sort(function(a,b){return b[1]-a[1]});
   var mx=Math.max.apply(null,sorted.map(function(x){return x[1]}))||1;
-  box.innerHTML=sorted.map(function(x){var n=x[0],s=x[1],e=EM[n],p=(s/mx)*100;return '<div class="el-row"><div class="el-top"><span class="el-emoji">'+e.e+'</span><span class="el-name" style="color:'+e.co+'">'+n+'</span><span class="el-spacer"></span><span class="el-score" style="color:'+e.co+'">'+s+'</span></div><div class="el-track"><div class="el-fill '+e.cl+'" style="width:'+p+'%"></div></div></div>'}).join('');
+  box.innerHTML=sorted.map(function(x){var n=x[0],s=x[1],e=EM[n],p=(s/mx)*100;return '<div class="el-row"><div class="el-top"><span class="el-emoji">'+e.e+'</span><span class="el-name" style="color:'+e.co+'">'+(LANG==='zh'&&e?e.c:n)+'</span><span class="el-spacer"></span><span class="el-score" style="color:'+e.co+'">'+s+'</span></div><div class="el-track"><div class="el-fill '+e.cl+'" style="width:'+p+'%"></div></div></div>'}).join('');
 }
 
 function showPathAnswer(p){
@@ -1094,11 +1095,8 @@ function updateDividerHook(stage){
   // v5: single hook for all stages — hook now sits between roast and
   // reading-box, so it's visible from page entry; no need for stage swaps.
   // The arrow is rendered via CSS ::before (so plain text here).
-  var hooks={
-    'initial':           'The surface was the warning. Below is the pattern.',
-    'path-selected':     'The surface was the warning. Below is the pattern.',
-    'reading-complete':  'The surface was the warning. Below is the pattern.'
-  };
+  var msg=(LANG==='zh')?'表面是预警，下面才是模式。':'The surface was the warning. Below is the pattern.';
+  var hooks={'initial':msg,'path-selected':msg,'reading-complete':msg};
   var next=hooks[stage]||hooks['initial'];
   if(rdText.textContent===next) return;       // skip flash if no change
   rdText.textContent=next;
