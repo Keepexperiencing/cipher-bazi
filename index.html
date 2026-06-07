@@ -1068,8 +1068,8 @@ loadRulesForDayMaster(curRes.ds).then(function(rules){
 function fallbackPA(p,dbg){
 var key=curRes.ds+'_'+p;
 var text=(LANG==='zh')?'解读暂时不可用，请稍后重试。':(PA[key]||'Analysis not available.');
-var dbgHtml=dbg?'<p style="font-size:11px;color:#7a8290;margin-top:10px;font-family:monospace;">[调试] '+escapeHTML(String(dbg))+'</p>':'';
-document.getElementById('readingContent').innerHTML='<p>'+text+'</p>'+dbgHtml;
+if(dbg){try{console.warn('CIPHER AI fallback:',dbg);}catch(e){}}  // 诊断只进控制台，不展示给用户
+document.getElementById('readingContent').innerHTML='<p>'+text+'</p>';
 // AI failed → restore the static roast saved on data-fallback in renderResult
 var rRoast=document.getElementById('rRoast');
 var fb=rRoast.getAttribute('data-fallback');
