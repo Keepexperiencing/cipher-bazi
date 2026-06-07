@@ -1039,7 +1039,7 @@ loadRulesForDayMaster(curRes.ds).then(function(rules){
   var payload=buildAiPayloadV2(p,rules);
   return fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
 })
-.then(function(res){return res.json()})
+.then(function(res){return res.json().then(function(d){if(d&&typeof d==='object'){d.__status=res.status;}return d;},function(){return{__status:res.status,__nojson:true};});})
 .then(function(data){
   loading.style.display='none';
   completeProgressBar();
@@ -1060,15 +1060,16 @@ loadRulesForDayMaster(curRes.ds).then(function(rules){
     watchBlindSpotScroll();
     renderConfiguration(data.judgment);
     showBottomCTAs();
-  }else{fallbackPA(p); renderConfiguration(null); showBottomCTAs();}
+  }else{fallbackPA(p,'HTTP '+(data&&data.__status)+(data&&data.error?(' · '+data.error):(data&&data.__nojson?' · 非JSON响应':' · 无analysis'))); renderConfiguration(null); showBottomCTAs();}
 })
-.catch(function(){loading.style.display='none';completeProgressBar();fallbackPA(p);renderConfiguration(null);showBottomCTAs();});
+.catch(function(err){loading.style.display='none';completeProgressBar();fallbackPA(p,'fetch失败: '+((err&&err.message)||err));renderConfiguration(null);showBottomCTAs();});
 }
 
-function fallbackPA(p){
+function fallbackPA(p,dbg){
 var key=curRes.ds+'_'+p;
 var text=(LANG==='zh')?'解读暂时不可用，请稍后重试。':(PA[key]||'Analysis not available.');
-document.getElementById('readingContent').innerHTML='<p>'+text+'</p>';
+var dbgHtml=dbg?'<p style="font-size:11px;color:#7a8290;margin-top:10px;font-family:monospace;">[调试] '+escapeHTML(String(dbg))+'</p>':'';
+document.getElementById('readingContent').innerHTML='<p>'+text+'</p>'+dbgHtml;
 // AI failed → restore the static roast saved on data-fallback in renderResult
 var rRoast=document.getElementById('rRoast');
 var fb=rRoast.getAttribute('data-fallback');
