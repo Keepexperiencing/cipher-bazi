@@ -395,8 +395,87 @@ select option{background:#12141c;color:var(--text)}
 
 <script>
 var selectedPath='wealth',selectedGender='',selectedPlace=null,placeSearchTimer=null;
+
+// ═══════════════════════════════════════
+// i18n — 中文版(lang=zh) / 英文版(默认)。一套代码，靠 ?lang=zh 切换。
+// 锁定文案(原型名/金句)目前为功能草稿，待 设/流 定稿。
+// ═══════════════════════════════════════
+var LANG=((new URL(window.location.href)).searchParams.get('lang')==='zh')?'zh':'en';
+try{document.documentElement.lang=(LANG==='zh'?'zh-CN':'en');}catch(e){}
+// 原型中文名 + 金句（草稿，待设/流定稿）
+var K_ZH={
+'甲':{arch:'巨木·支柱',tagline:'"哪怕没有可生长的方向，你依然朝着光生长。"'},
+'乙':{arch:'藤蔓',tagline:'"每一场风暴里你都弯身，却从未折断。"'},
+'丙':{arch:'太阳',tagline:'"你进的每个房间都更亮，你离开的每个房间都更安静。"'},
+'丁':{arch:'烛火',tagline:'"你燃烧得比所有人预期都久，比你自己预期还久。"'},
+'戊':{arch:'山岳',tagline:'"你撑住了那些没有你就会散掉的东西。直到你停下，才有人注意到。"'},
+'己':{arch:'田土',tagline:'"你是土壤。万物在你身上生长，却没人会想起土壤。"'},
+'庚':{arch:'利斧',tagline:'"你一刀劈开。不是残忍，是清醒。"'},
+'辛':{arch:'珍器',tagline:'"你不会碎。你只会比一切更耐久。"'},
+'壬':{arch:'江海',tagline:'"你没有形状，也没有上限。难题是找到一个容器。"'},
+'癸':{arch:'雨露',tagline:'"你无声地移动，却推动着一切。"'}
+};
+// AI 输出的英文结构表头 → 中文显示标签（检测仍用英文，零正则风险）
+var HEADER_ZH={'THE HIT':'一击','THE MAP':'全局图','BLIND SPOT':'你的盲区','THE BLIND SPOT':'你的盲区','YOUR BLIND SPOT':'你的盲区','THE MOVE':'破局之举','WHO YOU ARE':'你是谁'};
+// 统一翻译静态界面（脚本在 body 末尾运行，DOM 已就绪）
+function applyLangZh(){
+  if(LANG!=='zh')return;
+  var Q=function(s){return document.querySelector(s);};
+  var QA=function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
+  var set=function(s,t){var e=Q(s);if(e)e.textContent=t;};
+  // S1 落地页
+  set('.pre-title','DestinyOS 出品');
+  set('.subtitle','你的出生代码，已解码。');
+  var ip=QA('.intro-box p');
+  if(ip[0])ip[0].textContent='把中国古老的八字命理，重构成可执行的战术情报。';
+  if(ip[1])ip[1].textContent='三千年的模式识别，零算命成分。你的出生日期编码了你的操作系统——我们只是把它读出来。';
+  set('.btn-main','解码我的源代码 →');
+  // S2 路径
+  set('.path-title','现在，什么对你最重要？');
+  set('.path-sub','选一个视角，我们透过它解读你的命盘。');
+  var pcT=[['财富 & 机遇','我的钱藏在哪里？'],['爱情 & 关系','我的连接模式是什么？'],['2026 预测','今年会发生什么？']];
+  QA('.path-card').forEach(function(card,i){if(!pcT[i])return;var h=card.querySelector('h3'),p=card.querySelector('p');if(h)h.textContent=pcT[i][0];if(p)p.textContent=pcT[i][1];});
+  // S3 输入
+  set('#pathLabel','已锁定：💰 财富 & 机遇');
+  set('.input-label','输入你的出生信息。');
+  var oy=Q('#selYear option[value=""]');if(oy)oy.textContent='年';
+  var om=Q('#selMonth option[value=""]');if(om)om.textContent='月';
+  var od=Q('#selDay option[value=""]');if(od)od.textContent='日';
+  var oh=Q('#selHour option[value="-1"]');if(oh)oh.textContent='我不知道我的出生时辰';
+  QA('.input-card p').forEach(function(p){if(/Don't know your birth time/.test(p.textContent))p.textContent='不知道出生时辰？没关系——你的核心类型由出生日期决定；出生时辰只为你的创造力与关系模式增加细节。';});
+  var inp=Q('#inpPlace');if(inp)inp.setAttribute('placeholder','出生地（城市）');
+  set('.place-hint','我们用你所在城市的经度来计算真太阳时——这是八字精准排盘所必需的。');
+  var grow=Q('.gender-row');if(grow&&grow.previousElementSibling)grow.previousElementSibling.textContent='性别（可选）';
+  var gbT=['男','女','跳过'];QA('.gender-btn').forEach(function(b,i){if(gbT[i])b.textContent=gbT[i];});
+  set('#btnDecode','解码 →');
+  set('.privacy-sm','🔒 你的数据只留在你的手机里，我们看不到。');
+  // S4 结果（静态部分）
+  set('.r-eyebrow','你的出生代码已解码');
+  set('.r-you','你是');
+  set('.roast-tag','一击');
+  set('#rdText','表面是预警，下面才是模式。');
+  QA('#readingBox > div').forEach(function(d){if(/AI Reading/.test(d.textContent))d.textContent='AI 解读 · 测试版';});
+  var cs=Q('#configSec .sec');if(cs)cs.textContent='⚙️ 你的配置';
+  var cl=QA('#configSec .config-label');if(cl[0])cl[0].textContent='你的格局';if(cl[1])cl[1].textContent='你的优势';
+  var ssec=Q('#seasonSec .sec');if(ssec)ssec.textContent='🌡️ 你当前的季节';
+  set('.season-soon','即将推出——你的大运（运势周期）层将在 v2 上线。上面的五行画像是你的出厂设置；此刻正在开启与关闭的窗口，是下一层。');
+  set('.feedback-q','准吗？');
+  var fbT=['😐 一般','😮 挺准','🤯 你怎么知道'];QA('.feedback-btn').forEach(function(b,i){if(fbT[i])b.textContent=fbT[i];});
+  set('#feedbackThanks','谢谢。你的反馈让 CIPHER 更聪明。');
+  var sc=Q('.share-btn.cyan');if(sc)sc.textContent='📸 保存卡片';
+  var sx=Q('#shareXBtn');if(sx)sx.textContent='𝕏 分享到 X';
+  var cb=Q('#copyBtn');if(cb)cb.textContent='📋 复制';
+  set('.data-toggle','查看这份解读背后的数据 ▾');
+  var dl=Q('#dataPanel .data-dlabel');if(dl)dl.textContent='日主';
+  var uh=Q('.upsell h3');if(uh)uh.textContent='这只是表面。';
+  var up=Q('.upsell p');if(up)up.textContent='上面的五行画像是你的出厂设置——但你当前的运行周期呢？此刻正在开启与关闭的窗口？那是更深的一层。';
+  var ub=Q('.btn-upsell');if(ub)ub.textContent='完整报告 — 即将推出';
+  set('.reset-link button','解码另一个出生代码');
+  var ft=Q('.footer-tag');if(ft)ft.textContent='模式识别，而非预测。';
+}
+
 function goTo(n){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active','active-block')});var s=document.getElementById(n===4?'resultScreen':'s'+n);if(n===4)s.classList.add('active-block');else s.classList.add('active');window.scrollTo({top:0,behavior:'instant'})}
-function selectPath(p,el){selectedPath=p;document.querySelectorAll('.path-card').forEach(function(c){c.classList.remove('selected')});el.classList.add('selected');var L={wealth:'\uD83D\uDCB0 Wealth & Fortune',love:'\uD83D\uDC98 Love & Relationships','2026':'\uD83D\uDD25 2026 Forecast'};document.getElementById('pathLabel').textContent='Path locked: '+L[p];setTimeout(function(){goTo(3)},400)}
+function selectPath(p,el){selectedPath=p;document.querySelectorAll('.path-card').forEach(function(c){c.classList.remove('selected')});el.classList.add('selected');var L=(LANG==='zh')?{wealth:'\uD83D\uDCB0 \u8D22\u5BCC & \u673A\u9047',love:'\uD83D\uDC98 \u7231\u60C5 & \u5173\u7CFB','2026':'\uD83D\uDD25 2026 \u9884\u6D4B'}:{wealth:'\uD83D\uDCB0 Wealth & Fortune',love:'\uD83D\uDC98 Love & Relationships','2026':'\uD83D\uDD25 2026 Forecast'};document.getElementById('pathLabel').textContent=(LANG==='zh'?'\u5DF2\u9501\u5B9A\uFF1A':'Path locked: ')+L[p];setTimeout(function(){goTo(3)},400)}
 function pickGender(g,el){selectedGender=g;document.querySelectorAll('.gender-btn').forEach(function(b){b.classList.remove('selected')});el.classList.add('selected')}
 !function(){var y=document.getElementById('selYear');for(var i=2010;i>=1930;i--){var o=document.createElement('option');o.value=i;o.textContent=i;y.appendChild(o)}var m=document.getElementById('selMonth');for(var i=1;i<=12;i++){var o=document.createElement('option');o.value=i;o.textContent=String(i).padStart(2,'0');m.appendChild(o)}var d=document.getElementById('selDay');for(var i=1;i<=31;i++){var o=document.createElement('option');o.value=i;o.textContent=String(i).padStart(2,'0');d.appendChild(o)}}();
 function checkInput(){var y=document.getElementById('selYear').value,m=document.getElementById('selMonth').value,d=document.getElementById('selDay').value,b=document.getElementById('btnDecode');if(y&&m&&d&&selectedPlace){b.disabled=false;b.className='btn-decode active'}else{b.disabled=true;b.className='btn-decode disabled'}}
@@ -417,7 +496,7 @@ function searchPlaces(q){
   var dd=document.getElementById('placeDropdown');
   dd.innerHTML='<div class="place-loading">Searching…</div>';
   dd.classList.add('open');
-  fetch('https://geocoding-api.open-meteo.com/v1/search?count=6&language=en&format=json&name='+encodeURIComponent(q))
+  fetch('https://geocoding-api.open-meteo.com/v1/search?count=6&language='+(LANG==='zh'?'zh':'en')+'&format=json&name='+encodeURIComponent(q))
     .then(function(r){return r.json()})
     .then(function(data){
       var results=(data&&data.results)||[];
@@ -598,37 +677,38 @@ setTimeout(function(){ls.style.display='none';renderResult()},2300);
 function renderResult(){
 var k=curRes.k,r=curRes;
 // Header v3
-document.getElementById('rType').textContent=k.arch;
-document.getElementById('rTagline').textContent=k.tagline||'';
+var kz=(LANG==='zh')&&K_ZH[curRes.ds];
+document.getElementById('rType').textContent=kz?kz.arch:k.arch;
+document.getElementById('rTagline').textContent=kz?kz.tagline:(k.tagline||'');
 // Static K[].roast is the neutral "reading in progress" placeholder.
 // *your* markers in the copy are rendered as italic via renderItalicMarks.
 // AI's THE TRUTH ABOUT YOU section overrides this after showPathAnswer returns.
-(function(){var rr=document.getElementById('rRoast');var fb='\u201C'+renderItalicMarks(k.roast)+'\u201D';rr.setAttribute('data-fallback',fb);rr.innerHTML=fb;})();
+(function(){var rr=document.getElementById('rRoast');var fb='\u201C'+(LANG==='zh'?'\u6B63\u5728\u8BFB\u53D6\u4F60\u7684\u4E13\u5C5E\u914D\u7F6E\u2026\u2026':renderItalicMarks(k.roast))+'\u201D';rr.setAttribute('data-fallback',fb);rr.innerHTML=fb;})();
 // AI Reading
 showPathAnswer(selectedPath);
 // Path switch buttons
 var ps=document.getElementById('pathSwitch');
-var paths=[{k:'wealth',l:'\uD83D\uDCB0 Money'},{k:'love',l:'\uD83D\uDC98 Relationships'},{k:'2026',l:'\uD83D\uDD25 This Year'}];
+var paths=(LANG==='zh')?[{k:'wealth',l:'\uD83D\uDCB0 \u8D22\u5BCC'},{k:'love',l:'\uD83D\uDC98 \u5173\u7CFB'},{k:'2026',l:'\uD83D\uDD25 \u4ECA\u5E74'}]:[{k:'wealth',l:'\uD83D\uDCB0 Money'},{k:'love',l:'\uD83D\uDC98 Relationships'},{k:'2026',l:'\uD83D\uDD25 This Year'}];
 ps.innerHTML=paths.map(function(p){return '<div class="ps-btn'+(p.k===selectedPath?' active':'')+'" onclick="switchPath(\''+p.k+'\',this)">'+p.l+'</div>'}).join('');
 // Data panel
-document.getElementById('dataDm').textContent=k.name+' ('+k.arch+')';
+document.getElementById('dataDm').textContent=(LANG==='zh'?(k.cn+'（'+(kz?kz.arch:k.arch)+'）'):(k.name+' ('+k.arch+')'));
 // Skills in data panel
 var sl=document.getElementById('dataSkills');
-sl.innerHTML='<div class="data-dlabel" style="margin-bottom:10px">Skill Tree (Top 3)</div>'+r.sg.map(function(g){var n=g[0],c=g[1],m=SM[n]||{c:n,i:'\u26A1',d:''};var p=Math.min(c*25,100);return '<div class="skill-item"><div class="skill-icon">'+m.i+'</div><div class="skill-info"><div class="skill-name">'+m.c+'</div><div class="skill-desc">'+m.d+'</div><div class="skill-bar"><div class="skill-fill" data-w="'+p+'%" style="width:0%"></div></div></div></div>'}).join('');
+sl.innerHTML='<div class="data-dlabel" style="margin-bottom:10px">'+(LANG==='zh'?'技能树（前3）':'Skill Tree (Top 3)')+'</div>'+r.sg.map(function(g){var n=g[0],c=g[1],m=SM[n]||{c:n,i:'\u26A1',d:''};var p=Math.min(c*25,100);return '<div class="skill-item"><div class="skill-icon">'+m.i+'</div><div class="skill-info"><div class="skill-name">'+m.c+'</div><div class="skill-desc">'+m.d+'</div><div class="skill-bar"><div class="skill-fill" data-w="'+p+'%" style="width:0%"></div></div></div></div>'}).join('');
 // Affixes in data panel
 var al=document.getElementById('dataAffixes');
-al.innerHTML='<div class="data-dlabel" style="margin-bottom:10px">Special Stars</div>'+(r.af.length?r.af.map(function(a){var m=AM[a]||{c:a};return '<div class="affix-item"><span class="affix-star">\u2726</span><span class="affix-name">'+m.c+'</span></div>'}).join(''):'<div style="font-size:14px;color:var(--text3);font-style:italic">No special stars detected.</div>');
+al.innerHTML='<div class="data-dlabel" style="margin-bottom:10px">'+(LANG==='zh'?'特殊星曜':'Special Stars')+'</div>'+(r.af.length?r.af.map(function(a){var m=AM[a]||{c:a};return '<div class="affix-item"><span class="affix-star">\u2726</span><span class="affix-name">'+m.c+'</span></div>'}).join(''):'<div style="font-size:14px;color:var(--text3);font-style:italic">'+(LANG==='zh'?'未检测到特殊星曜。':'No special stars detected.')+'</div>');
 // Elements in data panel
 var sorted=Object.entries(r.elC).sort(function(a,b){return b[1]-a[1]});
 var mx=Math.max.apply(null,sorted.map(function(x){return x[1]}))||1;
-document.getElementById('dataElements').innerHTML='<div class="data-dlabel" style="margin-bottom:10px">Five Elements</div>'+sorted.map(function(x){var n=x[0],s=x[1],e=EM[n],p=(s/mx)*100;return '<div class="el-row"><div class="el-top"><span class="el-emoji">'+e.e+'</span><span class="el-name" style="color:'+e.co+'">'+n+'</span><span class="el-spacer"></span><span class="el-score" style="color:'+e.co+'">'+s+'</span></div><div class="el-track"><div class="el-fill '+e.cl+'" data-w="'+p+'%"></div></div></div>'}).join('');
+document.getElementById('dataElements').innerHTML='<div class="data-dlabel" style="margin-bottom:10px">'+(LANG==='zh'?'五行':'Five Elements')+'</div>'+sorted.map(function(x){var n=x[0],s=x[1],e=EM[n],p=(s/mx)*100;return '<div class="el-row"><div class="el-top"><span class="el-emoji">'+e.e+'</span><span class="el-name" style="color:'+e.co+'">'+n+'</span><span class="el-spacer"></span><span class="el-score" style="color:'+e.co+'">'+s+'</span></div><div class="el-track"><div class="el-fill '+e.cl+'" data-w="'+p+'%"></div></div></div>'}).join('');
 // Data panel closed by default
 document.getElementById('dataPanel').style.display='none';
-document.querySelector('.data-toggle').textContent='See the data behind this reading \u25BE';
+document.querySelector('.data-toggle').textContent=(LANG==='zh'?'\u67E5\u770B\u8FD9\u4EFD\u89E3\u8BFB\u80CC\u540E\u7684\u6570\u636E \u25BE':'See the data behind this reading \u25BE');
 goTo(4);
 requestAnimationFrame(function(){setTimeout(function(){document.querySelectorAll('.skill-fill,.el-fill').forEach(function(b){b.style.width=b.dataset.w})},200)});
 var roastShort=k.roast.length>80?k.roast.slice(0,k.roast.lastIndexOf(' ',80))+'...':k.roast;
-var st='My birth code: '+k.arch+' \u2694\uFE0F\n\u201C'+roastShort+'\u201D\n\nYours? \u2192';
+var st=(LANG==='zh')?('\u6211\u7684\u51FA\u751F\u4EE3\u7801\uFF1A'+(kz?kz.arch:k.arch)+' \u2694\uFE0F\n\n\u4F60\u7684\u5462\uFF1F\u2192'):('My birth code: '+k.arch+' \u2694\uFE0F\n\u201C'+roastShort+'\u201D\n\nYours? \u2192');
 var pu=window.location.href.split('?')[0]+'?utm_source=twitter&utm_medium=share';
 document.getElementById('shareXBtn').href='https://twitter.com/intent/tweet?text='+encodeURIComponent(st)+'&url='+encodeURIComponent(pu);
 window._st=st+'\n'+pu;
@@ -689,7 +769,7 @@ function buildAiPayloadV2(p,rules){
     path:pathLabel,
     // legacy field (still used by old Worker + as a fallback text prompt)
     message:buildAiMessage(p),
-    lang:'en'
+    lang:LANG
   };
 }
 
@@ -794,7 +874,7 @@ function formatReading(text){
 
     // Check if this part is a header title
     if(/^(THE MAP|WHO YOU ARE|YOUR (?:WEALTH|MONEY|CONNECTION|RELATIONSHIPS?|2026) PATTERN|THE BLIND SPOT|BLIND SPOT|YOUR BLIND SPOT|THE MOVE)$/.test(part)){
-      html += '<h3>' + part + '</h3>';
+      html += '<h3>' + ((LANG==='zh'&&HEADER_ZH[part])?HEADER_ZH[part]:part) + '</h3>';
       continue;
     }
 
@@ -841,7 +921,13 @@ function formatReading(text){
 /* v4 — progress bar state machine. Fake progress timed against
    typical AI latency (~10-15s). Staged labels give the user a sense
    of what the engine is doing. Real completion calls completeProgressBar(). */
-var progressStages=[
+var progressStages=(LANG==='zh')?[
+  { at: 0,     percent: 15, label: '正在读取你的四柱……' },
+  { at: 2000,  percent: 35, label: '正在比对 2500 年的规则……' },
+  { at: 5000,  percent: 60, label: '正在找出你命盘的独特之处……' },
+  { at: 8000,  percent: 80, label: '正在打磨真相……' },
+  { at: 11000, percent: 90, label: '马上好了……' }
+]:[
   { at: 0,     percent: 15, label: 'Reading your four pillars...' },
   { at: 2000,  percent: 35, label: 'Matching against 2,500 years of rules...' },
   { at: 5000,  percent: 60, label: "Finding what's specific to your chart..." },
@@ -873,7 +959,7 @@ function completeProgressBar(){
   _progressTimers=[];
   if(!fill||!label) return;
   fill.style.width='100%';
-  label.textContent='Done.';
+  label.textContent=(LANG==='zh'?'完成。':'Done.');
 }
 
 /* v4 — bottom CTAs stay hidden while the AI is working so the
@@ -913,11 +999,11 @@ function renderConfiguration(judgment){
   var r=curRes; if(!r) return;
   var pt=judgment&&judgment.pattern_type;
   var patEl=document.getElementById('cfgPattern');
-  if(patEl) patEl.textContent = pt ? ((PATTERN_EN[pt]||pt)+' ('+pt+')') : '—';
+  if(patEl) patEl.textContent = pt ? (LANG==='zh' ? pt : ((PATTERN_EN[pt]||pt)+' ('+pt+')')) : '—';
   var edgeEl=document.getElementById('cfgEdge');
   if(edgeEl){
     var ys=(judgment&&judgment.yong_shen)||[],seen={},parts=[];
-    ys.forEach(function(s){var el=stemEl[s];if(el&&!seen[el]){seen[el]=1;parts.push((EM[el]?EM[el].e+' ':'')+el+' ('+s+')');}});
+    ys.forEach(function(s){var el=stemEl[s];if(el&&!seen[el]){seen[el]=1;var elName=(LANG==='zh'&&EM[el])?EM[el].c:el;parts.push((EM[el]?EM[el].e+' ':'')+elName+' ('+s+')');}});
     edgeEl.textContent = parts.length?parts.join('  ·  '):'—';
   }
   var box=document.getElementById('cfgElements'); if(!box) return;
@@ -980,7 +1066,7 @@ loadRulesForDayMaster(curRes.ds).then(function(rules){
 
 function fallbackPA(p){
 var key=curRes.ds+'_'+p;
-var text=PA[key]||'Analysis not available.';
+var text=(LANG==='zh')?'解读暂时不可用，请稍后重试。':(PA[key]||'Analysis not available.');
 document.getElementById('readingContent').innerHTML='<p>'+text+'</p>';
 // AI failed → restore the static roast saved on data-fallback in renderResult
 var rRoast=document.getElementById('rRoast');
@@ -1063,11 +1149,11 @@ var p=document.getElementById('dataPanel');
 var t=document.querySelector('.data-toggle');
 if(p.style.display==='none'){
   p.style.display='block';
-  t.textContent='Hide the data \u25B4';
+  t.textContent=(LANG==='zh'?'\u6536\u8D77\u6570\u636E \u25B4':'Hide the data \u25B4');
   requestAnimationFrame(function(){setTimeout(function(){p.querySelectorAll('.el-fill,.skill-fill').forEach(function(b){b.style.width=b.dataset.w})},100)});
 }else{
   p.style.display='none';
-  t.textContent='See the data behind this reading \u25BE';
+  t.textContent=(LANG==='zh'?'\u67E5\u770B\u8FD9\u4EFD\u89E3\u8BFB\u80CC\u540E\u7684\u6570\u636E \u25BE':'See the data behind this reading \u25BE');
 }
 }
 function copyShare(){if(!window._st)return;navigator.clipboard.writeText(window._st).then(function(){var b=document.getElementById('copyBtn');b.textContent='\u2713 Copied!';setTimeout(function(){b.textContent='\uD83D\uDCCB Copy'},1500)})}
@@ -1137,6 +1223,9 @@ cv.toBlob(function(blob){var url=URL.createObjectURL(blob);var a=document.create
 }
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath()}
 function wt(c,t,mw){var w=t.split(' '),ls=[],l='';for(var i=0;i<w.length;i++){var x=l+(l?' ':'')+w[i];if(c.measureText(x).width>mw&&l){ls.push(l);l=w[i]}else l=x}if(l)ls.push(l);return ls}
+
+// i18n: translate the static UI to Chinese when ?lang=zh (DOM is ready — script is at body end).
+applyLangZh();
 </script>
 </body>
 </html>
