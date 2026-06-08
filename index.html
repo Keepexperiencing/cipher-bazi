@@ -1014,8 +1014,11 @@ function renderConfiguration(judgment){
 }
 
 function showPathAnswer(p){
-// cache v2: keyed with v2_ prefix so old HTML-only cache entries are bypassed
-var cacheKey='v2_'+curRes.ds+'_'+p+'_ai';
+// cache key = full chart signature + path + lang (was day_master+path only → different
+// charts with the same day master collided / 串盘). ec = lunar EightChar of this chart.
+var _ec=curRes.ec;
+var _sig=_ec.getYearGan()+_ec.getYearZhi()+_ec.getMonthGan()+_ec.getMonthZhi()+_ec.getDayGan()+_ec.getDayZhi()+(curRes.hh?(_ec.getTimeGan()+_ec.getTimeZhi()):'NA');
+var cacheKey='v2_'+LANG+'_'+p+'_'+_sig+'_ai';
 var content=document.getElementById('readingContent');
 var loading=document.getElementById('readingLoading');
 if(aiCache[cacheKey]){
