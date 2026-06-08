@@ -464,7 +464,7 @@ function applyLangZh(){
   var fbT=['😐 一般','😮 挺准','🤯 你怎么知道'];QA('.feedback-btn').forEach(function(b,i){if(fbT[i])b.textContent=fbT[i];});
   set('#feedbackThanks','谢谢。你的反馈让 CIPHER 更聪明。');
   var sc=Q('.share-btn.cyan');if(sc)sc.textContent='📸 保存卡片';
-  var sx=Q('#shareXBtn');if(sx)sx.textContent='𝕏 分享到 X';
+  var sx=Q('#shareXBtn');if(sx)sx.style.display='none';  // 国内没 X，中文版隐藏（保留 保存卡片/复制）
   var cb=Q('#copyBtn');if(cb)cb.textContent='📋 复制';
   set('.data-toggle','查看这份解读背后的数据 ▾');
   var dl=Q('#dataPanel .data-dlabel');if(dl)dl.textContent='日主';
@@ -710,8 +710,9 @@ goTo(4);
 requestAnimationFrame(function(){setTimeout(function(){document.querySelectorAll('.skill-fill,.el-fill').forEach(function(b){b.style.width=b.dataset.w})},200)});
 var roastShort=k.roast.length>80?k.roast.slice(0,k.roast.lastIndexOf(' ',80))+'...':k.roast;
 var st=(LANG==='zh')?('\u6211\u7684\u51FA\u751F\u4EE3\u7801\uFF1A'+(kz?kz.arch:k.arch)+' \u2694\uFE0F\n\n\u4F60\u7684\u5462\uFF1F\u2192'):('My birth code: '+k.arch+' \u2694\uFE0F\n\u201C'+roastShort+'\u201D\n\nYours? \u2192');
-var pu=window.location.href.split('?')[0]+'?utm_source=twitter&utm_medium=share';
+var pu=window.location.href.split('?')[0]+'?'+(LANG==='zh'?'lang=zh&':'')+'utm_source=share&utm_medium=share';
 document.getElementById('shareXBtn').href='https://twitter.com/intent/tweet?text='+encodeURIComponent(st)+'&url='+encodeURIComponent(pu);
+document.getElementById('shareXBtn').onclick=function(){sendEvent({kind:'share',method:'x'});};
 window._st=st+'\n'+pu;
 updateDividerHook('initial');
 hideBottomCTAs();                      // v4: CTAs stay hidden until AI returns
@@ -719,6 +720,8 @@ hideBottomCTAs();                      // v4: CTAs stay hidden until AI returns
 
 var WORKER_URL='https://api.destinyos.net';
 var aiCache={};
+// fire-and-forget event (feedback / share) to the Worker — never blocks the UI.
+function sendEvent(o){try{fetch(WORKER_URL+'/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o)}).catch(function(){});}catch(e){}}
 
 /* ═══════════════════════════════════════
    CIPHER Rule Engine — Work Order v2
@@ -1158,13 +1161,14 @@ if(p.style.display==='none'){
   t.textContent=(LANG==='zh'?'\u67E5\u770B\u8FD9\u4EFD\u89E3\u8BFB\u80CC\u540E\u7684\u6570\u636E \u25BE':'See the data behind this reading \u25BE');
 }
 }
-function copyShare(){if(!window._st)return;navigator.clipboard.writeText(window._st).then(function(){var b=document.getElementById('copyBtn');b.textContent='\u2713 Copied!';setTimeout(function(){b.textContent='\uD83D\uDCCB Copy'},1500)})}
+function copyShare(){if(!window._st)return;sendEvent({kind:'share',method:'copy'});navigator.clipboard.writeText(window._st).then(function(){var b=document.getElementById('copyBtn');b.textContent='\u2713 Copied!';setTimeout(function(){b.textContent='\uD83D\uDCCB Copy'},1500)})}
 function voteFeedback(vote,btn){
   document.querySelectorAll('.feedback-btn').forEach(function(b){b.classList.remove('voted');b.style.opacity='.4'});
   btn.classList.add('voted');btn.style.opacity='1';
   document.getElementById('feedbackThanks').style.display='block';
-  // Store locally for now; POST to Worker /feedback when endpoint is ready
   try{localStorage.setItem('cipher_feedback',JSON.stringify({vote:vote,ds:curRes?curRes.ds:'',path:selectedPath,t:Date.now()}));}catch(e){}
+  // Send the accuracy vote to the Worker so it actually reaches us (was localStorage-only).
+  sendEvent({kind:'feedback',vote:vote,lang:LANG,day_master:curRes?curRes.ds:'',path:selectedPath});
 }
 function doReset(){goTo(1);document.getElementById('selYear').value='';document.getElementById('selMonth').value='';document.getElementById('selDay').value='';document.getElementById('selHour').value='-1';selectedPath='wealth';checkInput();document.querySelectorAll('.panel-toggle').forEach(function(t){t.classList.remove('open')});document.querySelectorAll('.panel-content').forEach(function(c){c.classList.remove('open')})}
 
@@ -1172,7 +1176,7 @@ function doReset(){goTo(1);document.getElementById('selYear').value='';document.
 // SHARE CARD (9:16 + element glow)
 // ═══════════════════════════════════════
 function saveCard(){
-if(!curRes)return;var k=curRes.k,r=curRes,W=1080,H=1920;
+if(!curRes)return;sendEvent({kind:'share',method:'card'});var k=curRes.k,r=curRes,W=1080,H=1920;
 var cv=document.getElementById('shareCanvas');cv.width=W;cv.height=H;var c=cv.getContext('2d');
 var gl=GLOW[k.el]||GLOW.metal;
 // BG
