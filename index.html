@@ -1031,6 +1031,7 @@ if(aiCache[cacheKey]){
     document.getElementById('rRoast').innerHTML='\u201C'+renderItalicMarks(escapeHTML(cached.truth))+'\u201D';
   }
   content.innerHTML=cached.html;
+  window._curReadingRaw=cached.raw||'';   // full reading text for the share card
   watchBlindSpotScroll();
   renderConfiguration(cached.judgment);
   showBottomCTAs();                    // cache-hit: reveal immediately
@@ -1061,7 +1062,8 @@ loadRulesForDayMaster(curRes.ds).then(function(rules){
     if(data.rule_ids_used && data.rule_ids_used.length){
       html+=renderUnderTheHood(data);
     }
-    aiCache[cacheKey]={truth:split.truth, html:html, judgment:data.judgment};
+    aiCache[cacheKey]={truth:split.truth, html:html, judgment:data.judgment, raw:data.analysis};
+    window._curReadingRaw=data.analysis;   // full reading text for the share card
     content.innerHTML=html;
     watchBlindSpotScroll();
     renderConfiguration(data.judgment);
@@ -1175,57 +1177,41 @@ function doReset(){goTo(1);document.getElementById('selYear').value='';document.
 // ═══════════════════════════════════════
 // SHARE CARD (9:16 + element glow)
 // ═══════════════════════════════════════
+// Full-reading share card (\u957F\u56FE): identity + the COMPLETE AI reading + \u4E94\u884C + footer.
+// Height auto-grows with the text. Chinese is wrapped char-by-char. Functional draft;
+// visual polish belongs to \u8BBE/\u6D41.
 function saveCard(){
-if(!curRes)return;sendEvent({kind:'share',method:'card'});var k=curRes.k,r=curRes,W=1080,H=1920;
-var cv=document.getElementById('shareCanvas');cv.width=W;cv.height=H;var c=cv.getContext('2d');
-var gl=GLOW[k.el]||GLOW.metal;
-// BG
+if(!curRes)return;sendEvent({kind:'share',method:'card'});
+var k=curRes.k,r=curRes,kz=(LANG==='zh')&&K_ZH[curRes.ds];
+var arch=kz?kz.arch:k.arch;
+var tagline=(kz?kz.tagline:(k.tagline||'')).replace(/^[\s"\u201C]+|[\s"\u201D]+$/g,'');
+var raw=window._curReadingRaw||'';
+var W=1080,M=80,maxW=W-M*2,gl=GLOW[k.el]||GLOW.metal;
+var FCJK='"Microsoft YaHei","PingFang SC","Hiragino Sans GB",sans-serif';
+var cv=document.getElementById('shareCanvas');var c=cv.getContext('2d');
+function wrap(text){var out=[],ls=String(text).split('\n');for(var li=0;li<ls.length;li++){var s=ls[li],line='';if(s===''){out.push('');continue;}for(var i=0;i<s.length;i++){var t=line+s[i];if(c.measureText(t).width>maxW&&line){out.push(line);line=s[i];}else line=t;}out.push(line);}return out;}
+// parse reading into sections (English structural markers \u2192 Chinese display labels)
+var sections=[];
+if(raw){var re=/(THE HIT|THE MAP|BLIND SPOT|THE MOVE)\s*\n+([\s\S]*?)(?=\n+(?:THE HIT|THE MAP|BLIND SPOT|THE MOVE)\b|$)/g,mm;while((mm=re.exec(raw))!==null){var lab=(LANG==='zh'&&HEADER_ZH[mm[1]])?HEADER_ZH[mm[1]]:mm[1];sections.push({label:lab,body:mm[2].trim()});}if(!sections.length)sections.push({label:'',body:raw.trim()});}
+// build a flat item list so the canvas height is exact
+var items=[];function P(t,ty,f,col,lh){items.push({t:t,ty:ty,f:f,col:col,lh:lh});}function G(h){items.push({ty:'gap',lh:h});}
+P('CIPHER \u00B7 '+(LANG==='zh'?'\u4F60\u7684\u51FA\u751F\u4EE3\u7801\u5DF2\u89E3\u7801':'YOUR BIRTH CODE DECODED'),'center','500 22px '+FCJK,'#5b6675',34);G(50);
+P(arch,'center','800 84px '+FCJK,'#e6edf3',94);G(12);
+c.font='italic 300 30px '+FCJK;wrap(tagline).forEach(function(l){P(l,'center','italic 300 30px '+FCJK,gl.a,44);});G(44);
+sections.forEach(function(sec){if(sec.label)P('\u2014 '+sec.label,'left','700 27px '+FCJK,gl.a,50);G(4);c.font='400 28px '+FCJK;wrap(sec.body).forEach(function(l){P(l,'left','400 28px '+FCJK,'#ccd5df',44);});G(34);});
+var elStr=Object.entries(r.elC).sort(function(a,b){return b[1]-a[1]}).map(function(x){return (EM[x[0]]?EM[x[0]].c:x[0])+x[1];}).join('   ');
+P((LANG==='zh'?'\u4E94\u884C  ':'Elements  ')+elStr,'left','400 24px '+FCJK,'#8b949e',42);G(38);
+P((LANG==='zh'?'\u89E3\u7801\u4F60\u7684 \u2192 destinyos.net':'Decode yours \u2192 destinyos.net'),'center','500 24px '+FCJK,'#7a8aa0',38);
+P('CIPHER by DestinyOS','center','italic 300 20px '+FCJK,'#3f4655',30);
+// total height + draw
+var H=90;items.forEach(function(it){H+=it.lh;});H+=70;
+cv.width=W;cv.height=H;c=cv.getContext('2d');
 c.fillStyle='#0a0b10';c.fillRect(0,0,W,H);
-// Glow corners
-var grd;
-grd=c.createRadialGradient(0,0,0,0,0,600);grd.addColorStop(0,gl.m);grd.addColorStop(1,'transparent');c.fillStyle=grd;c.fillRect(0,0,600,600);
-grd=c.createRadialGradient(W,H,0,W,H,600);grd.addColorStop(0,gl.m);grd.addColorStop(1,'transparent');c.fillStyle=grd;c.fillRect(W-600,H-600,600,600);
-grd=c.createRadialGradient(W,0,0,W,0,400);grd.addColorStop(0,gl.m);grd.addColorStop(1,'transparent');c.fillStyle=grd;c.fillRect(W-400,0,400,400);
-grd=c.createRadialGradient(0,H,0,0,H,400);grd.addColorStop(0,gl.m);grd.addColorStop(1,'transparent');c.fillStyle=grd;c.fillRect(0,H-400,400,400);
-// Dot grid in element color
-c.fillStyle=gl.m;for(var x=0;x<W;x+=50)for(var y=0;y<H;y+=50){c.beginPath();c.arc(x,y,1,0,Math.PI*2);c.fill()}
-// Top line
-c.fillStyle=gl.a;c.fillRect(0,0,W,3);
-// Bottom line
-c.fillRect(0,H-3,W,3);
-// Top label
-c.textAlign='center';c.fillStyle='#484f58';c.font='500 22px "Segoe UI",system-ui';c.fillText('CIPHER \u00B7 YOUR SOURCE CODE DECODED',W/2,50);
-// Core Kernel
-c.fillStyle='#e6edf3';c.font='800 72px "Segoe UI",system-ui';c.fillText(k.cn,W/2,170);
-c.font='600 28px "Segoe UI",system-ui';c.fillText(k.arch,W/2,215);
-c.fillStyle=gl.a;c.font='400 18px "Courier New",monospace';c.fillText('// '+r.variant,W/2,250);
-c.fillStyle='#8b949e';c.font='300 20px "Segoe UI",system-ui';c.fillText('Day Master: '+k.name,W/2,285);
-// Roast box
-c.strokeStyle='rgba(255,85,85,0.2)';c.lineWidth=1.5;rr(c,70,320,W-140,240,10);c.stroke();
-c.fillStyle='rgba(255,255,255,0.02)';rr(c,70,320,W-140,240,10);c.fill();
-c.fillStyle='#0a0b10';c.fillRect(100,310,200,24);
-c.fillStyle='#f85149';c.font='600 16px "Segoe UI",system-ui';c.textAlign='left';c.fillText('SYSTEM ROAST',106,326);
-c.fillStyle='#e6edf3';c.font='italic 300 20px "Segoe UI",system-ui';
-var rl=wt(c,'\u201C'+k.roast+'\u201D',W-220),ry=365;
-for(var i=0;i<Math.min(rl.length,7);i++){c.fillText(rl[i],100,ry);ry+=30}
-// Skills
-var sy=600;c.fillStyle='#8b949e';c.font='600 18px "Segoe UI",system-ui';c.textAlign='left';c.fillText('SKILLS',90,sy);sy+=32;
-r.sg.slice(0,3).forEach(function(g){var m=SM[g[0]]||{c:g[0],i:'\u26A1'};c.fillStyle=gl.a;c.font='700 18px "Segoe UI",system-ui';c.fillText(m.i+' '+m.c,90,sy);c.fillStyle='#484f58';c.font='300 14px "Segoe UI",system-ui';c.fillText(g[0],420,sy);sy+=32});
-sy+=12;c.fillStyle='#8b949e';c.font='600 18px "Segoe UI",system-ui';c.fillText('AFFIXES',90,sy);sy+=28;
-c.fillStyle='#d29922';c.font='400 17px "Segoe UI",system-ui';c.fillText(r.af.length?r.af.map(function(a){return'\u2726 '+(AM[a]?AM[a].c:a)}).join('  \u00B7  '):'None detected',90,sy);
-sy+=40;c.fillStyle='#8b949e';c.font='600 18px "Segoe UI",system-ui';c.fillText('VULNERABILITY',90,sy);sy+=28;
-if(r.vn.length)r.vn.slice(0,3).forEach(function(v){var t=VT[v]||[v,''];c.fillStyle='#f85149';c.font='600 15px "Segoe UI",system-ui';c.fillText(t[0],90,sy);c.fillStyle='#8b949e';c.font='300 13px "Segoe UI",system-ui';c.fillText(t[1],90,sy+18);sy+=44});
-else{c.fillStyle='#484f58';c.font='italic 300 15px "Segoe UI",system-ui';c.fillText('Balanced. No critical vulnerabilities.',90,sy);sy+=30}
-// Element bars
-sy+=30;var elCols={Metal:'#c9d1d9',Water:'#58a6ff',Wood:'#56d364',Fire:'#f85149',Earth:'#d29922'};
-var srt=Object.entries(r.elC).sort(function(a,b){return b[1]-a[1]});var emx=Math.max.apply(null,srt.map(function(x){return x[1]}))||1;
-srt.forEach(function(x){var n=x[0],s=x[1],col=elCols[n];c.fillStyle=col;c.font='700 15px "Segoe UI",system-ui';c.fillText(n.toUpperCase(),90,sy);c.textAlign='right';c.fillText(''+s,W-90,sy);c.textAlign='left';var bx=220,bw=W-420;c.fillStyle='rgba(255,255,255,0.04)';rr(c,bx,sy-8,bw,10,3);c.fill();c.fillStyle=col;rr(c,bx,sy-8,Math.max((s/emx)*bw,2),10,3);c.fill();sy+=28});
-// Footer
-c.textAlign='center';c.fillStyle='#484f58';c.font='400 20px "Segoe UI",system-ui';c.fillText('Decode yours \u2192 cipher-bazi.vercel.app',W/2,H-80);
-c.fillStyle='#383d44';c.font='italic 300 16px "Segoe UI",system-ui';c.fillText('CIPHER by DestinyOS \u00B7 Pattern recognition, not prediction.',W/2,H-50);
-// Watermark
-c.textAlign='right';c.fillStyle='rgba(0,212,255,0.06)';c.font='800 36px "Segoe UI",system-ui';c.fillText('CIPHER',W-40,40);
-cv.toBlob(function(blob){var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='CIPHER_'+k.cn.replace(/\s/g,'')+'.png';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);var btn=document.querySelector('.share-btn.cyan');btn.textContent='\u2713 Saved!';setTimeout(function(){btn.textContent='\uD83D\uDCF8 Save Card'},1500)},'image/png');
+var grd=c.createRadialGradient(W/2,0,0,W/2,0,720);grd.addColorStop(0,gl.m);grd.addColorStop(1,'transparent');c.fillStyle=grd;c.fillRect(0,0,W,720);
+c.fillStyle=gl.a;c.fillRect(0,0,W,5);c.fillRect(0,H-5,W,5);
+c.textAlign='right';c.fillStyle='rgba(0,212,255,0.05)';c.font='800 34px '+FCJK;c.fillText('CIPHER',W-30,48);
+var y=90;items.forEach(function(it){if(it.ty==='gap'){y+=it.lh;return;}c.font=it.f;c.fillStyle=it.col;c.textAlign=(it.ty==='center')?'center':'left';c.fillText(it.t,it.ty==='center'?W/2:M,y);y+=it.lh;});
+cv.toBlob(function(blob){var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='CIPHER_'+(k.cn||'card')+'.png';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);var btn=document.querySelector('.share-btn.cyan');if(btn){btn.textContent=(LANG==='zh'?'\u2713 \u5DF2\u4FDD\u5B58':'\u2713 Saved!');setTimeout(function(){btn.textContent=(LANG==='zh'?'\uD83D\uDCF8 \u4FDD\u5B58\u5361\u7247':'\uD83D\uDCF8 Save Card')},1500);}},'image/png');
 }
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath()}
 function wt(c,t,mw){var w=t.split(' '),ls=[],l='';for(var i=0;i<w.length;i++){var x=l+(l?' ':'')+w[i];if(c.measureText(x).width>mw&&l){ls.push(l);l=w[i]}else l=x}if(l)ls.push(l);return ls}
