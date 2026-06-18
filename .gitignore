@@ -1,0 +1,31 @@
+# ── 密钥 / 凭证（绝不进公开仓库 = 防令牌泄漏被封号）──
+.env
+.env.*
+*.key
+*.pem
+*.p12
+.credentials.json
+**/.credentials.json
+secrets.*
+*secret*
+*token*
+
+# ── Claude / 工具本地数据 ──
+.claude/
+.claude/.credentials.json
+
+# ── 规则 IP（本不在本仓库，防误拖入）──
+rules-embedded.js
+*-for-ai.md
+CIPHER_Rules/
+
+# ── 安全工具自身（仓库外工具，防误提交）──
+scan-secrets.ps1
+
+# ── 依赖 / 构建 / 系统垃圾 ──
+node_modules/
+dist/
+build/
+.DS_Store
+Thumbs.db
+*.log
