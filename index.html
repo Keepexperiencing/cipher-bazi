@@ -118,6 +118,9 @@ select option{background:#12141c;color:var(--text)}
 .rl-progress-bar{width:100%;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:16px}
 .rl-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--text));border-radius:2px;transition:width .5s ease-out;box-shadow:0 0 8px rgba(0,212,255,.4)}
 .rl-progress-label{font-size:13px;color:var(--text3);letter-spacing:.5px;font-style:italic;min-height:20px}
+/* A1: 等待区 punchline 钩子（功能版，墨后续美化视觉） */
+.rl-punchline{max-width:440px;margin:0 auto 30px;font-size:19px;line-height:1.85;color:var(--text);text-align:center;font-weight:300;opacity:0;transition:opacity 1s ease-in}
+.rl-punchline.show{opacity:1}
 /* v4 Bottom CTA hide/reveal during analysis */
 .hidden-during-analysis{display:none !important}
 .fade-in-after-analysis{animation:fadeInAfterAnalysis .5s ease-out forwards}
@@ -278,7 +281,6 @@ select option{background:#12141c;color:var(--text)}
 
 <!-- S3 INPUT -->
 <div id="s3" class="screen" style="text-align:center">
-<div class="path-locked" id="pathLabel">Path locked: 💰 Wealth & Fortune</div>
 <div class="input-card">
 <p class="input-label">Enter your birth data.</p>
 <div class="date-row">
@@ -286,7 +288,8 @@ select option{background:#12141c;color:var(--text)}
 <select id="selMonth" class="sel" onchange="checkInput()"><option value="">Month</option></select>
 <select id="selDay" class="sel" onchange="checkInput()"><option value="">Day</option></select>
 </div>
-<select id="selHour" class="sel sel-full">
+<select id="selHour" class="sel sel-full" onchange="checkInput()">
+<option value="" disabled selected hidden>Birth hour — select one</option>
 <option value="-1">I don't know my birth time</option>
 <option value="0">23:00–01:00 (子)</option><option value="1">01:00–03:00 (丑)</option>
 <option value="2">03:00–05:00 (寅)</option><option value="3">05:00–07:00 (卯)</option>
@@ -295,12 +298,12 @@ select option{background:#12141c;color:var(--text)}
 <option value="8">15:00–17:00 (申)</option><option value="9">17:00–19:00 (酉)</option>
 <option value="10">19:00–21:00 (戌)</option><option value="11">21:00–23:00 (亥)</option>
 </select>
-<p style="font-size:12px;color:var(--text3);margin:8px 0 14px;line-height:1.5;font-style:italic">Don't know your birth time? No problem — your core type is determined by your birth date. Birth time adds detail to your creative and relationship patterns.</p>
+<p style="font-size:12px;color:var(--text3);margin:8px 0 14px;line-height:1.5;font-style:italic">Don't know it? No problem — year, month and day set down most of you; the hour is the fourth pillar, adding detail.</p>
 <div class="place-wrap">
 <input type="text" id="inpPlace" class="place-input" placeholder="Birth place (city)" autocomplete="off" oninput="onPlaceInput(this.value)" onfocus="onPlaceFocus()">
 <div id="placeDropdown" class="place-dropdown"></div>
 </div>
-<p class="place-hint">We use your city's longitude to compute true solar time — this is what BaZi needs for an accurate chart.</p>
+<p class="place-hint">BaZi runs on solar time, not clock time — your birth city helps us align it.</p>
 <div style="margin-bottom:6px;font-size:13px;color:var(--text3)">Gender (optional)</div>
 <div class="gender-row">
 <div class="gender-btn" onclick="pickGender('M',this)">Male</div>
@@ -308,7 +311,7 @@ select option{background:#12141c;color:var(--text)}
 <div class="gender-btn selected" onclick="pickGender('',this)">Skip</div>
 </div>
 <button id="btnDecode" class="btn-decode disabled" disabled onclick="doDecode()">DECODE →</button>
-<p class="privacy-sm">🔒 Your data stays on your phone. We never see it.</p>
+<p class="privacy-sm">🔒 Just your birthday. We don't ask who you are.</p>
 </div>
 </div>
 
@@ -335,6 +338,7 @@ select option{background:#12141c;color:var(--text)}
 <div class="reading-box" id="readingBox">
 <div style="font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;opacity:.7;text-align:center;font-weight:500;">AI Reading · Beta</div>
 <div class="reading-loading" id="readingLoading">
+  <div class="rl-punchline" id="rlPunchline"></div>
   <div class="rl-progress-wrap">
     <div class="rl-progress-bar">
       <div class="rl-progress-fill" id="rlProgressFill"></div>
@@ -417,7 +421,20 @@ var K_ZH={
 '癸':{arch:'雨露',tagline:'"你无声地移动，却推动着一切。"'}
 };
 // AI 输出的英文结构表头 → 中文显示标签（检测仍用英文，零正则风险）
-var HEADER_ZH={'THE HIT':'一击','THE MAP':'全局图','BLIND SPOT':'你的盲区','THE BLIND SPOT':'你的盲区','YOUR BLIND SPOT':'你的盲区','THE MOVE':'破局之举','WHO YOU ARE':'你是谁'};
+var HEADER_ZH={'THE HIT':'先说结论','THE MAP':'你的全貌','BLIND SPOT':'你的盲区','THE BLIND SPOT':'你的盲区','YOUR BLIND SPOT':'你的盲区','THE MOVE':'你的走法','WHO YOU ARE':'你是谁'};
+// A1: 120 格 punchline 查表（日主 × 月支，纯洞察固定钩子，等待区显示；墨锻造·奇终审，源 docs/punchline/_查表_punchline_120_日主×月支.md）。动作归 AI 的 THE MOVE，此处不含动作。
+var PUNCHLINE_ZH={
+'甲':{'寅':'你万事俱备，就差自己狠下心，迈出去那一下。','卯':'你样样都行，没有一样长成了你。','辰':'你结了那么多果，自己有多久没被浇过水了。','巳':'再多人围着你，也抵不上一个真正懂你的。','午':'你撑得越狠，越没人看出你快到头了。','未':'你防得滴水不漏，也活得密不透风。','申':'你长成了别人需要的样子，没人问过你想成为谁。','酉':'你把自己磨得越来越利，却忘了当初想长成什么样子。','戌':'你做了那么多事，没有一件是为你自己。','亥':'你总觉得那段日子白过了，其实你的底子，就是那会儿扎下的。','子':'你想把什么都保住，很久没为一件事豁出去了。','丑':'手里抓得太满，最重要的那个反而掉了。'},
+'乙':{'寅':'你从不屑抢眼前那一下，只等真正对的时候才出手。','卯':'热闹是大家的，孤单是你自己的。','辰':'你明知留不住，还是不肯先松手。','巳':'你缺的不是阳光，是一个能温润到你的人。','午':'你不是不够好，是好得太费你自己。','未':'你赢得不动声色，因为你从不跟人比硬。','申':'越是冲着你来的人，到后来，反而越向着你。','酉':'你最好的样子，偏偏是被逼出来的。','戌':'你能走到现在，不是一个人扛的，是你抓对了人。','亥':'别人安排得越周到，你越觉得日子不像你自己的。','子':'你最熟的那个人，不一定最懂现在的你。','丑':'你不是跑得最快的，是走得最久的那个。'},
+'丙':{'寅':'你点亮一屋子人，回头没人替你擦那盏灯。','卯':'你舍不得放下谁，却一点点把自己放下了。','辰':'你收敛太久，快忘了从前你一进门，就是被人看的那个。','巳':'你够亮了，缺的不是再亮，是有人看见你。','午':'为了让身边人舒服，你把自己悄悄调暗了一格。','未':'你最有分量的样子，从来不是你烧得最旺的时候。','申':'你收起了那股锋利，大家反而敢凑近你说话了。','酉':'真正留住人的，不是你最亮那天，是你慢下来这天。','戌':'大家看得见你做的事，看不见做事的你。','亥':'那个总在照亮别人的你，也该被允许暗一会儿。','子':'不是你慢，是这世界还没追上你。','丑':'你每天都在好一点，只是慢到连你自己都没察觉。'},
+'丁':{'寅':'满屋子都是为你好，没一句问你想怎么活。','卯':'你守着那个烧不动的人，守的是一句答应过的话。','辰':'你扛的事样样妥帖，只有自己，一直将就。','巳':'你甘心做那束追光，把台中央留给别人。','午':'你不爱表功，出力的是你，得名的却总是别人。','未':'你照亮了一辈子别人，自己这盏灯，没人记得添油。','申':'你守的不是自己那点火，是别人还需要你亮着。','酉':'你活成了人人靠得住的光，自己却没一处能靠。','戌':'你烧到了根，还笑着说自己没事。','亥':'你不在乎多少人路过，只在乎那一个肯停下来的人。','子':'你不抢一时的亮，只守这长夜不灭。','丑':'你这盏灯熬过寒冬，靠的不是油，是一个念想。'},
+'戊':{'寅':'你还没开口，心里其实早有了主意。','卯':'你心里有数，话到嘴边，又自己压了回去。','辰':'你从不喊累，久了别人就当你不会累。','巳':'你撑着一副硬朗，里头其实早想透口气。','午':'你要的不是安慰，是真有人来搭把手。','未':'你硬撑惯了，连"我不行了"都说不出口。','申':'你太靠得住，久了别人就把你的好当成应该。','酉':'你撑着所有人，最怕的是自己先垮。','戌':'你太能掌控全局，反而把意外也挡在了门外。','亥':'你看着什么都无所谓，只是太久没遇上让你上心的事。','子':'你不是冷，是还没遇上能点着你的人。','丑':'你扛过最难的那些，从来没跟人说过。'},
+'己':{'寅':'你不是没受过伤，是你不愿一直记着。','卯':'别人当你没脾气，其实是你不愿计较。','辰':'你不是没本事，是你的功夫都下在没人看见的地方。','巳':'你照顾了所有人，却没人想起来照顾你。','午':'再大的火气到你这儿都软了，你的委屈没人接。','未':'你什么都不缺的样子，是你自己装出来的。','申':'你嘴上轻描淡写，心里其实记得清清楚楚。','酉':'你总把人推到台前，自己习惯站在后面。','戌':'你不是没话说，是你把话都自己咽了。','亥':'越是一上来就对你太好的，你越不敢当真。','子':'你不图轰轰烈烈，就图有个人一直惦记着。','丑':'你不是硬扛过来的，是你把那些难，自己慢慢化开了。'},
+'庚':{'寅':'你强，是因为没人给你出过真题。','卯':'让你最舒服的那段日子，也是你停得最久的那段。','辰':'你稳了很多年，只是没人问过你想不想这样稳。','巳':'你最结实的那几次，都是你停下来之后。','午':'你说还扛得住，其实早到顶了。','未':'你这份平静，是没东西再能扎进你了。','申':'该把你打弯的那几次，你全打赢了。','酉':'你上一次出全力，已经查不到日期了。','戌':'你忍了这么久，可轮到你那天，不由你说了算。','亥':'你能自己扛的越来越多，你能让人靠近的越来越少。','子':'你越用力越启动不了，这是冻住了，不是坏了。','丑':'你撑不下去的那一刻，其实天快亮了。'},
+'辛':{'寅':'你把底牌捂出了体温，到散场都没出。','卯':'你把日子过成了保险柜，自己也锁在里面。','辰':'你守的那条线，画线的人早就走了。','巳':'鞋磨脚磨了三年，你一直怪自己的脚。','午':'手机到百分之五会自己变暗，你不会。','未':'伞递得太及时，你都没机会知道雨是什么。','申':'行李收拾了三年，你还住在门口。','酉':'真正识货的就那么几个，你也从不主动把自己亮出来。','戌':'你不是没准备好，你是怕交卷。','亥':'你递出去的总是手术刀，他们想要的是手。','子':'你跟谁都客客气气、滴水不漏，可没人真正走进过你心里。','丑':'机器都得预热，你却要求自己一秒开机。'},
+'壬':{'寅':'你总急着往前，却说不清自己要去哪。','卯':'你忙得停不下，可没几件是你自己想做的。','辰':'你不是不想往前，是总有什么在背后拽着你。','巳':'你总把劲使在别处，等想起自己，常常已经晚了。','午':'你以为是你在靠近谁，其实是你被一点点带走了。','未':'你想一吐为快，话却堵在那儿，怎么都倒不出来。','申':'劲一回来，你又身不由己地往前了。','酉':'你比谁都看得清，可越看清，越下不去手。','戌':'你一冲起来就只顾往前，顾不上抬头看看方向。','亥':'你习惯了不让人看出你累，久了，连自己都忘了能喊累。','子':'你认准一件事，就冲得连自己都拉不回来。','丑':'你看着什么都放下了，其实只是懒得再跟人解释。'},
+'癸':{'寅':'你总把别人的事排在前，自己的事，反倒一拖再拖。','卯':'你对谁都有耐心，只有对自己，一点都剩不下。','辰':'你总顺着别人，到最后，自己想要什么反倒说不上来了。','巳':'你跟比你强的人待久了，慢慢连话都不敢大声说。','午':'聚会少了谁都照样热闹，少了你，才有人觉出冷清。','未':'你心里一百个不愿意，可话到嘴边，还是点了头。','申':'你最难熬的那阵子，回头看，反倒活得最像自己。','酉':'你不争不抢，可真正懂你的人，都知道你的分量。','戌':'外人觉得你够好了，可你自己，从没真的放过自己。','亥':'你把日子过得体体面面，一身的累，回了家才卸得下。','子':'你什么都自己来，久了，连张口求人都觉得多余。','丑':'你看着不好接近，其实是把真心，留给了极少的人。'}
+};
 // 统一翻译静态界面（脚本在 body 末尾运行，DOM 已就绪）
 function applyLangZh(){
   if(LANG!=='zh')return;
@@ -426,60 +443,62 @@ function applyLangZh(){
   var set=function(s,t){var e=Q(s);if(e)e.textContent=t;};
   // S1 落地页
   set('.pre-title','DestinyOS 出品');
-  set('.subtitle','你的出生代码，已解码。');
+  set('.subtitle','八字里，写着你。');
   var ip=QA('.intro-box p');
-  if(ip[0])ip[0].textContent='把中国古老的八字命理，重构成可执行的战术情报。';
-  if(ip[1])ip[1].textContent='三千年的模式识别，零算命成分。你的出生日期编码了你的操作系统——我们只是把它读出来。';
-  set('.btn-main','解码我的源代码 →');
+  if(ip[0])ip[0].textContent='只是它用的是古人的字。';
+  if(ip[1])ip[1].textContent='CIPHER 替你翻成人话——不算命，只告诉你：你是谁。';
+  set('.btn-main','读我的八字 →');
   // S2 路径
-  set('.path-title','现在，什么对你最重要？');
-  set('.path-sub','选一个视角，我们透过它解读你的命盘。');
-  var pcT=[['财富 & 机遇','我的钱藏在哪里？'],['爱情 & 关系','我的连接模式是什么？'],['2026 预测','今年会发生什么？']];
+  set('.path-title','先看你哪一面？');
+  set('.path-sub','挑一块，CIPHER 先从这儿读你。');
+  var pcT=[['财富','你靠什么挣钱。'],['感情','你在关系里，什么样。'],['2026','你今年该往哪使劲。']];
   QA('.path-card').forEach(function(card,i){if(!pcT[i])return;var h=card.querySelector('h3'),p=card.querySelector('p');if(h)h.textContent=pcT[i][0];if(p)p.textContent=pcT[i][1];});
   // S3 输入
-  set('#pathLabel','已锁定：💰 财富 & 机遇');
   set('.input-label','输入你的出生信息。');
   var oy=Q('#selYear option[value=""]');if(oy)oy.textContent='年';
   var om=Q('#selMonth option[value=""]');if(om)om.textContent='月';
   var od=Q('#selDay option[value=""]');if(od)od.textContent='日';
+  var oph=Q('#selHour option[value=""]');if(oph)oph.textContent='出生时辰——请选择';
   var oh=Q('#selHour option[value="-1"]');if(oh)oh.textContent='我不知道我的出生时辰';
-  QA('.input-card p').forEach(function(p){if(/Don't know your birth time/.test(p.textContent))p.textContent='不知道出生时辰？没关系——你的核心类型由出生日期决定；出生时辰只为你的创造力与关系模式增加细节。';});
+  QA('.input-card p').forEach(function(p){if(/Don't know it/.test(p.textContent))p.textContent='不知道也没关系——年、月、日三柱，已写下大半个你；时辰是第四柱，补的是细节。';});
   var inp=Q('#inpPlace');if(inp)inp.setAttribute('placeholder','出生地（城市）');
-  set('.place-hint','我们用你所在城市的经度来计算真太阳时——八字精准排盘所需。搜不到可用拼音/英文。');
+  set('.place-hint','八字认的是太阳时，不是钟表时间——出生城市，帮我们对准。搜不到就试拼音。');
   var grow=Q('.gender-row');if(grow&&grow.previousElementSibling)grow.previousElementSibling.textContent='性别（可选）';
   var gbT=['男','女','跳过'];QA('.gender-btn').forEach(function(b,i){if(gbT[i])b.textContent=gbT[i];});
-  set('#btnDecode','解码 →');
-  set('.privacy-sm','🔒 你的数据只留在你的手机里，我们看不到。');
+  set('#btnDecode','读我的八字 →');
+  set('.privacy-sm','🔒 只要生日，不问你是谁。');
+  // 加载屏（§4：原 .load-text 中文版漏翻）
+  set('.load-text','正在排盘……');
   // S4 结果（静态部分）
-  set('.r-eyebrow','你的出生代码已解码');
+  set('.r-eyebrow','你的八字，读完了');
   set('.r-you','你是');
-  set('.roast-tag','一击');
-  set('#rdText','表面是预警，下面才是模式。');
+  set('.roast-tag','先说结论');
+  set('#rdText','何以见得——下面，一段段讲。');
   QA('#readingBox > div').forEach(function(d){if(/AI Reading/.test(d.textContent))d.textContent='AI 解读 · 测试版';});
-  var cs=Q('#configSec .sec');if(cs)cs.textContent='⚙️ 你的配置';
+  var cs=Q('#configSec .sec');if(cs)cs.textContent='⚙️ 你的盘面';
   var cl=QA('#configSec .config-label');if(cl[0])cl[0].textContent='你的格局';if(cl[1])cl[1].textContent='你的优势';
-  var ssec=Q('#seasonSec .sec');if(ssec)ssec.textContent='🌡️ 你当前的季节';
-  set('.season-soon','即将推出——你的大运（运势周期）层将在 v2 上线。上面的五行画像是你的出厂设置；此刻正在开启与关闭的窗口，是下一层。');
+  var ssec=Q('#seasonSec .sec');if(ssec)ssec.textContent='🌡️ 你现在走的运';
+  set('.season-soon','即将推出——八字还有下半篇：大运。上面读的是你这个人；下半篇读你现在走到哪一步。');
   set('.feedback-q','准吗？');
-  var fbT=['😐 一般','😮 挺准','🤯 你怎么知道'];QA('.feedback-btn').forEach(function(b,i){if(fbT[i])b.textContent=fbT[i];});
+  var fbT=['😐 一般','😮 挺准','🤯 你怎么知道的'];QA('.feedback-btn').forEach(function(b,i){if(fbT[i])b.textContent=fbT[i];});
   set('#feedbackThanks','谢谢。你的反馈让 CIPHER 更聪明。');
   var sc=Q('.share-btn.cyan');if(sc)sc.textContent='📸 保存卡片';
   var sx=Q('#shareXBtn');if(sx)sx.style.display='none';  // 国内没 X，中文版隐藏（保留 保存卡片/复制）
   var cb=Q('#copyBtn');if(cb)cb.textContent='📋 复制';
   set('.data-toggle','查看这份解读背后的数据 ▾');
   var dl=Q('#dataPanel .data-dlabel');if(dl)dl.textContent='日主';
-  var uh=Q('.upsell h3');if(uh)uh.textContent='这只是表面。';
-  var up=Q('.upsell p');if(up)up.textContent='上面的五行画像是你的出厂设置——但你当前的运行周期呢？此刻正在开启与关闭的窗口？那是更深的一层。';
+  var uh=Q('.upsell h3');if(uh)uh.textContent='这只是上半篇。';
+  var up=Q('.upsell p');if(up)up.textContent='八字读人，也读时机。上半篇，读你这个人；下半篇，读你的时机——何时进，何时守。';
   var ub=Q('.btn-upsell');if(ub)ub.textContent='完整报告 — 即将推出';
-  set('.reset-link button','解码另一个出生代码');
-  var ft=Q('.footer-tag');if(ft)ft.textContent='模式识别，而非预测。';
+  set('.reset-link button','再读一个八字');
+  var ft=Q('.footer-tag');if(ft)ft.textContent='读八字，不算命。';
 }
 
 function goTo(n){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active','active-block')});var s=document.getElementById(n===4?'resultScreen':'s'+n);if(n===4)s.classList.add('active-block');else s.classList.add('active');window.scrollTo({top:0,behavior:'instant'})}
-function selectPath(p,el){selectedPath=p;document.querySelectorAll('.path-card').forEach(function(c){c.classList.remove('selected')});el.classList.add('selected');var L=(LANG==='zh')?{wealth:'\uD83D\uDCB0 \u8D22\u5BCC & \u673A\u9047',love:'\uD83D\uDC98 \u7231\u60C5 & \u5173\u7CFB','2026':'\uD83D\uDD25 2026 \u9884\u6D4B'}:{wealth:'\uD83D\uDCB0 Wealth & Fortune',love:'\uD83D\uDC98 Love & Relationships','2026':'\uD83D\uDD25 2026 Forecast'};document.getElementById('pathLabel').textContent=(LANG==='zh'?'\u5DF2\u9501\u5B9A\uFF1A':'Path locked: ')+L[p];setTimeout(function(){goTo(3)},400)}
+function selectPath(p,el){selectedPath=p;document.querySelectorAll('.path-card').forEach(function(c){c.classList.remove('selected')});el.classList.add('selected');setTimeout(function(){goTo(3)},400)}
 function pickGender(g,el){selectedGender=g;document.querySelectorAll('.gender-btn').forEach(function(b){b.classList.remove('selected')});el.classList.add('selected')}
 !function(){var y=document.getElementById('selYear');for(var i=2010;i>=1930;i--){var o=document.createElement('option');o.value=i;o.textContent=i;y.appendChild(o)}var m=document.getElementById('selMonth');for(var i=1;i<=12;i++){var o=document.createElement('option');o.value=i;o.textContent=String(i).padStart(2,'0');m.appendChild(o)}var d=document.getElementById('selDay');for(var i=1;i<=31;i++){var o=document.createElement('option');o.value=i;o.textContent=String(i).padStart(2,'0');d.appendChild(o)}}();
-function checkInput(){var y=document.getElementById('selYear').value,m=document.getElementById('selMonth').value,d=document.getElementById('selDay').value,b=document.getElementById('btnDecode');if(y&&m&&d&&selectedPlace){b.disabled=false;b.className='btn-decode active'}else{b.disabled=true;b.className='btn-decode disabled'}}
+function checkInput(){var y=document.getElementById('selYear').value,m=document.getElementById('selMonth').value,d=document.getElementById('selDay').value,h=document.getElementById('selHour').value,b=document.getElementById('btnDecode');if(y&&m&&d&&h!==''&&selectedPlace){b.disabled=false;b.className='btn-decode active'}else{b.disabled=true;b.className='btn-decode disabled'}}
 
 // ═══════════════════════════════════════
 // BIRTHPLACE AUTOCOMPLETE (Open-Meteo geocoding, no API key)
@@ -926,11 +945,11 @@ function formatReading(text){
    typical AI latency (~10-15s). Staged labels give the user a sense
    of what the engine is doing. Real completion calls completeProgressBar(). */
 var progressStages=(LANG==='zh')?[
-  { at: 0,     percent: 15, label: '正在读取你的四柱……' },
-  { at: 2000,  percent: 35, label: '正在比对 2500 年的规则……' },
-  { at: 5000,  percent: 60, label: '正在找出你命盘的独特之处……' },
-  { at: 8000,  percent: 80, label: '正在打磨真相……' },
-  { at: 11000, percent: 90, label: '马上好了……' }
+  { at: 0,     percent: 15, label: '正在排你的四柱……' },
+  { at: 2000,  percent: 35, label: '正在逐字读你的八字……' },
+  { at: 5000,  percent: 60, label: '正在比对三千年的规则……' },
+  { at: 8000,  percent: 80, label: '正在翻成人话……' },
+  { at: 11000, percent: 90, label: '快好了……' }
 ]:[
   { at: 0,     percent: 15, label: 'Reading your four pillars...' },
   { at: 2000,  percent: 35, label: 'Matching against 2,500 years of rules...' },
@@ -943,6 +962,13 @@ function startProgressBar(){
   var fill=document.getElementById('rlProgressFill');
   var label=document.getElementById('rlProgressLabel');
   if(!fill||!label) return;
+  // A1: 等待区 punchline 钩子（日主 × 月支，排盘即出，纯洞察；EN 暂不显示=矩阵迁移另案）
+  var pun=document.getElementById('rlPunchline');
+  if(pun){
+    var pz=(LANG==='zh'&&curRes&&curRes.ec&&PUNCHLINE_ZH[curRes.ds])?PUNCHLINE_ZH[curRes.ds][curRes.ec.getMonthZhi()]:'';
+    if(pz){pun.textContent=pz;pun.style.display='block';requestAnimationFrame(function(){pun.classList.add('show')});}
+    else{pun.textContent='';pun.style.display='none';pun.classList.remove('show');}
+  }
   fill.style.width='0%';
   label.textContent=progressStages[0].label;
   _progressTimers.forEach(function(t){clearTimeout(t)});
@@ -1104,7 +1130,7 @@ function updateDividerHook(stage){
   // v5: single hook for all stages — hook now sits between roast and
   // reading-box, so it's visible from page entry; no need for stage swaps.
   // The arrow is rendered via CSS ::before (so plain text here).
-  var msg=(LANG==='zh')?'表面是预警，下面才是模式。':'The surface was the warning. Below is the pattern.';
+  var msg=(LANG==='zh')?'何以见得——下面，一段段讲。':'The surface was the warning. Below is the pattern.';
   var hooks={'initial':msg,'path-selected':msg,'reading-complete':msg};
   var next=hooks[stage]||hooks['initial'];
   if(rdText.textContent===next) return;       // skip flash if no change
@@ -1163,7 +1189,7 @@ if(p.style.display==='none'){
   t.textContent=(LANG==='zh'?'\u67E5\u770B\u8FD9\u4EFD\u89E3\u8BFB\u80CC\u540E\u7684\u6570\u636E \u25BE':'See the data behind this reading \u25BE');
 }
 }
-function copyShare(){if(!window._st)return;sendEvent({kind:'share',method:'copy'});navigator.clipboard.writeText(window._st).then(function(){var b=document.getElementById('copyBtn');b.textContent='\u2713 Copied!';setTimeout(function(){b.textContent='\uD83D\uDCCB Copy'},1500)})}
+function copyShare(){if(!window._st)return;sendEvent({kind:'share',method:'copy'});navigator.clipboard.writeText(window._st).then(function(){var b=document.getElementById('copyBtn');b.textContent=(LANG==='zh'?'\u2713 \u5DF2\u590D\u5236':'\u2713 Copied!');setTimeout(function(){b.textContent=(LANG==='zh'?'\uD83D\uDCCB \u590D\u5236':'\uD83D\uDCCB Copy')},1500)})}
 function voteFeedback(vote,btn){
   document.querySelectorAll('.feedback-btn').forEach(function(b){b.classList.remove('voted');b.style.opacity='.4'});
   btn.classList.add('voted');btn.style.opacity='1';
@@ -1172,7 +1198,7 @@ function voteFeedback(vote,btn){
   // Send the accuracy vote to the Worker so it actually reaches us (was localStorage-only).
   sendEvent({kind:'feedback',vote:vote,lang:LANG,day_master:curRes?curRes.ds:'',path:selectedPath});
 }
-function doReset(){goTo(1);document.getElementById('selYear').value='';document.getElementById('selMonth').value='';document.getElementById('selDay').value='';document.getElementById('selHour').value='-1';selectedPath='wealth';checkInput();document.querySelectorAll('.panel-toggle').forEach(function(t){t.classList.remove('open')});document.querySelectorAll('.panel-content').forEach(function(c){c.classList.remove('open')})}
+function doReset(){goTo(1);document.getElementById('selYear').value='';document.getElementById('selMonth').value='';document.getElementById('selDay').value='';document.getElementById('selHour').selectedIndex=0;selectedPath='wealth';checkInput();document.querySelectorAll('.panel-toggle').forEach(function(t){t.classList.remove('open')});document.querySelectorAll('.panel-content').forEach(function(c){c.classList.remove('open')})}
 
 // ═══════════════════════════════════════
 // SHARE CARD (9:16 + element glow)
@@ -1195,13 +1221,13 @@ var sections=[];
 if(raw){var re=/(THE HIT|THE MAP|BLIND SPOT|THE MOVE)\s*\n+([\s\S]*?)(?=\n+(?:THE HIT|THE MAP|BLIND SPOT|THE MOVE)\b|$)/g,mm;while((mm=re.exec(raw))!==null){var lab=(LANG==='zh'&&HEADER_ZH[mm[1]])?HEADER_ZH[mm[1]]:mm[1];sections.push({label:lab,body:mm[2].trim()});}if(!sections.length)sections.push({label:'',body:raw.trim()});}
 // build a flat item list so the canvas height is exact
 var items=[];function P(t,ty,f,col,lh){items.push({t:t,ty:ty,f:f,col:col,lh:lh});}function G(h){items.push({ty:'gap',lh:h});}
-P('CIPHER \u00B7 '+(LANG==='zh'?'\u4F60\u7684\u51FA\u751F\u4EE3\u7801\u5DF2\u89E3\u7801':'YOUR BIRTH CODE DECODED'),'center','500 22px '+FCJK,'#5b6675',34);G(50);
+P('CIPHER \u00B7 '+(LANG==='zh'?'\u4F60\u7684\u516B\u5B57\uFF0C\u8BFB\u5B8C\u4E86':'YOUR BIRTH CODE DECODED'),'center','500 22px '+FCJK,'#5b6675',34);G(50);
 P(arch,'center','800 84px '+FCJK,'#e6edf3',94);G(12);
 c.font='italic 300 30px '+FCJK;wrap(tagline).forEach(function(l){P(l,'center','italic 300 30px '+FCJK,gl.a,44);});G(44);
 sections.forEach(function(sec){if(sec.label)P('\u2014 '+sec.label,'left','700 27px '+FCJK,gl.a,50);G(4);c.font='400 28px '+FCJK;wrap(sec.body).forEach(function(l){P(l,'left','400 28px '+FCJK,'#ccd5df',44);});G(34);});
 var elStr=Object.entries(r.elC).sort(function(a,b){return b[1]-a[1]}).map(function(x){return (EM[x[0]]?EM[x[0]].c:x[0])+x[1];}).join('   ');
 P((LANG==='zh'?'\u4E94\u884C  ':'Elements  ')+elStr,'left','400 24px '+FCJK,'#8b949e',42);G(38);
-P((LANG==='zh'?'\u89E3\u7801\u4F60\u7684 \u2192 destinyos.net':'Decode yours \u2192 destinyos.net'),'center','500 24px '+FCJK,'#7a8aa0',38);
+P((LANG==='zh'?'\u8BFB\u4F60\u7684\u516B\u5B57 \u2192 destinyos.net':'Decode yours \u2192 destinyos.net'),'center','500 24px '+FCJK,'#7a8aa0',38);
 P('CIPHER by DestinyOS','center','italic 300 20px '+FCJK,'#3f4655',30);
 // total height + draw
 var H=90;items.forEach(function(it){H+=it.lh;});H+=70;
