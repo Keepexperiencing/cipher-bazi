@@ -116,7 +116,7 @@ select option{background:#12141c;color:var(--text)}
 /* v4 Progress bar — visible feedback during 10-15s AI wait */
 .rl-progress-wrap{max-width:400px;margin:0 auto}
 .rl-progress-bar{width:100%;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:16px}
-.rl-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--text));border-radius:2px;transition:width .5s ease-out;box-shadow:0 0 8px rgba(0,212,255,.4)}
+.rl-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--text));border-radius:2px;transition:width .5s ease-out;box-shadow:0 0 8px rgba(0,212,255,.4);opacity:.82}
 .rl-progress-label{font-size:13px;color:var(--text3);letter-spacing:.5px;font-style:italic;min-height:20px}
 /* A1: 等待区 punchline 钩子（墨视觉定向 2026-06-18：主角化·近白高对比·22px·600·无框·淡入+上移；进度条降为辅） */
 .rl-punchline{max-width:360px;margin:24px auto 48px;font-size:22px;line-height:1.6;color:var(--text);text-align:center;font-weight:600;letter-spacing:.3px;opacity:0;transform:translateY(8px);transition:opacity .8s ease-out,transform .8s ease-out}
@@ -703,7 +703,7 @@ document.getElementById('rTagline').textContent=kz?kz.tagline:(k.tagline||'');
 // Static K[].roast is the neutral "reading in progress" placeholder.
 // *your* markers in the copy are rendered as italic via renderItalicMarks.
 // AI's THE TRUTH ABOUT YOU section overrides this after showPathAnswer returns.
-(function(){var rr=document.getElementById('rRoast');var fb='\u201C'+(LANG==='zh'?'\u6B63\u5728\u8BFB\u53D6\u4F60\u7684\u4E13\u5C5E\u914D\u7F6E\u2026\u2026':renderItalicMarks(k.roast))+'\u201D';rr.setAttribute('data-fallback',fb);rr.innerHTML=fb;})();
+(function(){var rr=document.getElementById('rRoast');var fb='\u201C'+(LANG==='zh'?'\u6B63\u5728\u628A\u4F60\u7684\u516B\u5B57\uFF0C\u7FFB\u6210\u4EBA\u8BDD\u2026\u2026':renderItalicMarks(k.roast))+'\u201D';rr.setAttribute('data-fallback',fb);rr.innerHTML=fb;})();
 // AI Reading
 showPathAnswer(selectedPath);
 // Path switch buttons
@@ -783,7 +783,8 @@ function buildAiPayloadV2(p,rules){
     top_skills:r.sg.slice(0,3).map(function(g){return {god:g[0],count:g[1]}}),
     shen_sha:r.af,
     variant:r.variant,
-    path_label:pathLabel
+    path_label:pathLabel,
+    gender:selectedGender              // 性别先铺管子（大运阴阳顺逆将用；当前 Worker 不读、不入 prompt，故不改 AI 输出）
   };
   return {
     // new fields (ignored by old Worker, used by new Worker)
@@ -1196,7 +1197,7 @@ function voteFeedback(vote,btn){
   document.getElementById('feedbackThanks').style.display='block';
   try{localStorage.setItem('cipher_feedback',JSON.stringify({vote:vote,ds:curRes?curRes.ds:'',path:selectedPath,t:Date.now()}));}catch(e){}
   // Send the accuracy vote to the Worker so it actually reaches us (was localStorage-only).
-  sendEvent({kind:'feedback',vote:vote,lang:LANG,day_master:curRes?curRes.ds:'',path:selectedPath});
+  sendEvent({kind:'feedback',vote:vote,lang:LANG,day_master:curRes?curRes.ds:'',month_zhi:(curRes&&curRes.ec)?curRes.ec.getMonthZhi():'',path:selectedPath});
 }
 function doReset(){goTo(1);document.getElementById('selYear').value='';document.getElementById('selMonth').value='';document.getElementById('selDay').value='';document.getElementById('selHour').selectedIndex=0;selectedPath='wealth';checkInput();document.querySelectorAll('.panel-toggle').forEach(function(t){t.classList.remove('open')});document.querySelectorAll('.panel-content').forEach(function(c){c.classList.remove('open')})}
 
