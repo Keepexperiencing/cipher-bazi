@@ -946,11 +946,11 @@ function formatReading(text){
    typical AI latency (~10-15s). Staged labels give the user a sense
    of what the engine is doing. Real completion calls completeProgressBar(). */
 var progressStages=(LANG==='zh')?[
-  { at: 0,     percent: 15, label: '正在排你的四柱……' },
-  { at: 2000,  percent: 35, label: '正在逐字读你的八字……' },
-  { at: 5000,  percent: 60, label: '正在比对三千年的规则……' },
-  { at: 8000,  percent: 80, label: '正在翻成人话……' },
-  { at: 11000, percent: 90, label: '快好了……' }
+  { at: 0,     percent: 10, label: '正在排你的四柱……' },
+  { at: 5000,  percent: 28, label: '正在逐字读你的八字……' },
+  { at: 13000, percent: 50, label: '正在比对三千年的规则……' },
+  { at: 22000, percent: 72, label: '正在翻成人话……' },
+  { at: 30000, percent: 90, label: '快好了……' }
 ]:[
   { at: 0,     percent: 15, label: 'Reading your four pillars...' },
   { at: 2000,  percent: 35, label: 'Matching against 2,500 years of rules...' },
