@@ -300,7 +300,7 @@ select option{background:#12141c;color:var(--text)}
 </select>
 <p style="font-size:12px;color:var(--text3);margin:8px 0 14px;line-height:1.5;font-style:italic">Don't know it? No problem — year, month and day set down most of you; the hour is the fourth pillar, adding detail.</p>
 <div class="place-wrap">
-<input type="text" id="inpPlace" class="place-input" placeholder="Birth place (city)" autocomplete="off" oninput="onPlaceInput(this.value)" onfocus="onPlaceFocus()">
+<input type="text" id="inpPlace" class="place-input" placeholder="Birth place (city)" autocomplete="off" oninput="onPlaceInput(this.value)" onfocus="onPlaceFocus()" onkeydown="onPlaceKey(event)" onblur="onPlaceBlur()">
 <div id="placeDropdown" class="place-dropdown"></div>
 </div>
 <p class="place-hint">BaZi runs on solar time, not clock time — your birth city helps us align it.</p>
@@ -399,7 +399,7 @@ select option{background:#12141c;color:var(--text)}
 </div>
 
 <script>
-var selectedPath='wealth',selectedGender='',selectedPlace=null,placeSearchTimer=null;
+var selectedPath='wealth',selectedGender='',selectedPlace=null,placeSearchTimer=null,lastPlaceResults=[];
 
 // ═══════════════════════════════════════
 // i18n — 中文版(lang=zh) / 英文版(默认)。一套代码，靠 ?lang=zh 切换。
@@ -509,7 +509,7 @@ function onPlaceFocus(){var dd=document.getElementById('placeDropdown');if(dd.ch
 function onPlaceInput(val){
   if(selectedPlace){selectedPlace=null;document.getElementById('inpPlace').classList.remove('selected');checkInput()}
   clearTimeout(placeSearchTimer);
-  if(!val||val.trim().length<2){closePlaceDropdown();return}
+  if(!val||val.trim().length<2){lastPlaceResults=[];closePlaceDropdown();return}
   placeSearchTimer=setTimeout(function(){searchPlaces(val.trim())},300);
 }
 // Bundled China city → longitude. open-meteo can't match Chinese characters, so zh
@@ -518,20 +518,34 @@ function onPlaceInput(val){
 var CN_CITIES={'北京':116.41,'上海':121.47,'天津':117.20,'重庆':106.55,'广州':113.26,'深圳':114.06,'汕头':116.68,'澄海':116.77,'潮州':116.62,'揭阳':116.37,'潮汕':116.68,'珠海':113.55,'佛山':113.12,'东莞':113.75,'中山':113.39,'惠州':114.42,'江门':113.08,'湛江':110.36,'茂名':110.93,'肇庆':112.47,'梅州':116.12,'汕尾':115.38,'河源':114.70,'阳江':111.98,'清远':113.05,'韶关':113.60,'云浮':112.04,'杭州':120.16,'南京':118.80,'济南':117.00,'青岛':120.38,'武汉':114.30,'长沙':112.94,'成都':104.07,'西安':108.94,'郑州':113.62,'合肥':117.23,'福州':119.30,'厦门':118.09,'泉州':118.58,'南昌':115.86,'昆明':102.83,'贵阳':106.63,'南宁':108.37,'海口':110.20,'三亚':109.51,'太原':112.55,'石家庄':114.51,'沈阳':123.43,'大连':121.62,'长春':125.32,'哈尔滨':126.53,'兰州':103.83,'西宁':101.78,'银川':106.27,'乌鲁木齐':87.62,'拉萨':91.13,'呼和浩特':111.75,'苏州':120.62,'无锡':120.30,'常州':119.97,'南通':120.86,'宁波':121.55,'温州':120.70,'绍兴':120.58,'嘉兴':120.76,'金华':119.65,'台州':121.42,'烟台':121.39,'潍坊':119.16,'临沂':118.36,'洛阳':112.45,'徐州':117.18,'扬州':119.42,'香港':114.17,'澳门':113.54,'台北':121.56,'高雄':120.31,'台中':120.68};
 function cnCityMatches(q){var out=[];for(var name in CN_CITIES){if(name.indexOf(q)>=0){out.push({name:name,country:'中国',admin1:'',longitude:CN_CITIES[name],latitude:0,timezone:'Asia/Shanghai'});if(out.length>=8)break;}}return out;}
 function renderPlaceResults(dd,results){dd.innerHTML='';results.forEach(function(p){var item=document.createElement('div');item.className='place-item';var label=p.name+(p.country?', '+p.country:'');var region=(p.admin1?p.admin1+' · ':'')+(p.timezone||'');item.innerHTML='<div class="pi-name">'+escapeHTML(label)+'</div><div class="pi-region">'+escapeHTML(region)+'</div>';item.onclick=function(){selectPlace({label:label,longitude:p.longitude,latitude:p.latitude,timezone:p.timezone||'UTC'})};dd.appendChild(item);});}
+// Build the {label,longitude,latitude,timezone} object selectPlace() expects from a raw result.
+function placeLabel(p){return p.name+(p.country?', '+p.country:'');}
+function resultToPlace(p){return {label:placeLabel(p),longitude:p.longitude,latitude:p.latitude,timezone:p.timezone||'UTC'};}
+// If the typed text exactly matches a returned city name, select it automatically —
+// so a user who types the full city ("澳门"/"London") doesn't have to click the dropdown.
+function maybeAutoSelectExact(q){
+  if(selectedPlace)return;
+  var qq=q.trim().toLowerCase();
+  for(var i=0;i<lastPlaceResults.length;i++){if(String(lastPlaceResults[i].name).trim().toLowerCase()===qq){selectPlace(resultToPlace(lastPlaceResults[i]));return;}}
+}
+// Fallback for partial-but-unambiguous input: on Enter or blur, accept the top result.
+function commitTopPlace(){if(selectedPlace)return;if(lastPlaceResults.length){selectPlace(resultToPlace(lastPlaceResults[0]));}}
+function onPlaceKey(e){if(e.key==='Enter'||e.keyCode===13){e.preventDefault();commitTopPlace();}}
+function onPlaceBlur(){setTimeout(commitTopPlace,200);} // delay lets a dropdown-item click win first
 function searchPlaces(q){
   var dd=document.getElementById('placeDropdown');
   // zh: try the bundled China city list first (open-meteo can't match Chinese characters)
-  if(LANG==='zh'){var local=cnCityMatches(q);if(local.length){dd.classList.add('open');renderPlaceResults(dd,local);return;}}
+  if(LANG==='zh'){var local=cnCityMatches(q);if(local.length){lastPlaceResults=local;dd.classList.add('open');renderPlaceResults(dd,local);maybeAutoSelectExact(q);return;}}
   dd.innerHTML='<div class="place-loading">'+(LANG==='zh'?'搜索中…':'Searching…')+'</div>';
   dd.classList.add('open');
   fetch('https://geocoding-api.open-meteo.com/v1/search?count=6&language='+(LANG==='zh'?'zh':'en')+'&format=json&name='+encodeURIComponent(q))
     .then(function(r){return r.json()})
     .then(function(data){
       var results=(data&&data.results)||[];
-      if(results.length===0){dd.innerHTML='<div class="place-empty">'+(LANG==='zh'?'没找到。可试拼音/英文，或就近的大城市。':'No matches. Try a major city nearby.')+'</div>';return}
-      renderPlaceResults(dd,results);
+      if(results.length===0){lastPlaceResults=[];dd.innerHTML='<div class="place-empty">'+(LANG==='zh'?'没找到。可试拼音/英文，或就近的大城市。':'No matches. Try a major city nearby.')+'</div>';return}
+      lastPlaceResults=results;renderPlaceResults(dd,results);maybeAutoSelectExact(q);
     })
-    .catch(function(){dd.innerHTML='<div class="place-empty">'+(LANG==='zh'?'搜索失败，请检查网络。':'Search failed. Check your connection.')+'</div>'});
+    .catch(function(){lastPlaceResults=[];dd.innerHTML='<div class="place-empty">'+(LANG==='zh'?'搜索失败，请检查网络。':'Search failed. Check your connection.')+'</div>'});
 }
 function selectPlace(p){
   selectedPlace=p;
