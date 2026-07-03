@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>CIPHER — Your Birth Code, Decoded</title>
 <meta name="description" content="Ancient Chinese life-mapping rebuilt as tactical intelligence. Decode your birth code.">
+<script>
+/* Debug mode (?debug=1): surface JS errors on-screen so WeChat/X5 (mobile, no devtools)
+   issues are catchable. Placed in <head> so it's armed BEFORE the main script runs. */
+(function(){try{if(new URLSearchParams(location.search).get('debug')!=='1')return;
+function show(msg){var d=document.getElementById('__dbg');if(!d){d=document.createElement('div');d.id='__dbg';d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#f85149;color:#fff;font:12px/1.5 monospace;padding:10px;white-space:pre-wrap;max-height:60%;overflow:auto;border-top:3px solid #fff';(document.body||document.documentElement).appendChild(d);}d.textContent+=msg+'\n\n';}
+window.onerror=function(m,s,l,c,e){show('JS ERROR: '+m+'\n@ '+(s||'')+':'+l+':'+c+((e&&e.stack)?'\n'+e.stack:''));return false;};
+window.addEventListener('unhandledrejection',function(ev){show('PROMISE REJECT: '+(((ev.reason&&ev.reason.stack))||ev.reason||ev));});
+window.__dbg=show;
+}catch(_){}})();
+</script>
 <meta property="og:title" content="CIPHER — Your Birth Code, Decoded">
 <meta property="og:description" content="3,000 years of pattern recognition. Zero fortune-telling. What does your birth code reveal?">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -960,11 +970,12 @@ function formatReading(text){
    typical AI latency (~10-15s). Staged labels give the user a sense
    of what the engine is doing. Real completion calls completeProgressBar(). */
 var progressStages=(LANG==='zh')?[
-  { at: 0,     percent: 10, label: '正在排你的四柱……' },
-  { at: 5000,  percent: 28, label: '正在逐字读你的八字……' },
-  { at: 13000, percent: 50, label: '正在比对三千年的规则……' },
-  { at: 22000, percent: 72, label: '正在翻成人话……' },
-  { at: 30000, percent: 90, label: '快好了……' }
+  { at: 0,     percent: 8,  label: '正在排你的四柱……（细读约需 1 分钟，别走开）' },
+  { at: 6000,  percent: 22, label: '正在逐字读你的八字……' },
+  { at: 16000, percent: 40, label: '正在比对三千年的规则……' },
+  { at: 28000, percent: 58, label: '正在把术数翻成人话……' },
+  { at: 42000, percent: 76, label: '正在为你细读，快好了……' },
+  { at: 55000, percent: 90, label: '最后润色，马上就好……' }
 ]:[
   { at: 0,     percent: 15, label: 'Reading your four pillars...' },
   { at: 2000,  percent: 35, label: 'Matching against 2,500 years of rules...' },
@@ -1204,7 +1215,12 @@ if(p.style.display==='none'){
   t.textContent=(LANG==='zh'?'\u67E5\u770B\u8FD9\u4EFD\u89E3\u8BFB\u80CC\u540E\u7684\u6570\u636E \u25BE':'See the data behind this reading \u25BE');
 }
 }
-function copyShare(){if(!window._st)return;sendEvent({kind:'share',method:'copy'});navigator.clipboard.writeText(window._st).then(function(){var b=document.getElementById('copyBtn');b.textContent=(LANG==='zh'?'\u2713 \u5DF2\u590D\u5236':'\u2713 Copied!');setTimeout(function(){b.textContent=(LANG==='zh'?'\uD83D\uDCCB \u590D\u5236':'\uD83D\uDCCB Copy')},1500)})}
+// X5/WeChat blocks navigator.clipboard \u2192 fall back to execCommand, then to a
+// long-press-to-copy text panel. Never leave the button dead.
+function legacyCopy(text){try{var ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:0;left:-9999px;font-size:16px';document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,text.length);var ok=document.execCommand('copy');document.body.removeChild(ta);return ok;}catch(e){return false;}}
+function copyToClipboard(text){return new Promise(function(resolve,reject){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(resolve,function(){legacyCopy(text)?resolve():reject();});}else{legacyCopy(text)?resolve():reject();}});}
+function showTextFallback(text){var ov=document.createElement('div');ov.style.cssText='position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,.88);display:flex;flex-direction:column;padding:24px;box-sizing:border-box';var hint=document.createElement('div');hint.textContent=(LANG==='zh'?'\u957F\u6309\u4E0B\u9762\u6587\u5B57\u5168\u9009\u590D\u5236\uFF1A':'Long-press to select & copy:');hint.style.cssText='color:#00d4ff;font-size:14px;margin-bottom:12px';var ta=document.createElement('textarea');ta.value=text;ta.readOnly=true;ta.style.cssText='flex:1;width:100%;background:#0a0b10;color:#e6edf3;border:1px solid #00d4ff;border-radius:8px;padding:12px;font-size:14px;box-sizing:border-box;resize:none';var close=document.createElement('button');close.textContent=(LANG==='zh'?'\u5173\u95ED':'Close');close.style.cssText='margin-top:12px;padding:12px;background:#00d4ff;color:#0a0b10;border:none;border-radius:8px;font-size:16px';close.onclick=function(){document.body.removeChild(ov);};ov.appendChild(hint);ov.appendChild(ta);ov.appendChild(close);document.body.appendChild(ov);}
+function copyShare(){if(!window._st)return;sendEvent({kind:'share',method:'copy'});var b=document.getElementById('copyBtn');copyToClipboard(window._st).then(function(){if(b){b.textContent=(LANG==='zh'?'\u2713 \u5DF2\u590D\u5236':'\u2713 Copied!');setTimeout(function(){b.textContent=(LANG==='zh'?'\uD83D\uDCCB \u590D\u5236':'\uD83D\uDCCB Copy')},1500);}}).catch(function(){showTextFallback(window._st);});}
 function voteFeedback(vote,btn){
   document.querySelectorAll('.feedback-btn').forEach(function(b){b.classList.remove('voted');b.style.opacity='.4'});
   btn.classList.add('voted');btn.style.opacity='1';
@@ -1252,7 +1268,24 @@ var grd=c.createRadialGradient(W/2,0,0,W/2,0,720);grd.addColorStop(0,gl.m);grd.a
 c.fillStyle=gl.a;c.fillRect(0,0,W,5);c.fillRect(0,H-5,W,5);
 c.textAlign='right';c.fillStyle='rgba(0,212,255,0.05)';c.font='800 34px '+FCJK;c.fillText('CIPHER',W-30,48);
 var y=90;items.forEach(function(it){if(it.ty==='gap'){y+=it.lh;return;}c.font=it.f;c.fillStyle=it.col;c.textAlign=(it.ty==='center')?'center':'left';c.fillText(it.t,it.ty==='center'?W/2:M,y);y+=it.lh;});
-cv.toBlob(function(blob){var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='CIPHER_'+(k.cn||'card')+'.png';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);var btn=document.querySelector('.share-btn.cyan');if(btn){btn.textContent=(LANG==='zh'?'\u2713 \u5DF2\u4FDD\u5B58':'\u2713 Saved!');setTimeout(function(){btn.textContent=(LANG==='zh'?'\uD83D\uDCF8 \u4FDD\u5B58\u5361\u7247':'\uD83D\uDCF8 Save Card')},1500);}},'image/png');
+// X5/WeChat blocks <a download> \u2192 render the card as a long-press-to-save <img> overlay.
+var dataUrl;try{dataUrl=cv.toDataURL('image/png');}catch(e){dataUrl=null;}
+showCardOverlay(dataUrl,k);
+var btn=document.querySelector('.share-btn.cyan');if(btn){btn.textContent=(LANG==='zh'?'\u2713 \u5DF2\u751F\u6210':'\u2713 Ready!');setTimeout(function(){btn.textContent=(LANG==='zh'?'\uD83D\uDCF8 \u4FDD\u5B58\u5361\u7247':'\uD83D\uDCF8 Save Card')},1500);}
+}
+function showCardOverlay(dataUrl,k){
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:99997;background:rgba(0,0,0,.92);overflow:auto;padding:16px 12px 28px;box-sizing:border-box;text-align:center';
+  var hint=document.createElement('div');
+  hint.textContent=(LANG==='zh'?'\u957F\u6309\u56FE\u7247\u4FDD\u5B58\u5230\u76F8\u518C\uFF0C\u6216\u76F4\u63A5\u53D1\u7ED9\u670B\u53CB':'Long-press the image to save or share');
+  hint.style.cssText='color:#00d4ff;font-size:14px;margin:6px 0 14px;line-height:1.5';
+  ov.appendChild(hint);
+  if(dataUrl){var img=document.createElement('img');img.src=dataUrl;img.style.cssText='max-width:100%;height:auto;border-radius:10px;box-shadow:0 0 30px rgba(0,212,255,.25)';ov.appendChild(img);}
+  else{var err=document.createElement('div');err.textContent=(LANG==='zh'?'\u56FE\u7247\u751F\u6210\u5931\u8D25\uFF0C\u8BF7\u622A\u56FE\u5206\u4EAB\u3002':'Could not build image \u2014 please screenshot.');err.style.cssText='color:#e6edf3;font-size:15px;padding:30px';ov.appendChild(err);}
+  var row=document.createElement('div');row.style.cssText='margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap';
+  if(dataUrl){var dl=document.createElement('a');dl.textContent=(LANG==='zh'?'\u2B07 \u4E0B\u8F7D':'\u2B07 Download');dl.href=dataUrl;dl.download='CIPHER_'+((k&&k.cn)||'card')+'.png';dl.style.cssText='padding:11px 20px;background:#00d4ff;color:#0a0b10;border-radius:8px;text-decoration:none;font-size:15px;font-weight:600';row.appendChild(dl);}
+  var close=document.createElement('button');close.textContent=(LANG==='zh'?'\u5173\u95ED':'Close');close.style.cssText='padding:11px 20px;background:#21262d;color:#e6edf3;border:1px solid #30363d;border-radius:8px;font-size:15px';close.onclick=function(){document.body.removeChild(ov);};row.appendChild(close);
+  ov.appendChild(row);document.body.appendChild(ov);
 }
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath()}
 function wt(c,t,mw){var w=t.split(' '),ls=[],l='';for(var i=0;i<w.length;i++){var x=l+(l?' ':'')+w[i];if(c.measureText(x).width>mw&&l){ls.push(l);l=w[i]}else l=x}if(l)ls.push(l);return ls}
