@@ -472,7 +472,7 @@ function applyLangZh(){
   var oh=Q('#selHour option[value="-1"]');if(oh)oh.textContent='我不知道我的出生时辰';
   QA('.input-card p').forEach(function(p){if(/Don't know it/.test(p.textContent))p.textContent='不知道也没关系——年、月、日三柱，已写下大半个你；时辰是第四柱，补的是细节。';});
   var inp=Q('#inpPlace');if(inp)inp.setAttribute('placeholder','出生地（城市）');
-  set('.place-hint','八字认的是太阳时，不是钟表时间——出生城市，帮我们对准。搜不到就试拼音。');
+  set('.place-hint','打上城市，从跳出来的列表里点一个。八字认的是太阳时，出生城市帮我们对准。搜不到就试拼音。');
   var grow=Q('.gender-row');if(grow&&grow.previousElementSibling)grow.previousElementSibling.textContent='性别（可选）';
   var gbT=['男','女','跳过'];QA('.gender-btn').forEach(function(b,i){if(gbT[i])b.textContent=gbT[i];});
   set('#btnDecode','读我的八字 →');
@@ -970,7 +970,7 @@ function formatReading(text){
    typical AI latency (~10-15s). Staged labels give the user a sense
    of what the engine is doing. Real completion calls completeProgressBar(). */
 var progressStages=(LANG==='zh')?[
-  { at: 0,     percent: 8,  label: '正在排你的四柱……（细读约需 1 分钟，别走开）' },
+  { at: 0,     percent: 8,  label: '正在为你细读 · 约一分钟，别走开……' },
   { at: 6000,  percent: 22, label: '正在逐字读你的八字……' },
   { at: 16000, percent: 40, label: '正在比对三千年的规则……' },
   { at: 28000, percent: 58, label: '正在把术数翻成人话……' },
