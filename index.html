@@ -1129,8 +1129,9 @@ loadRulesForDayMaster(curRes.ds).then(function(rules){
 
 function fallbackPA(p,dbg){
 var key=curRes.ds+'_'+p;
-var text=(LANG==='zh')?'解读暂时不可用，请稍后重试。':(PA[key]||'Analysis not available.');
-if(dbg){try{console.warn('CIPHER AI fallback:',dbg);}catch(e){}}  // 诊断只进控制台，不展示给用户
+var text=(LANG==='zh')?'解读君此刻有点忙，稍等片刻再点一次试试 🙏':(PA[key]||'Analysis not available.');
+if(dbg){try{console.warn('CIPHER AI fallback:',dbg);}catch(e){}
+  try{if(window.__dbg)window.__dbg('AI 兜底原因（?debug=1 才显示）：'+dbg);}catch(e){}}  // 作者用 ?debug=1 能看到真实原因(如余额不足)，普通用户只看中文提示
 document.getElementById('readingContent').innerHTML='<p>'+text+'</p>';
 // AI failed → restore the static roast saved on data-fallback in renderResult
 var rRoast=document.getElementById('rRoast');
